@@ -1,0 +1,85 @@
+# === 유저 데이터 / 런타임 산출물 ===
+data/
+reports/
+output/
+.auth/                    # Playwright storage state (로그인 세션)
+*.db
+*.db-journal
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === 가상환경 / uv ===
+.venv/
+venv/
+ENV/
+env/
+.python-version
+# uv lockfile — 팀 결정에 따라 포함 여부 결정. 당분간 제외.
+uv.lock
+
+# === 테스트 / 커버리지 ===
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# === 타입 체크 ===
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# === Playwright ===
+playwright-report/
+test-results/
+.cache/
+
+# === 시크릿 (절대 커밋 금지) ===
+.env
+.env.local
+.env.*.local
+secrets.yml
+*.secret
+
+# === 로그 ===
+*.log
+logs/
+
+# === 플랜/메모 (로컬 전용) ===
+scratch/
+notes/local/

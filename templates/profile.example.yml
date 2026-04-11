@@ -1,0 +1,103 @@
+# 🔷 SYSTEM — User Profile Template
+# config/profile.yml의 시스템 예시 템플릿
+# 새 사용자는 이 파일을 복사 → config/profile.yml 에 두고 placeholder를 교체
+# 인코딩: UTF-8
+# 최종 갱신: 2026-04-11
+
+name:
+  ko: "{{name_ko}}"
+  en: "{{name_en}}"
+  handle: "{{github_handle}}"
+
+birth:
+  year: "{{birth_year}}"
+  age: "{{current_age}}"
+
+university:
+  name: "{{university_name_ko}}"
+  name_en: "{{university_name_en}}"
+  campus: "{{campus_city}}"
+
+major:
+  field: "{{major_field}}"
+  track: "{{major_track}}"
+  is_target_field: false  # IT/금융 직무 기준 전공 해당 여부
+
+year:
+  grade: "{{grade}}"
+  semester: "{{semester}}"
+  completed: "{{completion_status}}"
+
+status: "{{enrollment_status}}"  # 재학 / 휴학 / 졸업예정 / 졸업
+is_graduation_candidate: false
+
+gpa:
+  value: "{{gpa_value}}"
+  scale: "{{gpa_scale}}"
+  percentile: null
+
+# 현재 보유 자격증
+certifications: []
+  # - name: "{{cert_name}}"
+  #   issuer: "{{cert_issuer}}"
+  #   date: "{{cert_date}}"
+
+# 준비 중인 자격증
+certifications_planned:
+  - name: "{{planned_cert_1}}"
+    issuer: "{{planned_cert_1_issuer}}"
+    priority: 1
+  - name: "{{planned_cert_2}}"
+    issuer: "{{planned_cert_2_issuer}}"
+    priority: 2
+
+# 국비 교육 활용 가능 여부
+internal_training_card: false
+
+# 타겟 산업 (우선순위 높음 → 낮음)
+target_industries:
+  - "{{target_industry_1}}"
+  - "{{target_industry_2}}"
+  - "{{target_industry_3}}"
+
+# 핵심 강점
+strengths:
+  - "{{strength_1}}"
+  - "{{strength_2}}"
+  - "{{strength_3}}"
+  - "{{strength_4}}"
+
+# 제약 / 투명하게 공개할 약점
+constraints:
+  - "{{constraint_1}}"
+  - "{{constraint_2}}"
+  - "{{constraint_3}}"
+
+# 생활권 / 통근
+location:
+  home: "{{home_city}}"
+  secondary: "{{secondary_city}}"
+  university: "{{university_city}}"
+  commute:
+    - "{{commute_area_1}}"
+    - "{{commute_area_2}}"
+  remote_ok: true
+  relocation_ok: false
+
+# 언어
+languages:
+  - code: "{{lang_1_code}}"
+    level: "{{lang_1_level}}"
+  - code: "{{lang_2_code}}"
+    level: "{{lang_2_level}}"
+
+# 근무 선호
+work_preference:
+  type:
+    - "{{pref_type_1}}"
+    - "{{pref_type_2}}"
+  schedule:
+    - "{{pref_schedule_1}}"
+  avoid:
+    - "{{avoid_role_1}}"
+    - "{{avoid_role_2}}"

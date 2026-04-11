@@ -1,0 +1,155 @@
+# 🔶 USER LAYER — 한국 채용공고 자격 판정 규칙
+# career-ops-kr 1차 필터 (rule-based) → 2차 LLM 평가
+# 패턴은 regex (Python re, IGNORECASE)
+# weight: -100(즉시탈락) ~ +100(즉시통과)
+# 인코딩: UTF-8
+# 최종 갱신: 2026-04-11
+
+# ─────────────────────────────────────────────
+# 1. Negative patterns — 찬희에게 불리한 키워드
+#    매칭되면 감점 또는 즉시 탈락
+# ─────────────────────────────────────────────
+negative_patterns:
+  - id: "neg_graduate_only"
+    pattern: "(졸업자|기졸업자|졸업\\s*후)"
+    weight: -100
+    reason: "졸업자 전용 공고 — 찬희는 휴학 중"
+    action: "reject"
+
+  - id: "neg_graduation_candidate"
+    pattern: "(졸업\\s*예정자|졸업예정)"
+    weight: -80
+    reason: "졸업예정자 조건 — 찬희는 해당 없음"
+    action: "reject"
+
+  - id: "neg_ict_major_required"
+    pattern: "(전산|정보통신|컴퓨터공학|소프트웨어공학|전자공학)\\s*(전공\\s*필수|전공\\s*자|학사\\s*이상\\s*필수)"
+    weight: -90
+    reason: "IT 전공 필수 — 찬희는 경영학 비전공"
+    action: "reject"
+
+  - id: "neg_gpa_high"
+    pattern: "(학점|평점|GPA)\\s*(3\\.[5-9]|4\\.[0-5])\\s*(이상|\\+)"
+    weight: -70
+    reason: "학점 3.5+ 요구 — 찬희 2.9"
+    action: "warn"
+
+  - id: "neg_experience_years"
+    pattern: "(경력|경험)\\s*(3|5|7|10)\\s*년\\s*이상"
+    weight: -60
+    reason: "3년+ 경력 요구 — 신입급 해당 없음"
+    action: "warn"
+
+  - id: "neg_certification_required"
+    pattern: "(투자자산운용사|CFA|FRM|AICPA)\\s*(필수|보유자)"
+    weight: -50
+    reason: "자격증 필수 — 찬희 미보유"
+    action: "warn"
+
+  - id: "neg_sales_role"
+    pattern: "(영업|세일즈|텔레마케팅|고객\\s*유치|신규\\s*개척)"
+    weight: -90
+    reason: "영업/세일즈 포지션 — 찬희 선호 외"
+    action: "reject"
+
+  - id: "neg_field_sales"
+    pattern: "(지점\\s*영업|방문\\s*판매|외근)"
+    weight: -80
+    reason: "외근/지점영업 — 선호 외"
+    action: "reject"
+
+# ─────────────────────────────────────────────
+# 2. Positive patterns — 찬희에게 유리한 키워드
+#    매칭되면 가점
+# ─────────────────────────────────────────────
+positive_patterns:
+  - id: "pos_no_edu_limit"
+    pattern: "(학력\\s*무관|학력\\s*제한\\s*없음)"
+    weight: +80
+    reason: "학력 무관 — 찬희에게 유리"
+
+  - id: "pos_no_major_limit"
+    pattern: "(전공\\s*무관|전공\\s*불문|비전공\\s*지원\\s*가능)"
+    weight: +70
+    reason: "전공 무관 — 경영학 비전공 유리"
+
+  - id: "pos_leave_ok"
+    pattern: "(휴학생\\s*가능|휴학\\s*중\\s*지원|재학생/휴학생)"
+    weight: +90
+    reason: "휴학생 명시 가능 — 찬희 직접 해당"
+
+  - id: "pos_newbie"
+    pattern: "(신입|경력\\s*무관|실무\\s*경험\\s*없어도)"
+    weight: +60
+    reason: "신입/경력 무관 — 진입 가능"
+
+  - id: "pos_training_card"
+    pattern: "(내일배움카드|국비\\s*지원|K-digital)"
+    weight: +50
+    reason: "내일배움카드 지원 가능"
+
+  - id: "pos_python"
+    pattern: "(Python|파이썬)"
+    weight: +40
+    reason: "Python 요구 — 찬희 주력 언어"
+
+  - id: "pos_sql"
+    pattern: "(SQL|쿼리|데이터베이스)"
+    weight: +30
+    reason: "SQL 요구 — 찬희 실전 경험"
+
+  - id: "pos_ai_agent"
+    pattern: "(AI\\s*에이전트|LLM|생성형\\s*AI|Claude|GPT|MCP)"
+    weight: +80
+    reason: "AI 에이전트 관련 — 찬희 핵심 강점"
+
+  - id: "pos_fintech_blockchain"
+    pattern: "(핀테크|블록체인|크립토|Web3|DeFi)"
+    weight: +70
+    reason: "핀테크/블록체인 — 타겟 산업"
+
+  - id: "pos_research"
+    pattern: "(리서치|리서처|애널리스트|기업\\s*분석|가치\\s*투자)"
+    weight: +60
+    reason: "리서치 포지션 — CUFA 경험 직접 활용"
+
+  - id: "pos_remote"
+    pattern: "(재택|원격|리모트|하이브리드)"
+    weight: +30
+    reason: "원격 가능 — 찬희 선호"
+
+# ─────────────────────────────────────────────
+# 3. Numeric rules — 수치 기반 규칙
+# ─────────────────────────────────────────────
+numeric_rules:
+  min_semester_completed: 2  # 찬희는 2학년 2학기 수료 = OK
+  max_gpa_required: 3.0       # 3.0 초과 요구 시 감점
+  age_range:
+    min: 20
+    max: 29
+  max_years_experience_required: 2  # 2년 초과 경력 요구 시 감점
+
+# ─────────────────────────────────────────────
+# 4. Contextual rules — LLM 2차 호출 트리거
+#    규칙으로 판정 불가능한 모호 공고를 LLM에 위임
+# ─────────────────────────────────────────────
+contextual_rules:
+  - id: "ctx_ambiguous_edu"
+    trigger: "(관련\\s*학과|해당\\s*전공\\s*우대)"
+    action: "llm_evaluate"
+    reason: "전공 우대 vs 필수 구분 필요"
+
+  - id: "ctx_ambiguous_exp"
+    trigger: "(실무\\s*경험\\s*우대|관련\\s*경험\\s*우대)"
+    action: "llm_evaluate"
+    reason: "우대 수준 판단 필요"
+
+  - id: "ctx_digital_finance"
+    trigger: "(디지털\\s*금융|디지털\\s*혁신|DT)"
+    action: "llm_evaluate"
+    reason: "타겟 직무 적합성 정밀 판단"
+
+  - id: "ctx_startup_scale"
+    trigger: "(스타트업|초기\\s*멤버|얼리\\s*스테이지)"
+    action: "llm_evaluate"
+    reason: "스타트업 규모/안정성 판단"

@@ -1,0 +1,128 @@
+# 🔷 SYSTEM — Application State Machine (Canonical)
+# career-ops-kr 지원 상태 정의
+# 모든 상태 전이는 여기 정의된 `next_states`만 허용
+# 인코딩: UTF-8
+# 최종 갱신: 2026-04-11
+
+states:
+
+  - code: "inbox"
+    label_ko: "수신함"
+    label_en: "Inbox"
+    description: "스크래퍼가 막 수집한 원본 공고. 아직 평가 전 단계."
+    vault_folder: "01_inbox"
+    color: "#9CA3AF"  # gray-400
+    next_states:
+      - "eligible"
+      - "watchlist"
+      - "rejected_self"
+      - "rejected_site"
+
+  - code: "eligible"
+    label_ko: "자격 통과"
+    label_en: "Eligible"
+    description: "1차 규칙 + 2차 LLM 평가 모두 통과. 지원 가능한 공고."
+    vault_folder: "02_eligible"
+    color: "#60A5FA"  # blue-400
+    next_states:
+      - "preparing"
+      - "watchlist"
+      - "rejected_self"
+
+  - code: "watchlist"
+    label_ko: "관심 목록"
+    label_en: "Watchlist"
+    description: "자격은 애매하지만 추적 가치 있음. HITL 재량으로 올려둔 상태."
+    vault_folder: "03_watchlist"
+    color: "#FCD34D"  # yellow-300
+    next_states:
+      - "eligible"
+      - "preparing"
+      - "rejected_self"
+
+  - code: "rejected_self"
+    label_ko: "본인 판단 탈락"
+    label_en: "Rejected (self)"
+    description: "찬희가 '이건 안 맞는다'고 수동으로 제외한 공고."
+    vault_folder: "10_rejected_self"
+    color: "#F87171"  # red-400
+    next_states: []  # terminal
+
+  - code: "rejected_site"
+    label_ko: "포털 기준 탈락"
+    label_en: "Rejected (site/rule)"
+    description: "qualifier_rules.yml 기준으로 자동 탈락 (졸업자 전용 등)."
+    vault_folder: "11_rejected_site"
+    color: "#EF4444"  # red-500
+    next_states:
+      - "eligible"  # 수동 복구 가능
+
+  - code: "preparing"
+    label_ko: "지원 준비중"
+    label_en: "Preparing"
+    description: "자소서/이력서 맞춤 작업 중. 자료 수집 및 템플릿 적용 단계."
+    vault_folder: "04_preparing"
+    color: "#A78BFA"  # violet-400
+    next_states:
+      - "applied"
+      - "rejected_self"
+
+  - code: "applied"
+    label_ko: "지원 완료"
+    label_en: "Applied"
+    description: "지원서 제출 완료. 결과 대기 중."
+    vault_folder: "05_applied"
+    color: "#34D399"  # emerald-400
+    next_states:
+      - "interview"
+      - "rejected_site"
+      - "declined"
+
+  - code: "interview"
+    label_ko: "면접 단계"
+    label_en: "Interview"
+    description: "서류 통과 후 면접(코딩/인성/임원) 진행 중."
+    vault_folder: "06_interview"
+    color: "#22D3EE"  # cyan-400
+    next_states:
+      - "offer"
+      - "rejected_site"
+      - "declined"
+
+  - code: "offer"
+    label_ko: "오퍼 수령"
+    label_en: "Offer"
+    description: "합격 오퍼 수령. 협상/수락 결정 필요."
+    vault_folder: "07_offer"
+    color: "#10B981"  # emerald-500
+    next_states:
+      - "accepted"
+      - "declined"
+
+  - code: "declined"
+    label_ko: "본인 거절"
+    label_en: "Declined"
+    description: "찬희가 오퍼를 거절했거나 지원을 중도 철회."
+    vault_folder: "12_declined"
+    color: "#6B7280"  # gray-500
+    next_states: []  # terminal
+
+  - code: "accepted"
+    label_ko: "수락 / 입사"
+    label_en: "Accepted"
+    description: "최종 수락. 입사 확정 상태."
+    vault_folder: "08_accepted"
+    color: "#059669"  # emerald-600
+    next_states: []  # terminal
+
+# ─────────────────────────────────────────────
+# Invariants (엔진이 로딩 시 검증해야 할 규칙)
+# ─────────────────────────────────────────────
+invariants:
+  total_states: 11
+  terminal_states:
+    - "rejected_self"
+    - "declined"
+    - "accepted"
+  initial_state: "inbox"
+  # 모든 `next_states` 참조는 위 states 리스트의 code 중 하나여야 함

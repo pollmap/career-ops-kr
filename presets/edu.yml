@@ -1,0 +1,212 @@
+# 🟥 PRESET — 교육 / 강사 / 에듀테크 / HRD
+# career-ops-kr domain preset
+# 인코딩: UTF-8
+
+preset_id: edu
+label_ko: "교육 / 강사 / 에듀테크"
+label_en: "Education / Teaching / EdTech"
+description: >
+  초·중·고 교사, 대학 강사, 기업 HRD/교육 컨설팅, 에듀테크 스타트업,
+  언어 강사, 사교육 튜터 등 교육 직군 전반. 티처빌/에듀윌/사교육 플랫폼
+  중심. 교안·커리큘럼·LMS 키워드 가점 체계.
+target_audience: "교육 전공 학부생, 사교육 강사 지망, 에듀테크 직무 전환자, HRD 신입"
+
+qualifier_rules:
+  negative_patterns:
+    - id: "neg_teacher_cert_required"
+      pattern: "(정교사\\s*자격|교원\\s*자격증)\\s*(필수|보유자)"
+      weight: -80
+      reason: "교원자격증 필수"
+      action: "warn"
+    - id: "neg_experience_years"
+      pattern: "(강의\\s*경력|교육\\s*경력)\\s*(5|7|10)\\s*년\\s*이상"
+      weight: -70
+      reason: "5년+ 경력"
+      action: "warn"
+    - id: "neg_field_sales"
+      pattern: "(학부모\\s*상담\\s*영업|지사장|학원\\s*영업)"
+      weight: -90
+      reason: "학원 영업직"
+      action: "reject"
+    - id: "neg_night_only"
+      pattern: "(야간\\s*전담|심야|주\\s*6일)"
+      weight: -50
+      reason: "야간 전담"
+      action: "warn"
+  positive_patterns:
+    - id: "pos_curriculum"
+      pattern: "(커리큘럼|교안|수업\\s*설계|학습\\s*설계|ID\\s*(Instructional\\s*Design))"
+      weight: 70
+      reason: "커리큘럼/교안 설계"
+    - id: "pos_lms"
+      pattern: "(LMS|Moodle|이러닝|e-learning|블랙보드)"
+      weight: 60
+      reason: "LMS / 이러닝"
+    - id: "pos_edtech"
+      pattern: "(에듀테크|EdTech|AI\\s*튜터|학습\\s*앱)"
+      weight: 75
+      reason: "에듀테크"
+    - id: "pos_tutor"
+      pattern: "(튜터|과외|1:1\\s*지도|멘토링)"
+      weight: 50
+      reason: "튜터/멘토링"
+    - id: "pos_content_creator"
+      pattern: "(교육\\s*콘텐츠\\s*제작|인강\\s*촬영|교재\\s*집필)"
+      weight: 65
+      reason: "교육 콘텐츠 제작"
+    - id: "pos_newbie"
+      pattern: "(신입\\s*강사|주니어|경력\\s*무관|학부생\\s*가능)"
+      weight: 65
+      reason: "신입 가능"
+    - id: "pos_hrd"
+      pattern: "(HRD|교육\\s*운영|기업\\s*교육|임직원\\s*교육)"
+      weight: 60
+      reason: "HRD"
+  numeric_rules:
+    min_semester_completed: 2
+    max_gpa_required: 3.0
+    age_range:
+      min: 19
+      max: 40
+    max_years_experience_required: 3
+
+scoring_weights:
+  dimensions:
+    role_fit: 0.20
+    eligibility_match: 0.20
+    compensation: 0.10
+    location: 0.10
+    growth: 0.10
+    brand: 0.10
+    portfolio_usefulness: 0.10
+    schedule_conflict: 0.05
+    deadline_urgency: 0.03
+    hitl_discretion: 0.02
+  modifiers:
+    role_fit:
+      - keyword: "강사|튜터|HRD|커리큘럼|에듀테크"
+        bonus: 10
+      - keyword: "상담 영업|학원 영업|수납"
+        bonus: -15
+    portfolio_usefulness:
+      - keyword: "교안 샘플|수업 영상|교재 집필|LMS 운영"
+        bonus: 10
+    brand:
+      - keyword: "대교|교원|에듀윌|해커스|메가스터디|매쓰플랫"
+        bonus: 8
+
+portals:
+  - name: "티처빌"
+    key: "teacherville"
+    url: "https://www.teacherville.co.kr"
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include: ["강사", "교사", "연수"]
+      exclude: []
+  - name: "에듀윌 채용"
+    key: "eduwill"
+    url: "https://www.eduwill.net"  # TODO: 채용 페이지 경로 확인
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: false
+    filters:
+      include: ["강사", "교육"]
+      exclude: []
+  - name: "링커리어 (교육)"
+    key: "linkareer_edu"
+    url: "https://linkareer.com/list/recruit"
+    backend: "playwright"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["교육", "에듀테크", "HRD", "강사", "인턴"]
+      exclude: ["영업"]
+  - name: "원티드 (에듀테크)"
+    key: "wanted_edtech"
+    url: "https://www.wanted.co.kr/wdlist"
+    backend: "api"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["에듀테크", "교육", "콘텐츠", "커리큘럼"]
+      exclude: ["영업"]
+  - name: "잡코리아 (강사)"
+    key: "jobkorea_edu"
+    url: "https://www.jobkorea.co.kr/recruit/joblist"  # TODO: 강사 duty code 확인
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include: ["강사", "교육", "HRD"]
+      exclude: ["영업"]
+  - name: "사람인 (교육)"
+    key: "saramin_edu"
+    url: "https://www.saramin.co.kr/zf_user/jobs/list/job-category"  # TODO: 교육 카테고리
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include: ["교육", "강사", "튜터"]
+      exclude: ["영업"]
+  - name: "탈잉 / 클래스101 (N잡 플랫폼)"
+    key: "class_platform"
+    url: "https://taling.me"  # TODO: 별도 파이프라인 권장
+    backend: "playwright"
+    tier: 5
+    login_required: false
+    enabled: false
+    filters:
+      include: ["튜터", "강의"]
+      exclude: []
+
+archetypes:
+  K12_TEACHING:
+    label: "초·중·고 교사 / 기간제"
+    keywords: ["초등", "중등", "고등", "기간제 교사", "방과후"]
+  UNIVERSITY_TEACHING:
+    label: "대학 강사 / 시간강사"
+    keywords: ["대학 강사", "시간강사", "겸임", "전임"]
+  CORPORATE_TRAINING:
+    label: "기업 교육 / HRD"
+    keywords: ["HRD", "기업 교육", "임직원 교육", "리더십"]
+  EDTECH:
+    label: "에듀테크 / 학습 플랫폼"
+    keywords: ["EdTech", "에듀테크", "학습 앱", "AI 튜터"]
+  LANGUAGE_TEACHING:
+    label: "어학 강사"
+    keywords: ["영어 강사", "중국어", "일본어", "TESOL"]
+  TUTORING:
+    label: "튜터 / 과외 / 멘토"
+    keywords: ["튜터", "과외", "1:1 수업", "멘토링"]
+  HR_DEVELOPMENT:
+    label: "HR 인재개발"
+    keywords: ["인재개발", "교육기획", "역량모델", "HRD"]
+
+profile_template:
+  target_industries:
+    - "에듀테크 스타트업"
+    - "기업 교육 / HRD 부서"
+    - "사교육 / 학원"
+    - "공공 평생교육"
+  default_strengths:
+    - "교안/커리큘럼 설계 경험"
+    - "학습자 피드백 반영 경험"
+    - "LMS / 이러닝 플랫폼 활용"
+    - "멘토링/튜터 실무"
+  default_constraints:
+    - "정식 교원 자격증 없음 (해당 시)"
+    - "장기 강의 경력 부족"
+  suggested_certifications:
+    - "교원자격증 (해당 시)"
+    - "TESOL (어학강사)"
+    - "한국어교원자격증"
+    - "평생교육사"
+    - "HRD 전문가"

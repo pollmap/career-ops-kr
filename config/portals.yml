@@ -1,0 +1,182 @@
+# 🔶 USER LAYER — 9개 MVP 포털 설정
+# career-ops-kr 스크래핑 / 수집 대상 포털 정의
+# 각 포털: name, url, backend, tier, login_required, enabled, filters
+# 인코딩: UTF-8
+# 최종 갱신: 2026-04-11
+
+portals:
+
+  # ─────────────────────────────────────────────
+  # Tier 1 — 채용 포털 / 대학생 특화
+  # ─────────────────────────────────────────────
+  - name: "링커리어"
+    key: "linkareer"
+    url: "https://linkareer.com/list/recruit"
+    backend: "playwright"  # 동적 렌더링, SPA
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "금융"
+        - "IT"
+        - "데이터"
+        - "핀테크"
+        - "블록체인"
+        - "AI"
+        - "디지털"
+        - "인턴"
+        - "체험형"
+      exclude:
+        - "영업"
+        - "텔레마케팅"
+        - "생산직"
+
+  - name: "잡알리오"
+    key: "jobaliio"
+    url: "https://job.alio.go.kr/recruit.do"
+    backend: "requests"  # 정적 HTML
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "금융"
+        - "데이터"
+        - "디지털"
+        - "AI"
+        - "청년"
+        - "체험형"
+      exclude:
+        - "토목"
+        - "건설"
+
+  - name: "청년일경험포털"
+    key: "youthjob"
+    url: "https://www.work.go.kr/experi/index.do"
+    backend: "requests"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "금융"
+        - "IT"
+        - "핀테크"
+        - "데이터"
+        - "디지털"
+      exclude:
+        - "영업"
+
+  # ─────────────────────────────────────────────
+  # Tier 2 — 금융사 공식 채용
+  # ─────────────────────────────────────────────
+  - name: "신한투자증권"
+    key: "shinhan_sec"
+    url: "https://recruit.shinhansec.com"
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "디지털"
+        - "데이터"
+        - "AI"
+        - "리서치"
+        - "퀀트"
+        - "IT"
+      exclude:
+        - "지점영업"
+        - "PB"
+
+  - name: "키움KDA"
+    key: "kiwoom_kda"
+    url: "https://recruit.kiwoom.com"
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "디지털"
+        - "데이터"
+        - "IT"
+        - "리서치"
+        - "AI"
+      exclude:
+        - "지점"
+
+  # ─────────────────────────────────────────────
+  # Tier 3 — 금융 유관기관 / 공공
+  # ─────────────────────────────────────────────
+  - name: "금투협 kofia"
+    key: "kofia"
+    url: "https://www.kofia.or.kr/recruit"
+    backend: "requests"
+    tier: 4
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "금융"
+        - "데이터"
+        - "리서치"
+        - "체험형"
+      exclude: []
+
+  - name: "apply.bok (한국은행)"
+    key: "bok_apply"
+    url: "https://apply.bok.or.kr"
+    backend: "playwright"
+    tier: 4
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "경제"
+        - "리서치"
+        - "통화정책"
+        - "체험형"
+        - "인턴"
+      exclude: []
+
+  # ─────────────────────────────────────────────
+  # Tier 4 — 데이터 / 종합
+  # ─────────────────────────────────────────────
+  - name: "DataQ (데이터큐)"
+    key: "dataq"
+    url: "https://www.dataq.or.kr/recruit"
+    backend: "rss"
+    tier: 5
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "데이터"
+        - "SQL"
+        - "분석"
+        - "AI"
+        - "ML"
+      exclude: []
+
+  - name: "원티드"
+    key: "wanted"
+    url: "https://www.wanted.co.kr/wdlist"
+    backend: "api"  # 내부 JSON API 활용
+    tier: 6
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "핀테크"
+        - "블록체인"
+        - "AI"
+        - "데이터"
+        - "Python"
+        - "리서치"
+        - "퀀트"
+      exclude:
+        - "영업"
+        - "세일즈"
+        - "고객센터"

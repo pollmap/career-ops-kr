@@ -1,0 +1,253 @@
+# 🟩 PRESET — 소프트웨어 개발자
+# career-ops-kr domain preset
+# 인코딩: UTF-8
+
+preset_id: dev
+label_ko: "소프트웨어 개발"
+label_en: "Software Development"
+description: >
+  백엔드/프론트엔드/풀스택/데브옵스/데이터엔지니어링/ML·AI/모바일/보안 등
+  소프트웨어 개발 직군 전반을 위한 프리셋. 원티드·점핏·프로그래머스 등
+  테크 특화 포털 중심, 언어·프레임워크 가점 체계 내장.
+target_audience: "대학생·신입 개발자, 주니어 엔지니어, 비전공 부트캠프 수료생"
+
+qualifier_rules:
+  negative_patterns:
+    - id: "neg_senior_only"
+      pattern: "(시니어|Senior|수석|책임급)\\s*(이상|필수)"
+      weight: -90
+      reason: "시니어 전용"
+      action: "reject"
+    - id: "neg_experience_years"
+      pattern: "(경력|경험)\\s*(3|5|7|10)\\s*년\\s*이상"
+      weight: -70
+      reason: "3년+ 경력 요구"
+      action: "warn"
+    - id: "neg_master_required"
+      pattern: "(석사|박사)\\s*(이상|필수|우대자)"
+      weight: -50
+      reason: "석/박사 필수"
+      action: "warn"
+    - id: "neg_specific_degree"
+      pattern: "(전산학|컴퓨터공학)\\s*(학사\\s*이상\\s*필수)"
+      weight: -80
+      reason: "CS 전공 필수"
+      action: "warn"
+    - id: "neg_on_call_24_7"
+      pattern: "(24\\s*시간\\s*대기|야간\\s*당직|365\\s*운영)"
+      weight: -60
+      reason: "24x7 온콜"
+      action: "warn"
+    - id: "neg_sales_role"
+      pattern: "(영업|세일즈|기술영업\\s*필수)"
+      weight: -80
+      reason: "영업직"
+      action: "reject"
+  positive_patterns:
+    - id: "pos_python"
+      pattern: "(Python|파이썬)"
+      weight: 60
+      reason: "Python 요구"
+    - id: "pos_typescript"
+      pattern: "(TypeScript|TS|타입스크립트)"
+      weight: 55
+      reason: "TypeScript 요구"
+    - id: "pos_go_rust"
+      pattern: "(Golang|\\bGo\\b|Rust|러스트)"
+      weight: 50
+      reason: "Go/Rust 모던 백엔드"
+    - id: "pos_react_vue"
+      pattern: "(React|Vue|Svelte|Next\\.?js)"
+      weight: 50
+      reason: "모던 프론트엔드"
+    - id: "pos_cloud"
+      pattern: "(AWS|GCP|Azure|Docker|Kubernetes|K8s)"
+      weight: 60
+      reason: "클라우드/컨테이너"
+    - id: "pos_ai_llm"
+      pattern: "(LLM|생성형\\s*AI|Claude|GPT|MCP|LangChain|RAG)"
+      weight: 80
+      reason: "AI/LLM"
+    - id: "pos_newbie_ok"
+      pattern: "(신입|주니어|경력\\s*무관|학력\\s*무관)"
+      weight: 70
+      reason: "신입 가능"
+    - id: "pos_remote"
+      pattern: "(재택|원격|리모트|하이브리드)"
+      weight: 40
+      reason: "원격 근무"
+    - id: "pos_opensource"
+      pattern: "(오픈소스|OSS|GitHub\\s*포트폴리오)"
+      weight: 50
+      reason: "오픈소스 친화"
+  numeric_rules:
+    min_semester_completed: 2
+    max_gpa_required: 3.0
+    age_range:
+      min: 19
+      max: 35
+    max_years_experience_required: 2
+
+scoring_weights:
+  dimensions:
+    role_fit: 0.20
+    eligibility_match: 0.20
+    compensation: 0.10
+    location: 0.10
+    growth: 0.10
+    brand: 0.10
+    portfolio_usefulness: 0.10
+    schedule_conflict: 0.05
+    deadline_urgency: 0.03
+    hitl_discretion: 0.02
+  modifiers:
+    role_fit:
+      - keyword: "백엔드|프론트엔드|풀스택|ML|DevOps"
+        bonus: 10
+      - keyword: "SI|SM|운영|유지보수"
+        bonus: -5
+    portfolio_usefulness:
+      - keyword: "GitHub|오픈소스|사이드프로젝트|해커톤"
+        bonus: 10
+    brand:
+      - keyword: "네이버|카카오|토스|당근|쿠팡|라인|배민|우아한"
+        bonus: 12
+
+portals:
+  - name: "원티드"
+    key: "wanted"
+    url: "https://www.wanted.co.kr/wdlist/518"  # 개발 카테고리
+    backend: "api"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["백엔드", "프론트엔드", "풀스택", "데브옵스", "AI", "ML"]
+      exclude: ["영업", "세일즈"]
+  - name: "점핏"
+    key: "jumpit"
+    url: "https://www.jumpit.co.kr/positions"
+    backend: "playwright"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["개발", "엔지니어", "주니어", "신입"]
+      exclude: ["팀장", "책임"]
+  - name: "프로그래머스 잡"
+    key: "programmers_jobs"
+    url: "https://career.programmers.co.kr/job"
+    backend: "playwright"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["백엔드", "프론트엔드", "데이터", "AI"]
+      exclude: []
+  - name: "로켓펀치"
+    key: "rocketpunch"
+    url: "https://www.rocketpunch.com/jobs"
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include: ["스타트업", "개발자", "엔지니어"]
+      exclude: ["영업"]
+  - name: "링커리어 (개발)"
+    key: "linkareer_dev"
+    url: "https://linkareer.com/list/recruit"
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include: ["개발", "IT", "소프트웨어", "인턴"]
+      exclude: ["생산직", "영업"]
+  - name: "잡코리아 (IT)"
+    key: "jobkorea_it"
+    url: "https://www.jobkorea.co.kr/recruit/joblist?menucode=duty&dutyCtgrCode=10016"  # TODO: verify duty code for IT
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include: ["개발", "IT", "엔지니어"]
+      exclude: ["영업"]
+  - name: "사람인 (IT)"
+    key: "saramin_it"
+    url: "https://www.saramin.co.kr/zf_user/jobs/list/job-category"  # TODO: verify exact IT category URL
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include: ["개발", "IT", "엔지니어"]
+      exclude: ["영업"]
+  - name: "긱스 (GeekNews 잡보드)"
+    key: "geeknews_jobs"
+    url: "https://news.hada.io/jobs"
+    backend: "requests"
+    tier: 4
+    login_required: false
+    enabled: true
+    filters:
+      include: ["개발", "엔지니어", "원격"]
+      exclude: []
+  - name: "한국소프트웨어산업협회 일자리"
+    key: "sw_kosa"
+    url: "https://www.sw.or.kr"  # TODO: specific jobs endpoint
+    backend: "requests"
+    tier: 5
+    login_required: false
+    enabled: false  # URL unverified — keep disabled by default
+    filters:
+      include: ["SW", "개발"]
+      exclude: []
+
+archetypes:
+  BACKEND:
+    label: "백엔드 엔지니어"
+    keywords: ["백엔드", "Backend", "서버", "API", "Spring", "Django", "FastAPI", "Node"]
+  FRONTEND:
+    label: "프론트엔드 엔지니어"
+    keywords: ["프론트엔드", "Frontend", "React", "Vue", "Next.js", "TypeScript"]
+  FULLSTACK:
+    label: "풀스택 엔지니어"
+    keywords: ["풀스택", "Full-stack", "Full Stack"]
+  DEVOPS:
+    label: "데브옵스 / SRE / 플랫폼"
+    keywords: ["DevOps", "SRE", "Kubernetes", "K8s", "Terraform", "CI/CD", "플랫폼"]
+  DATA_ENGINEERING:
+    label: "데이터 엔지니어"
+    keywords: ["데이터엔지니어", "Data Engineer", "Airflow", "Spark", "ETL"]
+  ML_AI:
+    label: "ML / AI 엔지니어"
+    keywords: ["ML", "AI", "머신러닝", "딥러닝", "LLM", "PyTorch", "MLOps"]
+  MOBILE:
+    label: "모바일 앱 개발"
+    keywords: ["iOS", "Android", "Flutter", "React Native", "Swift", "Kotlin"]
+  SECURITY:
+    label: "보안 엔지니어"
+    keywords: ["보안", "Security", "침투", "펜테스트", "CISO", "CERT"]
+
+profile_template:
+  target_industries:
+    - "IT 서비스 / 플랫폼"
+    - "핀테크 / 커머스"
+    - "AI / ML 스타트업"
+    - "클라우드 / 인프라"
+  default_strengths:
+    - "Python / TypeScript / Go 실전 경험"
+    - "GitHub 오픈소스 기여 포트폴리오"
+    - "LLM/MCP 기반 에이전트 개발"
+    - "Docker + AWS 배포 경험"
+  default_constraints:
+    - "대기업 경력 없음"
+    - "정식 CS 학위 없음 (해당 시)"
+  suggested_certifications:
+    - "정보처리기사"
+    - "SQLD / ADsP"
+    - "리눅스마스터 2급"
+    - "AWS SAA (Solutions Architect Associate)"
+    - "CKA (Certified Kubernetes Administrator)"
