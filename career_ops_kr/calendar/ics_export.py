@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -90,7 +90,7 @@ class CalendarExporter:
             event.add("summary", f"[{org}] {title} - 마감")
             event.add("dtstart", deadline)
             event.add("dtend", deadline + timedelta(days=1))
-            event.add("dtstamp", datetime.utcnow())
+            event.add("dtstamp", datetime.now(UTC))
             event.add(
                 "description",
                 f"URL: {url}\nArchetype: {archetype}\nFit Grade: {grade}",
@@ -144,7 +144,7 @@ class CalendarExporter:
             event.add("summary", f"[자격증] {name}")
             event.add("dtstart", exam_date)
             event.add("dtend", exam_date + timedelta(days=1))
-            event.add("dtstamp", datetime.utcnow())
+            event.add("dtstamp", datetime.now(UTC))
             event.add("description", f"{category} - {name}")
             event.add("categories", [category])
             event.add("uid", _uid("cert", f"{name}-{exam_date.isoformat()}"))

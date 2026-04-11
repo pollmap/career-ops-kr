@@ -21,9 +21,7 @@ TEXTUAL_AVAILABLE: bool = False
 def run_tui(db_path: Path | None = None) -> None:
     """Launch the TUI dashboard (raises if textual not installed)."""
     if not TEXTUAL_AVAILABLE:
-        raise ImportError(
-            "textual 패키지가 필요합니다. 설치: pip install 'career-ops-kr[tui]'"
-        )
+        raise ImportError("textual 패키지가 필요합니다. 설치: pip install 'career-ops-kr[tui]'")
     from career_ops_kr.tui.app import run_tui as _real_run_tui
 
     _real_run_tui(db_path)

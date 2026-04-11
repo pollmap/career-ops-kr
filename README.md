@@ -1,5 +1,9 @@
 # career-ops-kr
 
+[![CI](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml/badge.svg)](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 > 한국형 AI 구직 자동화 에이전트 — `santifer/career-ops`의 철학을 한국 금융/핀테크/블록체인 시장에 맞춰 포팅.
 >
 > Luxon AI 프로젝트 · Claude Code 기반 · Python 단일 스택

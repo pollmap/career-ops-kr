@@ -1,18 +1,24 @@
 """Job normalizer — raw dict → validated :class:`JobRecord`.
 
 Responsibilities:
-    - HTML stripping + whitespace collapse
-    - Korean date parsing via :func:`deadline_parser`
-    - Stable id generation via SHA256(url+title)[:16]
-    - Eligibility keyword extraction (재학생/졸업자/학력무관 etc.)
+    - HTML stripping + whitespace collapse (BeautifulSoup for large bodies)
+    - Korean date parsing via :func:`parser.utils.parse_korean_date`
+    - Stable id generation via :func:`parser.utils.generate_job_id`
+    - Eligibility keyword extraction via
+      :func:`parser.utils.extract_eligibility_keywords`
     - In-memory dedup across a batch
 
 No network I/O. Pure transformation.
+
+All shared logic (date parsing, id hashing, eligibility lists) now lives
+in :mod:`career_ops_kr.parser.utils` as the project-wide single source of
+truth. This module focuses on the *orchestration* — assembling a validated
+:class:`JobRecord` from a raw channel dict and handling the heavyweight
+HTML-to-text conversion that is out of scope for ``parser.utils.clean_html``.
 """
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import re
 from datetime import datetime
@@ -21,33 +27,18 @@ from typing import Any
 from bs4 import BeautifulSoup
 
 from career_ops_kr.channels.base import JobRecord, deadline_parser
+from career_ops_kr.parser.utils import (
+    extract_eligibility_keywords as _extract_eligibility_keywords,
+)
+from career_ops_kr.parser.utils import (
+    generate_job_id,
+)
 
 logger = logging.getLogger(__name__)
 
 
 _WHITESPACE_RE = re.compile(r"[ \t\u00a0\u3000]+")
 _MULTINEWLINE_RE = re.compile(r"\n{3,}")
-
-_ELIGIBILITY_KEYWORDS: tuple[str, ...] = (
-    "졸업자",
-    "졸업예정자",
-    "재학생",
-    "휴학생",
-    "학력무관",
-    "전공무관",
-    "인턴",
-    "신입",
-    "경력",
-    "청년",
-    "만39세",
-    "고졸",
-    "대졸",
-    "석사",
-    "박사",
-    "보훈",
-    "장애인",
-    "병역특례",
-)
 
 
 class JobNormalizer:
@@ -82,7 +73,7 @@ class JobNormalizer:
         if isinstance(posted_at, str):
             posted_at = deadline_parser(posted_at)
 
-        job_id = self._make_id(url, title)
+        job_id = generate_job_id(url, title)
         if job_id in self._seen_ids:
             logger.debug("JobNormalizer: duplicate id %s (%s)", job_id, title)
         self._seen_ids.add(job_id)
@@ -107,16 +98,15 @@ class JobNormalizer:
         return record
 
     def extract_eligibility_keywords(self, text: str) -> list[str]:
-        """Return eligibility keywords found in ``text`` (dedup, order-preserved)."""
-        if not text:
-            return []
-        found: list[str] = []
-        seen: set[str] = set()
-        for kw in _ELIGIBILITY_KEYWORDS:
-            if kw in text and kw not in seen:
-                found.append(kw)
-                seen.add(kw)
-        return found
+        """Return eligibility keywords found in ``text``.
+
+        Thin instance-method wrapper over
+        :func:`parser.utils.extract_eligibility_keywords` — kept for
+        backwards compatibility with callers that already hold a
+        ``JobNormalizer`` instance. New code should call the free function
+        directly.
+        """
+        return _extract_eligibility_keywords(text)
 
     def reset_dedup(self) -> None:
         """Clear in-memory dedup cache between batches."""
@@ -125,14 +115,15 @@ class JobNormalizer:
     # -- internals ----------------------------------------------------------
 
     @staticmethod
-    def _make_id(url: str, title: str) -> str:
-        return hashlib.sha256(f"{url}||{title}".encode()).hexdigest()[:16]
-
-    @staticmethod
     def _strip_html(text: str) -> str:
+        """Heavy-duty HTML → plain text using BeautifulSoup.
+
+        Distinct from :func:`parser.utils.clean_html` (regex-based, fast) —
+        use this one for raw_html document bodies where nested structure
+        and malformed markup are common.
+        """
         if not text:
             return ""
-        # BeautifulSoup gracefully handles plain text too.
         try:
             soup = BeautifulSoup(text, "html.parser")
             plain = soup.get_text("\n", strip=True)

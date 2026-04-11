@@ -12,14 +12,17 @@ Invariants:
       where possible and logged via ``logging``.
     - All file I/O elsewhere in the package uses ``encoding='utf-8'`` and
       :class:`pathlib.Path`.
+    - Date parsing + ID generation delegate to
+      :mod:`career_ops_kr.parser.utils` (project-wide single source of truth).
+      This module keeps thin wrappers for backwards-compat with the 14+
+      channels that already import ``deadline_parser`` and call
+      ``BaseChannel._make_id``.
 """
 
 from __future__ import annotations
 
-import hashlib
 import logging
 import random
-import re
 import time
 from abc import ABC, abstractmethod
 from datetime import date, datetime
@@ -52,7 +55,7 @@ class JobRecord(BaseModel):
     """Canonical job-posting record shared across the pipeline.
 
     Attributes:
-        id: SHA256(source_url + title)[:16] — stable dedup key.
+        id: 16-char SHA-256 prefix from ``generate_job_id`` — stable dedup key.
         source_url: Canonical URL of the posting.
         source_channel: Channel name (e.g. ``"jobalio"``).
         source_tier: 1..6 per portal tier system (1 = highest trust).
@@ -87,50 +90,31 @@ class JobRecord(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Korean date parser
+# Korean date parser — thin wrapper over parser.utils.parse_korean_date
 # ---------------------------------------------------------------------------
-
-
-_DATE_PATTERNS: tuple[re.Pattern[str], ...] = (
-    re.compile(r"(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})"),
-    re.compile(r"(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일"),
-    re.compile(r"(\d{1,2})[/.\-](\d{1,2})\s*\([월화수목금토일]\)"),
-    re.compile(r"(\d{1,2})월\s*(\d{1,2})일"),
-)
 
 
 def deadline_parser(text: str) -> date | None:
     """Parse common Korean date formats into :class:`datetime.date`.
+
+    Thin wrapper — the real implementation lives in
+    :func:`career_ops_kr.parser.utils.parse_korean_date`. This wrapper
+    exists so 14+ channels that import ``deadline_parser`` from
+    ``career_ops_kr.channels.base`` keep working without edits.
 
     Supported forms:
         - ``2026.04.17`` / ``2026-04-17`` / ``2026/04/17``
         - ``2026년 4월 17일``
         - ``4/17(금)`` / ``4.17(금)``
         - ``4월 17일``
-
-    When year is omitted, the current year is assumed. Returns ``None`` if
-    no pattern matches.
+        - ``26.04.17`` (2-digit year auto-expanded to 20xx)
     """
-    if not text:
-        return None
-    text = text.strip()
-    now = datetime.now()
-    for pat in _DATE_PATTERNS:
-        m = pat.search(text)
-        if not m:
-            continue
-        groups = m.groups()
-        try:
-            if len(groups) == 3:
-                y, mo, d = int(groups[0]), int(groups[1]), int(groups[2])
-            else:
-                y = now.year
-                mo, d = int(groups[0]), int(groups[1])
-            return date(y, mo, d)
-        except (ValueError, TypeError) as exc:
-            logger.debug("deadline_parser: invalid date in %r: %s", text, exc)
-            continue
-    return None
+    # Lazy import to avoid a parser ↔ channels circular dependency at module
+    # load time. Python caches the module after the first call so the cost
+    # is effectively zero from the second invocation onwards.
+    from career_ops_kr.parser.utils import parse_korean_date
+
+    return parse_korean_date(text)
 
 
 # ---------------------------------------------------------------------------
@@ -200,9 +184,16 @@ class BaseChannel(ABC):
 
     @staticmethod
     def _make_id(url: str, title: str) -> str:
-        """Stable 16-char SHA256 id from ``url + title``."""
-        digest = hashlib.sha256(f"{url}||{title}".encode()).hexdigest()
-        return digest[:16]
+        """Stable 16-char id — delegates to ``parser.utils.generate_job_id``.
+
+        Kept as a static method so the 14+ channels that already call
+        ``self._make_id(url, title)`` keep working without edits. The wrapper
+        passes ``org=""`` so the resulting hash is **byte-identical** to the
+        pre-refactor implementation (``sha256("url||title")[:16]``).
+        """
+        from career_ops_kr.parser.utils import generate_job_id
+
+        return generate_job_id(url, title)
 
     # -- retry + rate limit -------------------------------------------------
 

@@ -22,7 +22,7 @@ File I/O uses encoding='utf-8'. Missing YAML → hardcoded defaults.
 from __future__ import annotations
 
 import re
-from datetime import date, datetime
+from datetime import date
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -30,6 +30,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from career_ops_kr.archetype import Archetype
+from career_ops_kr.parser.utils import coerce_to_date
 from career_ops_kr.qualifier import QualifierResult, Verdict
 
 try:
@@ -72,6 +73,17 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     "schedule_conflict": 5,
     "deadline_urgency": 3,
     "hitl_discretion": 2,
+}
+
+# Matches config/scoring_weights.yml defaults. Until this commit the YAML
+# grade_cuts was dead config — fit_score hardcoded 90/80/70/60. FitScorer
+# now reads YAML grade_cuts and overrides these defaults at load time.
+DEFAULT_GRADE_CUTS: dict[str, float] = {
+    "A": 85.0,
+    "B": 70.0,
+    "C": 55.0,
+    "D": 40.0,
+    "F": 0.0,
 }
 
 # 찬희 preference tiers for archetype fit.
@@ -163,20 +175,6 @@ GROWTH_KEYWORDS: list[re.Pattern[str]] = [
 ]
 
 
-def _parse_deadline(value: Any) -> date | None:
-    """Parse deadline from ISO string / date / None."""
-    if value is None:
-        return None
-    if isinstance(value, date):
-        return value
-    if isinstance(value, str):
-        try:
-            return datetime.strptime(value[:10], "%Y-%m-%d").date()
-        except ValueError:
-            return None
-    return None
-
-
 class FitScorer:
     """10-dimensional A~F scorer."""
 
@@ -188,6 +186,7 @@ class FitScorer:
         self.weights_path = weights_path
         self.profile_path = profile_path
         self.weights: dict[str, float] = dict(DEFAULT_WEIGHTS)
+        self.grade_cuts: dict[str, float] = dict(DEFAULT_GRADE_CUTS)
         self.exam_dates: list[date] = list(DEFAULT_EXAM_DATES)
         self.profile: dict[str, Any] = {}
         self._load()
@@ -201,8 +200,14 @@ class FitScorer:
                         if k in self.weights:
                             self.weights[k] = float(v)
                 if isinstance(data, dict) and data.get("exam_dates"):
-                    parsed = [_parse_deadline(x) for x in data["exam_dates"]]
+                    parsed = [coerce_to_date(x) for x in data["exam_dates"]]
                     self.exam_dates = [d for d in parsed if d is not None]
+                if isinstance(data, dict) and data.get("grade_cuts"):
+                    for k, v in data["grade_cuts"].items():
+                        try:
+                            self.grade_cuts[str(k)] = float(v)
+                        except (TypeError, ValueError):
+                            continue
             except (OSError, ValueError, KeyError):
                 pass
         if self.profile_path and self.profile_path.exists() and yaml is not None:
@@ -364,7 +369,7 @@ class FitScorer:
         return 40.0
 
     def _score_schedule(self, job: dict[str, Any], today: date) -> float:
-        deadline = _parse_deadline(job.get("deadline"))
+        deadline = coerce_to_date(job.get("deadline"))
         if deadline is None:
             return 80.0
         for exam in self.exam_dates:
@@ -373,7 +378,7 @@ class FitScorer:
         return 90.0
 
     def _score_urgency(self, job: dict[str, Any], today: date) -> float:
-        deadline = _parse_deadline(job.get("deadline"))
+        deadline = coerce_to_date(job.get("deadline"))
         if deadline is None:
             return 50.0
         delta = (deadline - today).days
@@ -390,12 +395,16 @@ class FitScorer:
         return 50.0
 
     def _grade(self, total: float) -> FitGrade:
-        if total >= 90:
+        cuts = self.grade_cuts
+        if total >= cuts.get("A", 85.0):
             return FitGrade.A
-        if total >= 80:
+        if total >= cuts.get("B", 70.0):
             return FitGrade.B
-        if total >= 70:
+        if total >= cuts.get("C", 55.0):
             return FitGrade.C
-        if total >= 60:
+        if total >= cuts.get("D", 40.0):
             return FitGrade.D
+        # YAML may define an "E" cut but FitGrade enum only has A~F — fold
+        # E into F so the single-source-of-truth YAML stays authoritative
+        # without enum churn.
         return FitGrade.F

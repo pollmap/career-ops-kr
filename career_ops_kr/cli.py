@@ -47,7 +47,7 @@ def _ensure_project_dirs() -> None:
 
 
 @click.group(help="career-ops-kr — 한국형 구직 자동화 CLI (Luxon AI)")
-@click.version_option("0.1.0", prog_name="career-ops")
+@click.version_option("0.2.0", prog_name="career-ops")
 def cli() -> None:
     """Root group."""
     _ensure_project_dirs()
@@ -269,12 +269,42 @@ def scan_cmd(tier: int | None, site: str | None, all_sites: bool, dry_run: bool)
         console.print(table)
         return
 
-    channels = _fallback_import("career_ops_kr.channels", "scan mode")
-    if channels is None:
+    mcp = _fallback_import("career_ops_kr.mcp_server", "scan mode")
+    if mcp is None:
         sys.exit(2)
+
     console.print(f"[green]scan[/green] tier={tier} site={site} all={all_sites}")
-    # Actual scan dispatch is delegated to channels subpackage.
-    console.print("[dim](scan execution delegated to channels subpackage)[/dim]")
+    try:
+        result = mcp.tool_scan_jobs(tier=tier, site=site)
+    except Exception as exc:
+        console.print(f"[red]scan failed[/red] {exc}")
+        sys.exit(1)
+
+    if isinstance(result, dict) and "error" in result:
+        console.print(f"[red]scan error[/red] {result['error']}")
+        hint = result.get("hint")
+        if hint:
+            console.print(f"[dim]hint: {hint}[/dim]")
+        sys.exit(1)
+
+    table = Table(title=f"Scan results (total={result.get('total', 0)})")
+    table.add_column("channel", style="cyan")
+    table.add_column("tier", justify="right")
+    table.add_column("backend", style="dim")
+    table.add_column("count", justify="right")
+    table.add_column("error", style="red")
+
+    channels_summary: dict[str, Any] = result.get("channels", {}) or {}
+    for ch_name, info in channels_summary.items():
+        info = info or {}
+        table.add_row(
+            ch_name,
+            str(info.get("tier", "")),
+            str(info.get("backend", "")),
+            str(info.get("count", 0)),
+            str(info.get("error", "") or ""),
+        )
+    console.print(table)
 
 
 @cli.command("score", help="단일 URL 평가 — markdown 리포트 출력")
@@ -283,14 +313,60 @@ def score_cmd(url: str) -> None:
     if "://" not in url or url.startswith("invalid"):
         console.print(f"[red]invalid URL[/red] {url}")
         sys.exit(1)
-    scorer = _fallback_import("career_ops_kr.scorer", "score mode")
-    if scorer is None:
+
+    mcp = _fallback_import("career_ops_kr.mcp_server", "score mode")
+    if mcp is None:
         sys.exit(2)
+
     console.print(f"[green]scoring[/green] {url}")
-    console.print("**URL:** " + url)
-    console.print("**Legitimacy:** T5 미확인")
-    console.print("**Archetype:** (미판정)")
-    console.print("**Fit Grade:** (미평가)")
+    try:
+        result = mcp.tool_score_job(url=url)
+    except Exception as exc:
+        console.print(f"[red]score failed[/red] {exc}")
+        sys.exit(1)
+
+    if isinstance(result, dict) and "error" in result:
+        console.print(f"[red]score error[/red] {result['error']}")
+        hint = result.get("hint")
+        if hint:
+            console.print(f"[dim]hint: {hint}[/dim]")
+        sys.exit(1)
+
+    url_out = result.get("url", url)
+    legitimacy = result.get("legitimacy") or "T5 미확인"
+    archetype = result.get("archetype") or "(미판정)"
+    grade = result.get("grade") or "(미평가)"
+    total = result.get("total_score")
+    fit_grade_line = f"{grade}" + (f" ({total})" if total is not None else "")
+    eligibility = result.get("qualifier_verdict") or "(미판정)"
+    deadline = result.get("deadline") or "(미상)"
+    org = result.get("org") or ""
+    title = result.get("title") or ""
+    reasons = result.get("reasons") or []
+
+    lines = [
+        f"**URL:** {url_out}",
+        f"**Legitimacy:** {legitimacy}",
+        f"**Archetype:** {archetype}",
+        f"**Fit Grade:** {fit_grade_line}",
+        f"**Eligibility:** {eligibility}",
+        f"**Deadline:** {deadline}",
+    ]
+    if org or title:
+        lines.append(f"**Org / Title:** {org} / {title}")
+    if reasons:
+        lines.append("")
+        lines.append("**Reasons:**")
+        for r in reasons:
+            lines.append(f"- {r}")
+
+    console.print(
+        Panel.fit(
+            "\n".join(lines),
+            title="score report",
+            border_style="green",
+        )
+    )
 
 
 @cli.command("pipeline", help="배치 평가 — inbox 전체 (G4 게이트)")
@@ -303,6 +379,76 @@ def pipeline_cmd(limit: int) -> None:
             return
     console.print(f"[green]pipeline[/green] processing up to {limit} items")
 
+    db = DATA_DIR / "jobs.db"
+    if not db.exists():
+        console.print(
+            "[yellow]inbox empty[/yellow] (no jobs.db — run [bold]career-ops scan[/bold] first)"
+        )
+        return
+
+    mcp = _fallback_import("career_ops_kr.mcp_server", "pipeline mode")
+    store_mod = _fallback_import("career_ops_kr.storage.sqlite_store", "pipeline mode")
+    if mcp is None or store_mod is None:
+        sys.exit(2)
+
+    try:
+        store = store_mod.SQLiteStore(db)
+    except Exception as exc:
+        console.print(f"[red]SQLiteStore init failed[/red] {exc}")
+        sys.exit(1)
+
+    # Pull inbox-status jobs (ungraded) — use search() with empty keyword.
+    try:
+        inbox = store.search(keyword="")
+    except Exception as exc:
+        console.print(f"[red]inbox query failed[/red] {exc}")
+        sys.exit(1)
+
+    inbox = [j for j in inbox if (j.get("status") or "inbox") == "inbox"]
+    if not inbox:
+        console.print("[yellow]no inbox items[/yellow]")
+        return
+
+    table = Table(title=f"pipeline results ({min(limit, len(inbox))}/{len(inbox)})")
+    table.add_column("org", style="cyan")
+    table.add_column("title")
+    table.add_column("grade", justify="center")
+    table.add_column("score", justify="right")
+    table.add_column("error", style="red")
+
+    processed = 0
+    for job in inbox[:limit]:
+        url = job.get("source_url") or ""
+        if not url:
+            continue
+        try:
+            result = mcp.tool_score_job(url=url)
+        except Exception as exc:
+            table.add_row(str(job.get("org") or ""), str(job.get("title") or ""), "", "", str(exc))
+            processed += 1
+            continue
+
+        if isinstance(result, dict) and "error" in result:
+            table.add_row(
+                str(job.get("org") or ""),
+                str(job.get("title") or ""),
+                "",
+                "",
+                str(result.get("error", "")),
+            )
+        else:
+            table.add_row(
+                str(result.get("org") or ""),
+                str(result.get("title") or ""),
+                str(result.get("grade") or ""),
+                str(result.get("total_score") or ""),
+                "",
+            )
+        processed += 1
+
+    console.print(table)
+    console.print(f"[dim]processed {processed} item(s)[/dim]")
+
 
 @cli.command("list", help="SQLite 조회 — 저장된 공고 테이블 출력")
 @click.option("--grade", type=str, default=None)
@@ -314,9 +460,47 @@ def list_cmd(grade: str | None, status: str | None, archetype: str | None) -> No
         console.print("[yellow]no jobs found[/yellow] (empty DB)")
         return
 
-    table = Table(title="Jobs")
+    store_mod = _fallback_import("career_ops_kr.storage.sqlite_store", "list mode")
+    if store_mod is None:
+        sys.exit(2)
+
+    try:
+        store = store_mod.SQLiteStore(db)
+    except Exception as exc:
+        console.print(f"[red]SQLiteStore init failed[/red] {exc}")
+        sys.exit(1)
+
+    try:
+        if grade:
+            jobs = store.list_by_grade(grade)
+        elif archetype:
+            jobs = store.search(keyword="", archetype=archetype)
+        else:
+            jobs = store.search(keyword="")
+    except Exception as exc:
+        console.print(f"[red]query failed[/red] {exc}")
+        sys.exit(1)
+
+    if status:
+        jobs = [j for j in jobs if (j.get("status") or "") == status]
+
+    if not jobs:
+        console.print("[yellow]no jobs found[/yellow] (filter matched 0 rows)")
+        console.print(f"[dim]filters: grade={grade} status={status} archetype={archetype}[/dim]")
+        return
+
+    table = Table(title=f"Jobs ({len(jobs)})")
     for col in ("id", "org", "title", "grade", "status", "deadline"):
         table.add_column(col)
+    for job in jobs:
+        table.add_row(
+            str(job.get("id") or "")[:12],
+            str(job.get("org") or ""),
+            str(job.get("title") or ""),
+            str(job.get("fit_grade") or ""),
+            str(job.get("status") or ""),
+            str(job.get("deadline") or ""),
+        )
     console.print(table)
     console.print(f"[dim]filters: grade={grade} status={status} archetype={archetype}[/dim]")
 
@@ -335,16 +519,32 @@ def sync_vault_cmd() -> None:
     type=click.Path(path_type=Path),
     default=PROJECT_ROOT / "output" / "deadlines.ics",
 )
-def calendar_cmd(output: Path) -> None:
+@click.option("--days", type=int, default=30, help="Deadline window in days")
+def calendar_cmd(output: Path, days: int) -> None:
     try:
         from career_ops_kr.calendar.ics_export import CalendarExporter
     except Exception as exc:
         console.print(f"[red]calendar import failed[/red] {exc}")
         sys.exit(2)
+
+    jobs: list[dict[str, Any]] = []
+    db = DATA_DIR / "jobs.db"
+    if db.exists():
+        store_mod = _fallback_import("career_ops_kr.storage.sqlite_store", "calendar mode")
+        if store_mod is not None:
+            try:
+                store = store_mod.SQLiteStore(db)
+                jobs = list(store.list_upcoming_deadlines(days=days))
+            except Exception as exc:
+                console.print(
+                    f"[yellow]deadline query failed — writing empty calendar[/yellow] {exc}"
+                )
+                jobs = []
+
     output.parent.mkdir(parents=True, exist_ok=True)
     exporter = CalendarExporter()
-    path = exporter.from_jobs([], output)
-    console.print(f"[green]calendar[/green] written {path}")
+    path = exporter.from_jobs(jobs, output)
+    console.print(f"[green]calendar[/green] written {path} ({len(jobs)} job(s))")
 
 
 @cli.command("patterns", help="패턴 분석 모드 — N일치 잡 히스토리")

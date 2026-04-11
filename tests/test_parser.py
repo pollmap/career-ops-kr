@@ -53,12 +53,28 @@ def test_id_generation_is_deterministic() -> None:
     gen_id = _get("generate_job_id")
     if gen_id is None:
         pytest.skip("parser.generate_job_id not implemented yet")
-    job = {"org": "한국거래소", "title": "디지털자산 PM", "url": "https://krx.co.kr/1"}
-    a = gen_id(job)
-    b = gen_id(job)
-    assert a == b
-    assert isinstance(a, str)
-    assert len(a) > 0
+    # positional call and dict call must produce identical hashes.
+    positional = gen_id("https://krx.co.kr/1", "디지털자산 PM", org="한국거래소")
+    as_dict = gen_id({"org": "한국거래소", "title": "디지털자산 PM", "url": "https://krx.co.kr/1"})
+    assert positional == as_dict
+    assert isinstance(positional, str)
+    assert len(positional) > 0
+    # stability across repeated calls.
+    assert gen_id("u", "t") == gen_id("u", "t")
+    # org-less call matches the legacy BaseChannel._make_id hash format.
+    import hashlib
+
+    legacy = hashlib.sha256(b"u||t").hexdigest()[:16]
+    assert gen_id("u", "t") == legacy
+    # mixed-case / whitespace inputs must ALSO hash to the legacy byte
+    # format — catches the "hidden normalization" regression that the
+    # pure-ascii 'u'/'t' case would miss (code review HIGH finding).
+    mixed_url = "HTTPS://Example.com/1"
+    spaced_title = " Title "
+    mixed_legacy = hashlib.sha256(
+        f"{mixed_url}||{spaced_title}".encode()
+    ).hexdigest()[:16]
+    assert gen_id(mixed_url, spaced_title) == mixed_legacy
 
 
 @pytest.mark.parametrize(
