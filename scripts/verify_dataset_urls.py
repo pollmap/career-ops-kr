@@ -42,9 +42,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
         sys.stdout.buffer, encoding="utf-8", errors="replace", line_buffering=True
     )
 
-USER_AGENT = (
-    "Mozilla/5.0 (career-ops-kr verifier; +https://github.com/pollmap/career-ops-kr)"
-)
+USER_AGENT = "Mozilla/5.0 (career-ops-kr verifier; +https://github.com/pollmap/career-ops-kr)"
 # Permissive SSL context - many Korean gov sites have intermediate-cert quirks.
 _SSL_CTX = ssl.create_default_context()
 _SSL_CTX.check_hostname = False
@@ -113,9 +111,7 @@ def probe_url(identifier: str, name: str, url: str, timeout: float) -> UrlProbe:
     return probe
 
 
-def verify(
-    fixture: Path, timeout: float, max_n: int, sleep: float, out_json: Path | None
-) -> int:
+def verify(fixture: Path, timeout: float, max_n: int, sleep: float, out_json: Path | None) -> int:
     text = fixture.read_text(encoding="utf-8")
     data = json.loads(text)
     programs = data["programs"]
@@ -132,9 +128,7 @@ def verify(
     probes: list[UrlProbe] = []
     failed: list[UrlProbe] = []
     for program in programs:
-        probe = probe_url(
-            program["id"], program.get("name", ""), program["source_url"], timeout
-        )
+        probe = probe_url(program["id"], program.get("name", ""), program["source_url"], timeout)
         probes.append(probe)
         marker = "ok" if probe.ok else "FAIL"
         status_cell = str(probe.status) if probe.status else probe.error[:40]
@@ -152,9 +146,7 @@ def verify(
     if out_json is not None:
         out_json.parent.mkdir(parents=True, exist_ok=True)
         out_json.write_text(
-            json.dumps(
-                [asdict(probe) for probe in probes], ensure_ascii=False, indent=2
-            ),
+            json.dumps([asdict(probe) for probe in probes], ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
         try:
@@ -170,9 +162,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture", type=Path, default=DEFAULT_FIXTURE)
     parser.add_argument("--timeout", type=float, default=10.0)
-    parser.add_argument(
-        "--max", type=int, default=0, help="limit how many URLs to probe (0 = all)"
-    )
+    parser.add_argument("--max", type=int, default=0, help="limit how many URLs to probe (0 = all)")
     parser.add_argument("--sleep", type=float, default=0.3)
     parser.add_argument("--json", type=Path, default=None, dest="out_json")
     args = parser.parse_args(argv)

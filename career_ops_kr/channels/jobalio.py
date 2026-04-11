@@ -109,9 +109,9 @@ class JobalioChannel(BaseChannel):
             return None
         body = resp.text
         soup = BeautifulSoup(body, "html.parser")
-        title = (
-            soup.title.get_text(strip=True) if soup.title else url.rsplit("/", 1)[-1]
-        )[:200] or "ALIO 공고"
+        title = (soup.title.get_text(strip=True) if soup.title else url.rsplit("/", 1)[-1])[
+            :200
+        ] or "ALIO 공고"
         plain = soup.get_text(" ", strip=True)
         return JobRecord(
             id=self._make_id(url, title),

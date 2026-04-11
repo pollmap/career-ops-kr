@@ -71,9 +71,7 @@ def test_id_generation_is_deterministic() -> None:
     # pure-ascii 'u'/'t' case would miss (code review HIGH finding).
     mixed_url = "HTTPS://Example.com/1"
     spaced_title = " Title "
-    mixed_legacy = hashlib.sha256(
-        f"{mixed_url}||{spaced_title}".encode()
-    ).hexdigest()[:16]
+    mixed_legacy = hashlib.sha256(f"{mixed_url}||{spaced_title}".encode()).hexdigest()[:16]
     assert gen_id(mixed_url, spaced_title) == mixed_legacy
 
 
