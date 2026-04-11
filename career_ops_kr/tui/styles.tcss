@@ -1,0 +1,173 @@
+/* career-ops-kr TUI — dark Luxon-ish theme */
+
+Screen {
+    background: #0f0f17;
+    color: #e4e6f0;
+}
+
+Header {
+    background: #1a1b2e;
+    color: #a5b4fc;
+}
+
+Footer {
+    background: #1a1b2e;
+    color: #a5b4fc;
+}
+
+/* ----- Dashboard grid ----- */
+
+#dash-grid {
+    grid-size: 3 2;
+    grid-gutter: 1 2;
+    padding: 1 2;
+    height: 1fr;
+}
+
+.dash-cell {
+    border: round #6366f1;
+    padding: 1 2;
+    background: #161728;
+    height: 1fr;
+    width: 1fr;
+}
+
+#cell-totals {
+    border: round #22c55e;
+}
+
+#cell-grades {
+    border: round #6366f1;
+}
+
+#cell-scans {
+    border: round #06b6d4;
+}
+
+#cell-deadlines {
+    border: round #f59e0b;
+}
+
+#cell-archetype {
+    border: round #a855f7;
+}
+
+#cell-actions {
+    border: round #94a3b8;
+    color: #cbd5e1;
+}
+
+/* ----- Jobs list ----- */
+
+#jobs-root {
+    padding: 1 2;
+    height: 1fr;
+}
+
+#jobs-filters {
+    height: 3;
+    margin-bottom: 1;
+}
+
+#jobs-filters Input {
+    width: 2fr;
+    margin-right: 1;
+}
+
+#jobs-filters Select {
+    width: 1fr;
+    margin-right: 1;
+}
+
+#jobs-table {
+    height: 1fr;
+    border: round #6366f1;
+}
+
+#jobs-table > .datatable--cursor {
+    background: #6366f1;
+    color: #ffffff;
+}
+
+.jobs-footer {
+    height: 1;
+    color: #94a3b8;
+    padding: 0 1;
+}
+
+/* ----- Job detail ----- */
+
+#detail-root {
+    padding: 1 2;
+    height: 1fr;
+}
+
+.detail-header {
+    border: round #6366f1;
+    padding: 1 2;
+    margin-bottom: 1;
+    background: #161728;
+}
+
+#detail-body {
+    border: round #334155;
+    padding: 1 2;
+    background: #161728;
+    min-height: 10;
+}
+
+#detail-actions {
+    height: 3;
+    margin-top: 1;
+    border: round #94a3b8;
+    padding: 0 1;
+    background: #1a1b2e;
+}
+
+.detail-actions-hint {
+    color: #cbd5e1;
+    width: 1fr;
+    content-align: center middle;
+}
+
+/* ----- Calendar ----- */
+
+#calendar-root {
+    padding: 1 2;
+    height: 1fr;
+}
+
+.calendar-title {
+    margin-bottom: 1;
+    color: #a5b4fc;
+}
+
+#calendar-table {
+    border: round #6366f1;
+    height: 1fr;
+}
+
+.calendar-summary {
+    height: 1;
+    color: #94a3b8;
+    padding: 0 1;
+    margin-top: 1;
+}
+
+/* ----- Help / missing db ----- */
+
+#help-body,
+#missing-db {
+    padding: 2 4;
+    border: round #6366f1;
+    margin: 2 4;
+    background: #161728;
+}
+
+.help-title {
+    color: #a5b4fc;
+}
+
+.help-body {
+    color: #cbd5e1;
+}

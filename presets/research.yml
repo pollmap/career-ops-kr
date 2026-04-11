@@ -1,0 +1,201 @@
+# 🟨 PRESET — 연구직 / 학술 (대학원/연구소/씽크탱크)
+# career-ops-kr domain preset
+# 인코딩: UTF-8
+
+preset_id: research
+label_ko: "연구직 / 학술"
+label_en: "Research / Academia"
+description: >
+  대학원 진학/RA, 정부출연연구기관, 기업 R&D, 씽크탱크, 정책 연구, 임상
+  연구 등 연구직 직군 전반. BRIC·한국연구재단·KISTEP 등 연구 포털 중심.
+  논문/학회/RA 키워드 가점 체계.
+target_audience: "학부 졸업 후 연구 진로 준비생, 대학원 진학 대기자, 신입 리서처"
+
+qualifier_rules:
+  negative_patterns:
+    - id: "neg_phd_only"
+      pattern: "(박사\\s*학위|PhD)\\s*(필수|보유자|이상\\s*필수)"
+      weight: -90
+      reason: "박사 필수"
+      action: "reject"
+    - id: "neg_master_required"
+      pattern: "(석사\\s*이상\\s*필수|석사\\s*학위\\s*보유자)"
+      weight: -70
+      reason: "석사 필수"
+      action: "warn"
+    - id: "neg_specific_major_only"
+      pattern: "(의학|약학|공학)\\s*(전공\\s*필수)"
+      weight: -60
+      reason: "특정 전공 필수"
+      action: "warn"
+    - id: "neg_senior_researcher"
+      pattern: "(수석\\s*연구원|책임\\s*연구원|Principal\\s*Investigator)"
+      weight: -90
+      reason: "시니어 연구원"
+      action: "reject"
+    - id: "neg_experience_years"
+      pattern: "(연구\\s*경력)\\s*(5|7|10)\\s*년\\s*이상"
+      weight: -70
+      reason: "5년+ 연구경력"
+      action: "warn"
+  positive_patterns:
+    - id: "pos_ra"
+      pattern: "(연구\\s*보조원|RA|Research\\s*Assistant|연구\\s*인턴)"
+      weight: 80
+      reason: "연구 보조원"
+    - id: "pos_ugrad_ok"
+      pattern: "(학부생\\s*가능|학사\\s*과정|재학생\\s*지원)"
+      weight: 70
+      reason: "학부생 지원 가능"
+    - id: "pos_publication"
+      pattern: "(논문|publication|SCI|학술지)"
+      weight: 50
+      reason: "논문 관련"
+    - id: "pos_conference"
+      pattern: "(학회|conference|포스터\\s*발표|구두\\s*발표)"
+      weight: 45
+      reason: "학회 활동"
+    - id: "pos_stats"
+      pattern: "(통계|SPSS|R\\b|STATA|SAS)"
+      weight: 55
+      reason: "통계 분석"
+    - id: "pos_english"
+      pattern: "(영어\\s*논문|영문\\s*리포트|TOEIC|TOEFL)"
+      weight: 40
+      reason: "영어 역량"
+    - id: "pos_policy"
+      pattern: "(정책\\s*연구|공공\\s*정책|정책\\s*분석)"
+      weight: 55
+      reason: "정책 연구"
+  numeric_rules:
+    min_semester_completed: 3
+    max_gpa_required: 3.5  # 연구직은 학점 중요
+    age_range:
+      min: 20
+      max: 32
+    max_years_experience_required: 3
+
+scoring_weights:
+  dimensions:
+    role_fit: 0.20
+    eligibility_match: 0.20
+    compensation: 0.10
+    location: 0.10
+    growth: 0.10
+    brand: 0.10
+    portfolio_usefulness: 0.10
+    schedule_conflict: 0.05
+    deadline_urgency: 0.03
+    hitl_discretion: 0.02
+  modifiers:
+    role_fit:
+      - keyword: "RA|연구보조|정책연구|리서치"
+        bonus: 10
+      - keyword: "행정|총무|경리"
+        bonus: -10
+    portfolio_usefulness:
+      - keyword: "논문|학회|데이터셋|통계분석"
+        bonus: 12
+    brand:
+      - keyword: "KDI|KIEP|KISTEP|KIST|서울대|KAIST"
+        bonus: 12
+
+portals:
+  - name: "한국연구재단 (NRF)"
+    key: "nrf"
+    url: "https://www.nrf.re.kr"  # TODO: specific jobs/recruit page
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: false
+    filters:
+      include: ["연구", "과제", "사업단"]
+      exclude: []
+  - name: "잡알리오 (연구직)"
+    key: "jobaliio_research"
+    url: "https://job.alio.go.kr/recruit.do"
+    backend: "requests"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["연구", "연구원", "RA", "정책"]
+      exclude: ["시설", "기능"]
+  - name: "BRIC (생명과학)"
+    key: "bric"
+    url: "https://www.ibric.org/job/"
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include: ["연구원", "RA", "포스닥", "연구보조"]
+      exclude: []
+  - name: "KISTEP"
+    key: "kistep"
+    url: "https://www.kistep.re.kr"  # TODO: jobs listing endpoint
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: false
+    filters:
+      include: ["정책", "연구", "R&D"]
+      exclude: []
+  - name: "하이브레인넷"
+    key: "hibrain"
+    url: "https://www.hibrainnet.com"  # 대학/연구기관 채용 플랫폼
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include: ["연구원", "조교", "RA", "강사"]
+      exclude: []
+  - name: "링커리어 (리서치)"
+    key: "linkareer_research"
+    url: "https://linkareer.com/list/recruit"
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include: ["리서치", "연구", "애널리스트", "인턴"]
+      exclude: []
+
+archetypes:
+  ACADEMIC_RESEARCH:
+    label: "학술 연구 (대학/대학원)"
+    keywords: ["대학원", "학부생 RA", "학술 연구", "지도교수"]
+  INDUSTRY_RD:
+    label: "기업 R&D"
+    keywords: ["R&D", "기업 연구소", "연구개발", "Research Engineer"]
+  THINK_TANK:
+    label: "씽크탱크 / 정책 연구"
+    keywords: ["씽크탱크", "정책 연구", "KDI", "KIEP"]
+  POLICY_RESEARCH:
+    label: "정부 정책 리서치"
+    keywords: ["정부 정책", "공공 정책", "연구 용역"]
+  CLINICAL_RESEARCH:
+    label: "임상 연구"
+    keywords: ["임상", "CRA", "Clinical Research"]
+
+profile_template:
+  target_industries:
+    - "정부출연연구기관"
+    - "대학원 연구실 / RA"
+    - "씽크탱크 / 정책연구원"
+    - "기업 R&D 센터"
+  default_strengths:
+    - "논문/보고서 작성 경험"
+    - "통계 소프트웨어 (R/Python/SPSS) 활용"
+    - "문헌 리뷰 역량"
+    - "영어 자료 독해 및 요약"
+  default_constraints:
+    - "석사 학위 없음 (해당 시)"
+    - "SCI 논문 부재 (해당 시)"
+    - "학점 경쟁력 확인 필요"
+  suggested_certifications:
+    - "TOEIC / TOEFL"
+    - "GRE (해외 진학 대비)"
+    - "SAS Base Certification"
+    - "통계분석사"

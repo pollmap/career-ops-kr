@@ -1,0 +1,206 @@
+# 🟧 PRESET — 마케팅 / PR / 브랜드 / 그로스
+# career-ops-kr domain preset
+# 인코딩: UTF-8
+
+preset_id: marketing
+label_ko: "마케팅 / PR / 브랜드"
+label_en: "Marketing / PR / Brand"
+description: >
+  퍼포먼스 마케팅, 콘텐츠 마케팅, 소셜미디어, 브랜드 매니지먼트, PR,
+  그로스 해킹, CRM 등 마케팅 직군 전반. GA4·Meta Ads·광고 운영 키워드
+  중심 가점 체계. 대학생 인턴 포털에 강점.
+target_audience: "마케팅/경영학 전공 학부생, 주니어 마케터, 콘텐츠 크리에이터 전환 준비생"
+
+qualifier_rules:
+  negative_patterns:
+    - id: "neg_senior_only"
+      pattern: "(시니어|Senior|팀장|매니저급)\\s*(이상|필수)"
+      weight: -90
+      reason: "시니어 전용"
+      action: "reject"
+    - id: "neg_experience_years"
+      pattern: "(경력|경험)\\s*(3|5|7|10)\\s*년\\s*이상"
+      weight: -60
+      reason: "3년+ 경력 요구"
+      action: "warn"
+    - id: "neg_outbound_call"
+      pattern: "(아웃바운드\\s*콜|텔레마케팅|콜\\s*영업)"
+      weight: -100
+      reason: "콜센터/텔레마케팅"
+      action: "reject"
+    - id: "neg_door_sales"
+      pattern: "(방문\\s*판매|매장\\s*관리|외근\\s*위주)"
+      weight: -80
+      reason: "방문판매/외근"
+      action: "reject"
+  positive_patterns:
+    - id: "pos_ga4"
+      pattern: "(GA4|Google\\s*Analytics|구글\\s*애널리틱스)"
+      weight: 60
+      reason: "GA 활용"
+    - id: "pos_meta_ads"
+      pattern: "(Meta\\s*Ads|페이스북\\s*광고|인스타\\s*광고|페이스북\\s*비즈니스)"
+      weight: 60
+      reason: "메타 광고 운영"
+    - id: "pos_google_ads"
+      pattern: "(Google\\s*Ads|구글\\s*애즈|검색광고)"
+      weight: 55
+      reason: "구글 광고"
+    - id: "pos_seo"
+      pattern: "(SEO|검색엔진\\s*최적화|검색\\s*노출)"
+      weight: 45
+      reason: "SEO 역량"
+    - id: "pos_content"
+      pattern: "(콘텐츠\\s*기획|카피라이팅|인스타|유튜브|브랜딩)"
+      weight: 55
+      reason: "콘텐츠 기획 역량"
+    - id: "pos_newbie"
+      pattern: "(신입|주니어|경력\\s*무관|학생\\s*가능)"
+      weight: 65
+      reason: "신입 가능"
+    - id: "pos_data_driven"
+      pattern: "(데이터\\s*기반|퍼포먼스|지표\\s*분석|A/B\\s*테스트|그로스)"
+      weight: 70
+      reason: "데이터 기반 마케팅"
+    - id: "pos_remote"
+      pattern: "(재택|원격|하이브리드)"
+      weight: 35
+      reason: "원격 근무"
+  numeric_rules:
+    min_semester_completed: 2
+    max_gpa_required: 3.0
+    age_range:
+      min: 19
+      max: 34
+    max_years_experience_required: 2
+
+scoring_weights:
+  dimensions:
+    role_fit: 0.20
+    eligibility_match: 0.20
+    compensation: 0.10
+    location: 0.10
+    growth: 0.10
+    brand: 0.10
+    portfolio_usefulness: 0.10
+    schedule_conflict: 0.05
+    deadline_urgency: 0.03
+    hitl_discretion: 0.02
+  modifiers:
+    role_fit:
+      - keyword: "퍼포먼스|콘텐츠|SNS|브랜드|그로스"
+        bonus: 10
+      - keyword: "콜센터|전화|영업 전담"
+        bonus: -15
+    portfolio_usefulness:
+      - keyword: "블로그|인스타 계정|유튜브 채널|캠페인 레퍼런스"
+        bonus: 10
+    brand:
+      - keyword: "삼성|LG|카카오|네이버|토스|무신사|올리브영"
+        bonus: 10
+
+portals:
+  - name: "링커리어 (마케팅)"
+    key: "linkareer_marketing"
+    url: "https://linkareer.com/list/recruit"
+    backend: "playwright"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["마케팅", "브랜드", "콘텐츠", "SNS", "인턴", "체험형"]
+      exclude: ["영업", "텔레마케팅"]
+  - name: "대학내일 인턴"
+    key: "univ20_intern"
+    url: "https://www.univ20.com"  # TODO: verify exact intern board path
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: false
+    filters:
+      include: ["마케팅", "인턴", "서포터즈"]
+      exclude: []
+  - name: "원티드 (마케팅)"
+    key: "wanted_marketing"
+    url: "https://www.wanted.co.kr/wdlist/523"  # 마케팅 카테고리
+    backend: "api"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["퍼포먼스", "그로스", "콘텐츠", "브랜드"]
+      exclude: ["영업"]
+  - name: "잡코리아 (마케팅)"
+    key: "jobkorea_marketing"
+    url: "https://www.jobkorea.co.kr/recruit/joblist"  # TODO: confirm marketing duty filter
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include: ["마케팅", "기획", "브랜드"]
+      exclude: ["영업"]
+  - name: "사람인 (마케팅)"
+    key: "saramin_marketing"
+    url: "https://www.saramin.co.kr/zf_user/jobs/list/job-category"  # TODO: marketing category URL
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include: ["마케팅", "기획", "PR"]
+      exclude: ["영업"]
+  - name: "캐치 (마케팅 인턴)"
+    key: "catch_intern"
+    url: "https://www.catch.co.kr"  # TODO: verify listing endpoint
+    backend: "playwright"
+    tier: 4
+    login_required: false
+    enabled: false
+    filters:
+      include: ["마케팅", "인턴"]
+      exclude: []
+
+archetypes:
+  PERFORMANCE_MARKETING:
+    label: "퍼포먼스 마케터"
+    keywords: ["퍼포먼스", "퍼포먼스 마케팅", "Meta Ads", "Google Ads", "광고 운영"]
+  CONTENT_MARKETING:
+    label: "콘텐츠 마케터"
+    keywords: ["콘텐츠 마케팅", "카피라이팅", "블로그", "SEO"]
+  SOCIAL_MEDIA:
+    label: "SNS / 소셜미디어 매니저"
+    keywords: ["SNS", "인스타그램", "틱톡", "유튜브", "커뮤니티"]
+  BRAND_MANAGEMENT:
+    label: "브랜드 매니저 / BM"
+    keywords: ["브랜드", "BM", "Brand Manager", "브랜드 마케팅"]
+  PR:
+    label: "PR / 홍보"
+    keywords: ["PR", "홍보", "언론", "미디어"]
+  GROWTH_HACKING:
+    label: "그로스 해커"
+    keywords: ["그로스", "Growth Hacking", "리텐션", "AARRR", "데이터 드리븐"]
+  CRM:
+    label: "CRM 마케터"
+    keywords: ["CRM", "리텐션", "푸시", "이메일 마케팅"]
+
+profile_template:
+  target_industries:
+    - "IT 서비스 / 플랫폼"
+    - "커머스 / D2C 브랜드"
+    - "에이전시 (디지털/퍼포먼스)"
+    - "스타트업 인하우스 마케팅팀"
+  default_strengths:
+    - "GA4 + Meta Ads 운영 경험"
+    - "콘텐츠 기획 + 카피라이팅"
+    - "지표 기반 A/B 실험"
+    - "인스타그램 / 커뮤니티 운영"
+  default_constraints:
+    - "대형 브랜드 실무 경력 없음"
+    - "정식 마케팅 학위 없음 (해당 시)"
+  suggested_certifications:
+    - "GA4 (Google Analytics Individual Qualification)"
+    - "Meta Blueprint"
+    - "Google Ads 자격 인증"
+    - "YouTube 크리에이터 인증"
+    - "소셜미디어 마케팅 전문가"

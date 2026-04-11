@@ -1,0 +1,142 @@
+# 🔷 SYSTEM — Portals Configuration Template
+# config/portals.yml의 시스템 예시 템플릿
+# 새 사용자는 이 파일을 복사 → config/portals.yml 에 두고 placeholder를 교체
+# 인코딩: UTF-8
+# 최종 갱신: 2026-04-11
+
+portals:
+
+  # ─────────────────────────────────────────────
+  # Tier 1 — Primary aggregator (필수)
+  # ─────────────────────────────────────────────
+  - name: "{{portal_1_display_name}}"
+    key: "{{portal_1_key}}"          # 소문자 snake_case, DB/파일명 용도
+    url: "{{portal_1_listing_url}}"  # 공고 리스트 URL
+    backend: "{{portal_1_backend}}"  # api | rss | requests | playwright
+    tier: 1                          # 1=최우선, 6=최하
+    login_required: false            # true/false
+    enabled: true
+    filters:
+      include:
+        - "{{keyword_include_1}}"
+        - "{{keyword_include_2}}"
+        - "{{keyword_include_3}}"
+      exclude:
+        - "{{keyword_exclude_1}}"
+        - "{{keyword_exclude_2}}"
+
+  # ─────────────────────────────────────────────
+  # Tier 2 — Secondary aggregator
+  # ─────────────────────────────────────────────
+  - name: "{{portal_2_display_name}}"
+    key: "{{portal_2_key}}"
+    url: "{{portal_2_listing_url}}"
+    backend: "{{portal_2_backend}}"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "{{keyword_include_1}}"
+      exclude: []
+
+  # ─────────────────────────────────────────────
+  # Tier 3 — Company-specific career sites
+  # ─────────────────────────────────────────────
+  - name: "{{portal_3_company_name}}"
+    key: "{{portal_3_key}}"
+    url: "{{portal_3_career_url}}"
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "{{target_role_1}}"
+        - "{{target_role_2}}"
+      exclude:
+        - "{{avoid_role_1}}"
+
+  - name: "{{portal_4_company_name}}"
+    key: "{{portal_4_key}}"
+    url: "{{portal_4_career_url}}"
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "{{target_role_1}}"
+      exclude: []
+
+  # ─────────────────────────────────────────────
+  # Tier 4 — Industry association / public
+  # ─────────────────────────────────────────────
+  - name: "{{portal_5_org_name}}"
+    key: "{{portal_5_key}}"
+    url: "{{portal_5_listing_url}}"
+    backend: "requests"
+    tier: 4
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "{{keyword_public_1}}"
+      exclude: []
+
+  - name: "{{portal_6_org_name}}"
+    key: "{{portal_6_key}}"
+    url: "{{portal_6_listing_url}}"
+    backend: "playwright"
+    tier: 4
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "{{keyword_public_1}}"
+      exclude: []
+
+  # ─────────────────────────────────────────────
+  # Tier 5 — Niche / data-focused
+  # ─────────────────────────────────────────────
+  - name: "{{portal_7_niche_name}}"
+    key: "{{portal_7_key}}"
+    url: "{{portal_7_listing_url}}"
+    backend: "rss"
+    tier: 5
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "{{niche_keyword_1}}"
+        - "{{niche_keyword_2}}"
+      exclude: []
+
+  # ─────────────────────────────────────────────
+  # Tier 6 — General job boards
+  # ─────────────────────────────────────────────
+  - name: "{{portal_8_general_name}}"
+    key: "{{portal_8_key}}"
+    url: "{{portal_8_listing_url}}"
+    backend: "api"
+    tier: 6
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "{{general_keyword_1}}"
+        - "{{general_keyword_2}}"
+      exclude:
+        - "{{spam_keyword_1}}"
+
+  - name: "{{portal_9_general_name}}"
+    key: "{{portal_9_key}}"
+    url: "{{portal_9_listing_url}}"
+    backend: "api"
+    tier: 6
+    login_required: true
+    enabled: false  # 로그인 필요 포털은 기본 비활성
+    filters:
+      include:
+        - "{{general_keyword_1}}"
+      exclude: []

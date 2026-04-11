@@ -1,0 +1,112 @@
+# 🔶 USER LAYER — A~F 점수 10차원 가중치
+# career-ops-kr 스코어링 엔진 설정
+# 총합 100% (sum of weights = 100)
+# 인코딩: UTF-8
+# 최종 갱신: 2026-04-11
+
+# 등급 컷 (전체 점수 0~100 기준)
+grade_cuts:
+  A: 85   # 85+ = A (반드시 지원)
+  B: 70   # 70~84 = B (지원 권장)
+  C: 55   # 55~69 = C (검토 후 판단)
+  D: 40   # 40~54 = D (예비)
+  E: 25   # 25~39 = E (거의 제외)
+  F: 0    # 0~24 = F (탈락)
+
+dimensions:
+
+  - key: "role_fit"
+    label: "직무 적합도"
+    description: "공고 직무가 찬희의 타겟(금융×AI×블록체인 리서치/데이터)과 일치하는 정도"
+    weight: 20
+    modifiers:
+      - keyword: "AI 리서치|퀀트|데이터 분석"
+        bonus: +10
+      - keyword: "단순 사무|영업|CS"
+        bonus: -15
+
+  - key: "eligibility_match"
+    label: "자격 요건 부합도"
+    description: "학력/전공/경력/자격증 조건을 실제 만족하는 정도"
+    weight: 20
+    modifiers:
+      - keyword: "학력무관|전공무관|휴학생 가능"
+        bonus: +10
+      - keyword: "졸업예정자|3년+ 경력"
+        bonus: -20
+
+  - key: "compensation"
+    label: "보수 수준"
+    description: "연봉/시급/수당 수준 (신입급 기준 시장가 대비)"
+    weight: 10
+    modifiers:
+      - keyword: "연봉 협의|추후 공지"
+        bonus: -3
+      - keyword: "4000만|5000만"
+        bonus: +5
+
+  - key: "location"
+    label: "근무지 / 통근"
+    description: "안산/서울 4호선권 통근 가능성, 원격/하이브리드 여부"
+    weight: 10
+    modifiers:
+      - keyword: "원격|재택|하이브리드"
+        bonus: +8
+      - keyword: "지방|제주|부산|대구"
+        bonus: -15
+
+  - key: "growth"
+    label: "성장 가능성"
+    description: "배움/사수/멘토링/업스킬링 기회 정도"
+    weight: 10
+    modifiers:
+      - keyword: "멘토링|사수|교육"
+        bonus: +5
+      - keyword: "혼자|1인"
+        bonus: -3
+
+  - key: "brand"
+    label: "브랜드 파워"
+    description: "회사의 네임밸류 / 추후 커리어 시그널 가치"
+    weight: 10
+    modifiers:
+      - keyword: "신한|키움|삼성|카카오|네이버|토스"
+        bonus: +10
+      - keyword: "이름없음|비상장 초기"
+        bonus: -5
+
+  - key: "portfolio_usefulness"
+    label: "포트폴리오 활용도"
+    description: "Luxon AI / CUFA / MCP 경험을 어필할 수 있는 정도"
+    weight: 10
+    modifiers:
+      - keyword: "MCP|에이전트|LLM|가치투자|CUFA"
+        bonus: +10
+
+  - key: "schedule_conflict"
+    label: "일정 충돌"
+    description: "CUFA 회장 업무 / Luxon AI 운영과의 충돌 정도"
+    weight: 5
+    modifiers:
+      - keyword: "야근|주말 근무|주 6일"
+        bonus: -10
+
+  - key: "deadline_urgency"
+    label: "마감 긴급도"
+    description: "마감일까지 남은 시간 (임박할수록 가점, 지원 누락 방지)"
+    weight: 3
+    modifiers:
+      - keyword: "상시|수시"
+        bonus: +2
+      - keyword: "마감 임박|D-3"
+        bonus: +3
+
+  - key: "hitl_discretion"
+    label: "수동 재량 (HITL)"
+    description: "찬희가 수동으로 올리거나 내릴 수 있는 재량 가산점"
+    weight: 2
+    modifiers: []
+
+# 가중치 합계 검증용 (엔진이 파싱 시 확인)
+# 20 + 20 + 10 + 10 + 10 + 10 + 10 + 5 + 3 + 2 = 100
+sum_check: 100

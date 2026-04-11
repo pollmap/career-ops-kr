@@ -1,0 +1,210 @@
+# 🟫 PRESET — 공공기관 / 행정 / NGO
+# career-ops-kr domain preset
+# 인코딩: UTF-8
+
+preset_id: public
+label_ko: "공공기관 / 행정 / NGO"
+label_en: "Public Sector / Administration / NGO"
+description: >
+  중앙·지방정부, 공공기관, 공기업, NGO/NPO, 국제기구, 정책 싱크탱크.
+  잡알리오·나라일터 중심의 공공 채용 생태계. 체험형 인턴과 기간제
+  중심의 청년 공공 진입 트랙을 최우선.
+target_audience: "공공기관 인턴/기간제 준비생, 공기업·공공기관 신입 지망, NGO 활동가 지망"
+
+qualifier_rules:
+  negative_patterns:
+    - id: "neg_graduate_only"
+      pattern: "(졸업자\\s*필수|기졸업자|졸업\\s*후\\s*1년)"
+      weight: -90
+      reason: "졸업자 필수"
+      action: "reject"
+    - id: "neg_age_limit"
+      pattern: "(34\\s*세|35\\s*세)\\s*이상\\s*제한"
+      weight: -100
+      reason: "연령 상한"
+      action: "reject"
+    - id: "neg_certificate_required"
+      pattern: "(공인어학|TOEIC\\s*800|OPIc\\s*IH)\\s*(필수|이상)"
+      weight: -40
+      reason: "공인 어학 하한 요구"
+      action: "warn"
+    - id: "neg_disabled_only"
+      pattern: "(장애인\\s*전형|보훈\\s*대상자\\s*전용)"
+      weight: -100
+      reason: "특정 대상 전용"
+      action: "reject"
+    - id: "neg_region_limit"
+      pattern: "(지역\\s*거주자|해당\\s*지역\\s*거주)"
+      weight: -60
+      reason: "지역 거주자 우선"
+      action: "warn"
+  positive_patterns:
+    - id: "pos_experi_intern"
+      pattern: "(체험형\\s*인턴|청년\\s*인턴|청년\\s*일경험)"
+      weight: 90
+      reason: "체험형/청년 인턴"
+    - id: "pos_student_ok"
+      pattern: "(재학생\\s*가능|학부\\s*재학|휴학생\\s*가능)"
+      weight: 80
+      reason: "재학/휴학 가능"
+    - id: "pos_hanguksa"
+      pattern: "(한국사\\s*능력|한국사능력검정)"
+      weight: 30
+      reason: "한국사 가산"
+    - id: "pos_blindhiring"
+      pattern: "(블라인드\\s*채용|학력\\s*무관)"
+      weight: 60
+      reason: "블라인드 채용"
+    - id: "pos_fixed_term"
+      pattern: "(기간제|계약직\\s*6개월|체험형\\s*인턴십)"
+      weight: 50
+      reason: "단기 기간제"
+    - id: "pos_public_value"
+      pattern: "(공공\\s*가치|공익|사회\\s*공헌|지역\\s*사회)"
+      weight: 30
+      reason: "공공 가치"
+  numeric_rules:
+    min_semester_completed: 2
+    max_gpa_required: 3.0
+    age_range:
+      min: 18
+      max: 34
+    max_years_experience_required: 2
+
+scoring_weights:
+  dimensions:
+    role_fit: 0.20
+    eligibility_match: 0.20
+    compensation: 0.10
+    location: 0.10
+    growth: 0.10
+    brand: 0.10
+    portfolio_usefulness: 0.10
+    schedule_conflict: 0.05
+    deadline_urgency: 0.03
+    hitl_discretion: 0.02
+  modifiers:
+    eligibility_match:
+      - keyword: "블라인드|학력무관|지역제한 없음"
+        bonus: 12
+    role_fit:
+      - keyword: "행정|정책|사업 운영|기간제"
+        bonus: 8
+      - keyword: "민원 응대|전화 응대|수금"
+        bonus: -10
+    brand:
+      - keyword: "한국전력|LH|국민연금|건강보험|한국은행|기획재정부"
+        bonus: 10
+
+portals:
+  - name: "잡알리오 (공공기관)"
+    key: "jobaliio"
+    url: "https://job.alio.go.kr/recruit.do"
+    backend: "requests"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["공공", "행정", "체험형", "인턴", "청년"]
+      exclude: ["기능직", "토목", "건설"]
+  - name: "나라일터 (공무원/임기제)"
+    key: "gojobs"
+    url: "https://www.gojobs.go.kr"
+    backend: "playwright"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include: ["임기제", "전문임기제", "기간제"]
+      exclude: []
+  - name: "인사혁신처 사이버국가고시센터"
+    key: "gosi_kr"
+    url: "https://www.gosi.kr"
+    backend: "playwright"
+    tier: 3
+    login_required: false
+    enabled: false  # 공무원 시험 중심 — 본 용도에 한정적
+    filters:
+      include: ["경채", "임기제"]
+      exclude: ["5급", "9급 필기"]
+  - name: "청년일경험포털 (work24)"
+    key: "youthjob"
+    url: "https://www.work.go.kr/experi/index.do"
+    backend: "requests"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include: ["청년", "체험형", "인턴", "공공"]
+      exclude: []
+  - name: "공공기관 경영정보공개시스템 (Alio 메인)"
+    key: "alio_main"
+    url: "https://www.alio.go.kr"
+    backend: "requests"
+    tier: 3
+    login_required: false
+    enabled: false  # 채용 리스팅은 job.alio가 주
+    filters:
+      include: []
+      exclude: []
+  - name: "서울일자리포털 (지자체 예시)"
+    key: "seoul_job"
+    url: "https://job.seoul.go.kr"
+    backend: "playwright"
+    tier: 4
+    login_required: false
+    enabled: true
+    filters:
+      include: ["청년", "기간제", "시정", "인턴"]
+      exclude: ["생산직"]
+  - name: "원티드 (NGO/임팩트)"
+    key: "wanted_impact"
+    url: "https://www.wanted.co.kr/wdlist"  # TODO: 소셜임팩트/NGO 카테고리 확인
+    backend: "api"
+    tier: 4
+    login_required: false
+    enabled: false
+    filters:
+      include: ["소셜", "임팩트", "NGO"]
+      exclude: []
+
+archetypes:
+  ADMINISTRATION:
+    label: "행정 / 사무"
+    keywords: ["행정", "사무", "기획", "총무"]
+  POLICY:
+    label: "정책 기획 / 분석"
+    keywords: ["정책", "기획", "사업 관리", "제도"]
+  WELFARE:
+    label: "복지 / 사회서비스"
+    keywords: ["사회복지", "복지", "돌봄"]
+  INTERNATIONAL:
+    label: "국제기구 / 국제협력"
+    keywords: ["국제", "UN", "ODA", "KOICA"]
+  NGO:
+    label: "NGO / NPO / 시민사회"
+    keywords: ["NGO", "NPO", "시민사회", "비영리"]
+  LOCAL_GOVERNMENT:
+    label: "지자체 / 지역 사업"
+    keywords: ["지자체", "구청", "시청", "주민 참여"]
+
+profile_template:
+  target_industries:
+    - "공공기관 / 공기업"
+    - "중앙부처 / 산하기관"
+    - "지자체 / 지방공기업"
+    - "NGO / 시민사회단체"
+  default_strengths:
+    - "문서 작성 역량 (보고서/기안)"
+    - "데이터 정리 및 엑셀 실무"
+    - "공공성/윤리 감수성"
+    - "다양한 이해관계자 조율 경험"
+  default_constraints:
+    - "졸업 예정자 아님 (해당 시)"
+    - "장기 기간제 제약"
+    - "지역 이동 가능성 제한"
+  suggested_certifications:
+    - "한국사능력검정시험 2급 이상"
+    - "컴퓨터활용능력 1급"
+    - "워드프로세서"
+    - "국어능력인증시험 (KBS)"

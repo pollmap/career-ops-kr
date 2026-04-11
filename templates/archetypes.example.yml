@@ -1,0 +1,74 @@
+# 🔷 SYSTEM 레이어 — archetype classifier template
+#
+# Generic scaffolding for a new domain archetype set.  Copy this file to
+# ``config/archetypes.yml`` and edit the placeholder archetypes to match
+# your target domain.  The classifier will dynamically load whatever
+# archetypes are defined here — you are NOT limited to the finance_kr
+# defaults.
+#
+# Layout contract (enforced by ArchetypeConfig pydantic model):
+#
+#   version             integer, schema version (start at 1)
+#   domain              short slug, e.g. "finance_kr", "healthcare_us"
+#   description         free-text description of what this domain covers
+#   tiebreak_priority   ordered list of archetype codes — earlier wins ties
+#   archetypes          mapping of CODE -> archetype definition
+#
+# Each archetype definition has:
+#
+#   label_ko            Korean-language label (display)
+#   label_en            English-language label (display)
+#   keywords.strong     weight 3 — unambiguous domain signals
+#   keywords.medium     weight 2 — supporting context signals
+#   keywords.weak       weight 1 — noisy / generic signals
+#   org_patterns        optional list of organization names; matching any
+#                       adds a small bonus score to that archetype
+#
+# Always include ``UNKNOWN`` as the fallback archetype (empty keyword lists).
+
+version: 1
+domain: example_domain
+description: Example generic template — replace with your domain
+
+tiebreak_priority:
+  - TYPE_A
+  - TYPE_B
+  - UNKNOWN
+
+archetypes:
+  TYPE_A:
+    label_ko: 유형 A
+    label_en: Type A
+    keywords:
+      strong:
+        - alpha
+        - primary-signal-A
+      medium:
+        - secondary-signal-A
+      weak:
+        - weak-hint-A
+    org_patterns:
+      - ExampleOrgA
+
+  TYPE_B:
+    label_ko: 유형 B
+    label_en: Type B
+    keywords:
+      strong:
+        - beta
+        - primary-signal-B
+      medium:
+        - secondary-signal-B
+      weak:
+        - weak-hint-B
+    org_patterns:
+      - ExampleOrgB
+
+  UNKNOWN:
+    label_ko: 미분류
+    label_en: Unknown
+    keywords:
+      strong: []
+      medium: []
+      weak: []
+    org_patterns: []

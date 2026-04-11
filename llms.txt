@@ -1,0 +1,64 @@
+# career-ops-kr
+
+Version: 0.2.0
+Author: 이찬희 (pollmap, Luxon AI) <pollmap@luxon.ai>
+License: MIT
+Purpose: Korean-first AI job-hunt automation agent. Ports the santifer/career-ops
+  philosophy (mode separation + HITL + profile-centric) to the Korean market
+  (finance/fintech/blockchain) with multi-domain preset support.
+
+## Key invariants
+
+- UTF-8 encoding mandatory on all file I/O (encoding='utf-8', pathlib.Path, no cp949)
+- User/System layer separation: system updates MUST NOT touch User files
+  (cv.md, config/profile.yml, config/portals.yml, config/qualifier_rules.yml,
+   config/scoring_weights.yml, modes/_profile.md, data/*)
+- No mock data / hallucinations: crawl failure = record as failure, never synthesize
+- HITL 5 gates: G1 onboarding, G2 archetype change, G3 tracker merge,
+  G4 batch eval >=5, G5 auto-submit permanently forbidden
+- MCP-first: reuse Nexus MCP tools (vault_*, discord_*) when available
+- Scope discipline: do not expand beyond what was requested
+
+## Entry points
+
+- CLI: `career-ops` (see career_ops_kr/cli.py)
+- MCP server: `python -m career_ops_kr.mcp_server` (10 tools)
+- TUI dashboard: `career-ops ui` (Textual-based)
+
+## Modes (16 total)
+
+Phase 1 (MVP):    scan, filter, score, pipeline, tracker, patterns, auto-pipeline
+Phase 2:          pdf, interview-prep, apply, followup, project, batch
+Phase 3:          training, deep, contacto
+Korean locale:    modes/kr/*
+
+## Presets (7 domains)
+
+finance (default), dev, design, marketing, research, public, edu
+See presets/*.yml — each preset is config-only; engine code is shared.
+
+## Channels (v0.2 — 9 MVP + 9 stubs)
+
+MVP (implemented): linkareer, jobalio, yw_work24, shinhan_sec, kiwoomda,
+  kofia, dataq, apply_bok, wanted
+Sprint 3 stubs: 9 Tier 3-4 channels (to be filled by contributors)
+
+Channel priority: RSS/API > requests+bs4 > scrapling > playwright
+
+## References
+
+- CLAUDE.md — agent instructions (User/System separation, HITL gates)
+- CONTRIBUTING.md — how to contribute safely
+- docs/generalization.md — how the system is multi-domain
+- docs/presets.md — preset catalog
+- docs/adding-a-preset.md — how to add a new domain
+- docs/README.ko.md, README.en.md, README.ja.md — multi-language docs
+- CHANGELOG.md — version history
+- tests/ — regression dataset with real Korean HTML captures
+
+## Philosophy
+
+- Built for one real person's real job hunt, then generalized
+- Korean finance first, but domain-agnostic engine
+- Human-in-the-loop always; never auto-apply
+- Real data only; failure is logged, never faked

@@ -1,0 +1,240 @@
+# 🔶 USER 레이어 — 찬희 금융 도메인 확정본
+#
+# Archetype classifier keyword maps for the Korean finance/fintech/blockchain
+# job-hunt pipeline.  Each archetype defines keywords at three weights
+# (strong=3, medium=2, weak=1) plus organization name hints that add a small
+# bonus on match.  The classifier sums weighted hits per archetype and uses
+# ``tiebreak_priority`` to break ties (earlier = higher priority).
+#
+# This file is the USER layer — system updates must NOT overwrite it.
+# To create a new domain (e.g. healthcare, public sector), copy
+# templates/archetypes.example.yml and edit.
+
+version: 1
+domain: finance_kr
+description: 한국 금융/핀테크/블록체인 직무 분류 (찬희 확정본)
+
+tiebreak_priority:
+  - BLOCKCHAIN
+  - DIGITAL_ASSET
+  - CERTIFICATION
+  - PUBLIC_FINANCE
+  - RESEARCH
+  - FINTECH_PRODUCT
+  - FINANCIAL_IT
+  - UNKNOWN
+
+archetypes:
+  BLOCKCHAIN:
+    label_ko: 블록체인
+    label_en: Blockchain
+    keywords:
+      strong:
+        - 블록체인
+        - STO
+        - 토큰증권
+        - 토큰 증권
+        - 스마트컨트랙트
+        - 스마트 컨트랙트
+        - Web3
+        - web3
+        - 블록체인부
+        - 블록체인스크럼
+        - 블록체인 스크럼
+      medium:
+        - DID
+        - 온체인
+        - 이더리움
+        - 솔라나
+        - 디파이
+        - NFT
+        - 암호화폐
+        - 크립토
+      weak:
+        - 디지털
+        - 분산원장
+    org_patterns:
+      - Lambda256
+      - Hashed
+      - 체인파트너스
+
+  DIGITAL_ASSET:
+    label_ko: 디지털자산 운영
+    label_en: Digital Asset Operations
+    keywords:
+      strong:
+        - 디지털자산
+        - 디지털 자산
+        - 가상자산
+        - 커스터디
+        - 업비트
+        - 빗썸
+        - 코인원
+        - 두나무
+      medium:
+        - 거래소
+        - 수탁
+        - 마이닝
+        - UpTo
+      weak:
+        - 디지털자산 운영
+    org_patterns:
+      - 두나무
+      - 빗썸코리아
+      - 코인원
+      - 코빗
+
+  FINANCIAL_IT:
+    label_ko: 금융 IT
+    label_en: Financial IT
+    keywords:
+      strong:
+        - 금융 IT
+        - 금융IT
+        - 코어뱅킹
+        - 디지털 하나로
+        - 데이터 청년 캠퍼스
+      medium:
+        - IT/Digital
+        - 마이데이터
+        - API 게이트웨이
+        - 결제 시스템
+        - 핀테크 인프라
+        - 디지털 전환
+        - 디지털 인턴
+        - 데이터 부트캠프
+        - 금융데이터
+        - KDA
+        - 데이터분석가
+        - 부트캠프
+        - 하나로
+        - FISA
+        - 에이블스쿨
+        - 부스트캠프
+        - SW마에스트로
+        - SW 마에스트로
+        - 카카오테크
+        - 멀티캠퍼스
+        - 신한DS
+        - 우리FISA
+        - 하나저축은행
+        - 하나금융융합기술원
+        - ICT 학점연계
+        - KB IT
+        - IT's Your Life
+        - 미래내일
+        - 미래 내일
+        - 일경험
+        - 일 경험
+        - 청년 캠퍼스
+        - 데이터분석 인턴
+      weak:
+        - FITI
+        - 체험형 인턴
+        - 체험형 청년인턴
+        - 학점연계 인턴
+        - 인턴형
+    org_patterns: []
+
+  RESEARCH:
+    label_ko: 리서치
+    label_en: Research
+    keywords:
+      strong:
+        - 리서치
+        - 이코노미스트
+        - 퀀트
+        - Equity Research
+        - ESG 리서치
+        - ESG리서치
+        - 통화정책 경시대회
+      medium:
+        - 기업분석
+        - 투자전략
+        - Quant
+        - 애널리스트
+        - 경시대회
+      weak: []
+    org_patterns: []
+
+  FINTECH_PRODUCT:
+    label_ko: 핀테크 프로덕트
+    label_en: Fintech Product
+    keywords:
+      strong:
+        - 토스
+        - 카카오페이
+        - 뱅크샐러드
+        - 인슈어테크
+        - 핀다
+        - 페이히어
+        - 8percent
+        - 에잇퍼센트
+        - 금융위원회 핀테크
+        - 금융위 핀테크
+      medium:
+        - 간편결제
+        - 렌딧
+        - 핀테크 프로덕트
+        - 창업패키지
+        - 예비창업
+        - 창업유망팀
+        - 창업중심대학
+      weak: []
+    org_patterns: []
+
+  PUBLIC_FINANCE:
+    label_ko: 공공 금융
+    label_en: Public Finance
+    keywords:
+      strong:
+        - 한국은행
+        - 신용보증기금
+        - 기술보증기금
+        - 주택금융공사
+        - 한국주택금융공사
+        - 예탁결제원
+        - 예금보험공사
+        - 금융감독원
+        - 금감원
+        - 한국거래소
+        - 자산관리공사
+        - 캠코
+        - 한국연구재단
+      medium:
+        - 금융위원회
+        - 공공기관
+        - 대학생 서포터즈
+      weak:
+        - 체험형 인턴
+        - 서포터즈
+    org_patterns: []
+
+  CERTIFICATION:
+    label_ko: 자격시험
+    label_en: Certification
+    keywords:
+      strong:
+        - 자격시험
+        - ADsP
+        - SQLD
+        - 금투사
+        - 투운사
+        - 투자자산운용사
+        - 한국사능력검정
+      medium:
+        - 증권투자상담사
+        - 한국사
+        - 정기시험
+      weak:
+        - 회차
+    org_patterns: []
+
+  UNKNOWN:
+    label_ko: 미분류
+    label_en: Unknown
+    keywords:
+      strong: []
+      medium: []
+      weak: []
+    org_patterns: []
