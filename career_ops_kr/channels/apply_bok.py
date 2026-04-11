@@ -58,8 +58,7 @@ class ApplyBokChannel(BaseChannel):
         soup = BeautifulSoup(resp.text, "html.parser")
         # Primary selectors — table rows / notice list / recruit items.
         rows = soup.select(
-            "table tr, .notice-list li, .recruit-item, "
-            "ul.list li, .board-list tr, .boardList tr"
+            "table tr, .notice-list li, .recruit-item, ul.list li, .board-list tr, .boardList tr"
         )
         results: list[JobRecord] = []
         now = datetime.now()
@@ -111,9 +110,7 @@ class ApplyBokChannel(BaseChannel):
         # Fallback: career-keyword anchors anywhere in the page (defensive
         # path used when the primary selectors do not match the live DOM).
         if not results:
-            self.logger.info(
-                "apply_bok: primary selectors empty, trying anchor fallback"
-            )
+            self.logger.info("apply_bok: primary selectors empty, trying anchor fallback")
             for anchor in soup.find_all("a"):
                 text = (anchor.get_text(" ", strip=True) or "").strip()
                 href_raw = anchor.get("href") or ""

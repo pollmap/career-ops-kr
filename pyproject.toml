@@ -38,6 +38,7 @@ dependencies = [
 [project.optional-dependencies]
 scrapling = [
     "scrapling>=0.2",
+    "curl_cffi>=0.6",
 ]
 tui = [
     "textual>=0.80",
@@ -53,6 +54,12 @@ dev = [
     "types-requests",
     "scrapling>=0.2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/pollmap/career-ops-kr"
+Repository = "https://github.com/pollmap/career-ops-kr"
+Issues = "https://github.com/pollmap/career-ops-kr/issues"
+Changelog = "https://github.com/pollmap/career-ops-kr/blob/main/CHANGELOG.md"
 
 [project.scripts]
 career-ops = "career_ops_kr.cli:main"
@@ -121,6 +128,7 @@ addopts = [
     "-ra",
 ]
 markers = [
+    "unit: fast unit tests (no network, no I/O)",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks integration tests requiring network",
     "playwright: marks tests requiring Playwright browser",
