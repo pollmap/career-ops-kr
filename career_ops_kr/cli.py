@@ -808,6 +808,83 @@ def status_cmd() -> None:
     present = sum(1 for c in configs if (CONFIG_DIR / c).exists())
     console.print(f"[bold]Config:[/bold] {present}/{len(configs)} files")
 
+    # 6. 자격증 D-day
+    try:
+        import yaml
+        from datetime import date
+
+        cert_path = CONFIG_DIR / "certifications.yml"
+        if cert_path.exists():
+            with open(cert_path, encoding="utf-8") as f:
+                cert_data = yaml.safe_load(f) or {}
+            certs = cert_data.get("certifications", [])
+            events = cert_data.get("events", [])
+            today = date.today()
+
+            upcoming = []
+            for c in certs:
+                if c.get("status") in ("upcoming", "registered"):
+                    exam = c.get("exam_date", "")
+                    reg_start = c.get("register_start", "")
+                    if exam:
+                        exam_d = date.fromisoformat(exam)
+                        days = (exam_d - today).days
+                        reg_d = date.fromisoformat(reg_start) if reg_start else None
+                        reg_days = (reg_d - today).days if reg_d else None
+                        upcoming.append((c["name"], days, reg_days, c.get("status", "")))
+            for e in events:
+                ed = e.get("date", "")
+                if ed:
+                    days = (date.fromisoformat(ed) - today).days
+                    if days >= 0:
+                        upcoming.append((e["name"], days, None, e.get("status", "")))
+
+            upcoming.sort(key=lambda x: x[1])
+
+            if upcoming:
+                cert_table = Table(title="자격증/이벤트 D-day", show_header=True, header_style="bold")
+                cert_table.add_column("시험/이벤트", style="cyan")
+                cert_table.add_column("D-day", justify="right")
+                cert_table.add_column("접수", justify="right", style="dim")
+                cert_table.add_column("상태")
+                for name, days, reg_days, status in upcoming[:10]:
+                    if days < 0:
+                        dday = f"[dim]D+{abs(days)}[/dim]"
+                    elif days == 0:
+                        dday = "[red bold]오늘![/red bold]"
+                    elif days <= 7:
+                        dday = f"[red]D-{days}[/red]"
+                    elif days <= 14:
+                        dday = f"[yellow]D-{days}[/yellow]"
+                    else:
+                        dday = f"D-{days}"
+                    reg_str = f"D-{reg_days}" if reg_days is not None and reg_days >= 0 else ""
+                    if reg_days is not None and 0 <= reg_days <= 3:
+                        reg_str = f"[red]D-{reg_days} 접수![/red]"
+                    console.print()  # Only print once before table
+                    break
+                # Actually print table
+                for name, days, reg_days, status in upcoming[:10]:
+                    if days < 0:
+                        dday = f"[dim]D+{abs(days)}[/dim]"
+                    elif days == 0:
+                        dday = "[red bold]오늘![/red bold]"
+                    elif days <= 7:
+                        dday = f"[red]D-{days}[/red]"
+                    elif days <= 14:
+                        dday = f"[yellow]D-{days}[/yellow]"
+                    else:
+                        dday = f"D-{days}"
+                    reg_str = ""
+                    if reg_days is not None and reg_days >= 0:
+                        reg_str = f"D-{reg_days}"
+                        if reg_days <= 3:
+                            reg_str = f"[red]D-{reg_days}![/red]"
+                    cert_table.add_row(name, dday, reg_str, status)
+                console.print(cert_table)
+    except Exception:
+        pass
+
     console.print()
 
 

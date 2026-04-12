@@ -1,0 +1,93 @@
+# 찬희 자격증 로드맵 (2026-04-13 기준)
+# career-ops status에서 자동 표시
+
+version: "1.0"
+updated: "2026-04-13"
+
+certifications:
+  - id: investment_asset_manager
+    name: 투자자산운용사
+    name_en: Investment Asset Manager
+    register_start: "2026-04-13"
+    register_end: "2026-04-17"
+    exam_date: "2026-05-10"
+    url: "https://license.kofia.or.kr"
+    status: upcoming  # upcoming/registered/passed/failed
+    difficulty: hard
+    priority: 1
+
+  - id: adsp
+    name: ADsP
+    name_en: Advanced Data Analytics Semi-Professional
+    register_start: "2026-04-13"
+    register_end: "2026-04-17"
+    exam_date: "2026-05-17"
+    url: "https://www.dataq.or.kr"
+    status: upcoming
+    difficulty: medium
+    priority: 2
+
+  - id: korean_history
+    name: 한국사능력검정시험 2급
+    name_en: Korean History Exam Level 2
+    register_start: "2026-04-21"
+    register_end: "2026-04-28"
+    exam_date: "2026-05-23"
+    url: "https://www.historyexam.go.kr"
+    status: upcoming
+    difficulty: easy
+    priority: 3
+    note: "선착순! 4/21 10시 정각 접속"
+
+  - id: maegyeong_test
+    name: 매경TEST
+    name_en: MK Test
+    register_start: "2026-05-01"
+    register_end: "2026-05-15"
+    exam_date: "2026-05-31"
+    url: "https://exam.mk.co.kr"
+    status: upcoming
+    difficulty: easy
+    priority: 4
+
+  - id: sqld
+    name: SQLD
+    name_en: SQL Developer
+    register_start: "2026-05-15"
+    register_end: "2026-05-30"
+    exam_date: "2026-06-15"
+    url: "https://www.dataq.or.kr"
+    status: upcoming
+    difficulty: hard
+    priority: 5
+    note: "정확한 일정 dataq.or.kr 확인 필요"
+
+  - id: computer_literacy_2
+    name: 컴활 2급
+    name_en: Computer Literacy Level 2
+    register_start: "2026-05-01"
+    register_end: "2026-06-30"
+    exam_date: "2026-06-20"
+    url: "https://www.q-net.or.kr"
+    status: upcoming
+    difficulty: medium
+    priority: 6
+    note: "상시시험"
+
+  - id: financial_investment_analyst
+    name: 금융투자분석사
+    name_en: Financial Investment Analyst
+    register_start: "2026-06-15"
+    register_end: "2026-06-19"
+    exam_date: "2026-07-12"
+    url: "https://license.kofia.or.kr"
+    status: upcoming
+    difficulty: very_hard
+    priority: 7
+
+# 기타 이벤트
+events:
+  - id: bok_competition
+    name: 한은 통화정책 경시대회
+    date: "2026-05-28"
+    status: preparing
