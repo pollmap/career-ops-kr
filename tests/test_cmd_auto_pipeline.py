@@ -36,7 +36,7 @@ def test_auto_pipeline_no_channels(runner):
     from career_ops_kr.commands.auto_pipeline import auto_pipeline_cmd
 
     with patch("career_ops_kr.channels.CHANNEL_REGISTRY", {}):
-        result = runner.invoke(auto_pipeline_cmd, [])
+        result = runner.invoke(auto_pipeline_cmd, ["--source", "channels"])
     assert result.exit_code == 0
     assert "없음" in result.output or "완료" in result.output
 

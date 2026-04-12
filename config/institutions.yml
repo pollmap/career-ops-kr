@@ -1,6 +1,6 @@
 version: '1.0'
 source: 금융권_194개_전수조사_취업전략.xlsx (2026-04-12)
-total: 194
+total: 201
 institutions:
 - name: 한국은행
   slug: ____
@@ -1360,3 +1360,52 @@ institutions:
   salary: 9,200만
   career_url: https://recruit.nhn.com/
   feature: 간편결제, NHN 계열, 안정적
+- name: 국민취업지원제도
+  slug: kua
+  sector: 정부지원제도
+  grade: S
+  salary: 구직촉진수당 60만×6개월
+  career_url: https://www.kua.go.kr/
+  feature: 만18~34세 미취업 청년, 구직촉진수당+직업훈련+취업알선
+- name: 워크넷
+  slug: worknet
+  sector: 정부일자리포털
+  grade: S
+  salary: '-'
+  career_url: https://www.work.go.kr/seekWantedMain.do
+  feature: 고용노동부 공식 구인구직 포털
+- name: 청년일자리도약장려금
+  slug: youth_leap
+  sector: 정부지원제도
+  grade: A
+  salary: 기업 최대 720만원
+  career_url: https://www.work.go.kr/youngWorkEmpSpt/youngWorkEmpSptInfo.do
+  feature: 장기 미취업 청년 정규직 채용 기업 지원
+- name: 청년일경험포털
+  slug: youth_exp
+  sector: 정부일자리포털
+  grade: S
+  salary: '-'
+  career_url: https://yw.work24.go.kr/
+  feature: 청년 일경험(인턴/현장실습) 통합 포털
+- name: 잡알리오(공공기관)
+  slug: alio
+  sector: 정부일자리포털
+  grade: S
+  salary: '-'
+  career_url: https://job.alio.go.kr/
+  feature: 공공기관 채용 통합 포털
+- name: K-디지털 트레이닝
+  slug: k_digital
+  sector: 정부지원제도
+  grade: A
+  salary: 훈련수당 월20만+취업시 150만
+  career_url: https://www.hrd.go.kr/
+  feature: K-디지털 기초역량/실무/플랫폼 훈련
+- name: 나라일터
+  slug: gojobs
+  sector: 정부일자리포털
+  grade: S
+  salary: '-'
+  career_url: https://gojobs.go.kr/apmAllList.do
+  feature: 정부 일자리 통합 포털

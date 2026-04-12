@@ -118,6 +118,41 @@ positive_patterns:
     weight: +30
     reason: "원격 가능 — 찬희 선호"
 
+  - id: "pos_blind_hiring"
+    pattern: "(블라인드\\s*채용|블라인드\\s*전형|NCS\\s*기반)"
+    weight: +85
+    reason: "블라인드 채용 — 학벌/학점 영향 최소, 찬희에게 매우 유리"
+
+  - id: "pos_youth_intern"
+    pattern: "(청년\\s*인턴|체험형\\s*인턴|채용\\s*연계\\s*인턴|청년\\s*체험)"
+    weight: +90
+    reason: "청년인턴 → 정규직 전환 루트, 경력0 최적 진입점"
+
+  - id: "pos_regional_talent"
+    pattern: "(지역\\s*인재|지방\\s*대학|지역\\s*할당|지역\\s*제한\\s*채용)"
+    weight: +75
+    reason: "지역인재 전형 — 충북대 거점 활용 가능"
+
+  - id: "pos_no_experience"
+    pattern: "(경험\\s*불문|무경력|경력\\s*불문|경력\\s*없어도)"
+    weight: +70
+    reason: "무경력 가능 — 경력0 찬희 직접 해당"
+
+  - id: "pos_gov_support_program"
+    pattern: "(국민취업지원|청년일자리|일경험|내일채움공제|청년내일채움)"
+    weight: +50
+    reason: "정부 지원 프로그램 연계 — 추가 혜택"
+
+  - id: "pos_data_analysis"
+    pattern: "(데이터\\s*분석|데이터\\s*사이언|빅데이터|데이터\\s*엔지니어)"
+    weight: +65
+    reason: "데이터 분석 — 찬희 MCP/퀀트 경험 활용"
+
+  - id: "pos_security_intelligence"
+    pattern: "(정보보호|사이버\\s*보안|보안\\s*관제|디지털\\s*포렌식|OSINT)"
+    weight: +60
+    reason: "정보보안/사이버 — 국정원/경찰 관심 분야"
+
 # ─────────────────────────────────────────────
 # 3. Numeric rules — 수치 기반 규칙
 # ─────────────────────────────────────────────
