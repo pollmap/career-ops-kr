@@ -2,35 +2,53 @@
 
 Source: https://recruit.shinhansec.com/
 
-Tier: 1 (공식 채용 사이트). Legitimacy: T1.
-No login required; the listing page is publicly accessible. Filters for
-블록체인/디지털자산/핀테크/IT keywords before returning :class:`JobRecord`.
-If the page structure cannot be parsed we return ``[]`` with a fetch_errors
-note — we NEVER fabricate jobs.
+Backend: ``requests`` + BeautifulSoup. Reachable without login; the listing
+page is publicly accessible. The crawler walks every anchor on the landing
+page, filters by Korean career keywords (블록체인/디지털자산/IT/핀테크/...),
+and elevates 블록체인/디지털자산 keywords to the dedicated
+``BLOCKCHAIN_INTERN`` archetype so downstream scorer can prioritise them.
 
-Backend selection
+Failure semantics
 -----------------
-Prefers :class:`ScraplingChannel` (fast :class:`scrapling.fetchers.Fetcher`)
-when ``scrapling`` is importable; otherwise falls back to
-:class:`PlaywrightChannel`. The two implementations expose identical
-public methods so downstream code is agnostic.
+- Network failure / non-200 → returns ``[]`` (list_jobs) or ``None`` (get_detail).
+- HTML present but parsing yields zero records → returns ``[]`` with an info log.
+- We **never** fabricate jobs — the project-wide invariant from CLAUDE.md.
+
+Tier
+----
+신한투자증권 is a top-tier 증권사 (T1 legitimacy) but Korean 증권사 official
+career sites historically rank as ``tier=3`` per the project portal-tier
+system (1=정부, 2=공공, 3=대형 민간 등). Legitimacy stays ``T1`` because the
+URL is the company-owned recruit subdomain.
 """
 
 from __future__ import annotations
 
-import logging
+from datetime import datetime
 from typing import Any
 from urllib.parse import urljoin
 
+import requests
 from bs4 import BeautifulSoup
 
-from career_ops_kr.channels.base import JobRecord, deadline_parser
-
-logger = logging.getLogger(__name__)
-
+from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
 LISTING_URL = "https://recruit.shinhansec.com/"
 ORG = "신한투자증권"
+
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/124.0.0.0 Safari/537.36 "
+    "career-ops-kr/0.2.0"
+)
+
+DEFAULT_HEADERS: dict[str, str] = {
+    "User-Agent": USER_AGENT,
+    "Accept-Language": "ko-KR,ko;q=0.9,en;q=0.7",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9",
+}
+
 KEYWORDS: tuple[str, ...] = (
     "블록체인",
     "디지털자산",
@@ -42,179 +60,208 @@ KEYWORDS: tuple[str, ...] = (
     "STO",
     "개발",
     "데이터",
+    "AI",
+    "리서치",
+)
+
+BLOCKCHAIN_MARKERS: tuple[str, ...] = (
+    "블록체인",
+    "디지털자산",
+    "STO",
+    "크립토",
+    "토큰",
 )
 
 
-# ---------------------------------------------------------------------------
-# Shared parsing helpers (used by both backends)
-# ---------------------------------------------------------------------------
+class ShinhanSecChannel(BaseChannel):
+    """신한투자증권 채용 공고 수집기 (requests backend)."""
 
+    name = "shinhan_sec"
+    tier = 3
+    backend = "requests"
+    default_rate_per_minute = 6
+    default_legitimacy_tier = "T1"
 
-def _parse_listing_html(html: str, make_id: Any) -> list[JobRecord]:
-    soup = BeautifulSoup(html, "html.parser")
-    jobs: list[JobRecord] = []
-    seen_urls: set[str] = set()
+    def __init__(self, listing_url: str = LISTING_URL) -> None:
+        super().__init__()
+        self.listing_url = listing_url
 
-    for anchor in soup.find_all("a"):
-        text = (anchor.get_text(" ", strip=True) or "").strip()
-        if not text or len(text) < 4:
-            continue
-        if not any(kw in text for kw in KEYWORDS):
-            continue
-        href_raw = anchor.get("href") or ""
-        href = href_raw if isinstance(href_raw, str) else " ".join(href_raw)
-        if not href or href.startswith("#") or href.startswith("javascript"):
-            continue
-        url = urljoin(LISTING_URL, href)
-        if url in seen_urls:
-            continue
-        seen_urls.add(url)
+    # -- API ----------------------------------------------------------------
 
-        title = text[:200]
-        container = anchor.find_parent(["li", "tr", "div", "article"])
-        body_text = container.get_text(" ", strip=True) if container else text
-        deadline = deadline_parser(body_text)
-
-        jobs.append(
-            JobRecord(
-                id=make_id(url, title),
-                source_url=url,  # type: ignore[arg-type]
-                source_channel="shinhan_sec",
-                source_tier=1,
-                org=ORG,
-                title=title,
-                archetype=None,
-                deadline=deadline,
-                location="서울",
-                description=body_text[:2000],
-                raw_html=None,
-                legitimacy_tier="T1",
+    def check(self) -> bool:
+        """Reachability probe — GET the landing URL."""
+        try:
+            resp = requests.get(
+                self.listing_url,
+                headers=DEFAULT_HEADERS,
+                timeout=10,
             )
+        except requests.RequestException as exc:
+            self.logger.debug("shinhan_sec check failed: %s", exc)
+            return False
+        return resp.status_code == 200
+
+    def list_jobs(self, query: dict[str, Any] | None = None) -> list[JobRecord]:
+        """Fetch the landing page and parse keyword-matched anchors."""
+        resp = self._retry(
+            requests.get,
+            self.listing_url,
+            headers=DEFAULT_HEADERS,
+            timeout=15,
         )
-    return jobs
-
-
-def _parse_detail_html(html: str, url: str, make_id: Any) -> JobRecord:
-    soup = BeautifulSoup(html, "html.parser")
-    title = (soup.title.get_text(strip=True) if soup.title else url)[:200]
-    body = soup.get_text(" ", strip=True)
-    return JobRecord(
-        id=make_id(url, title),
-        source_url=url,  # type: ignore[arg-type]
-        source_channel="shinhan_sec",
-        source_tier=1,
-        org=ORG,
-        title=title,
-        archetype=None,
-        deadline=deadline_parser(body),
-        description=body[:5000],
-        raw_html=html[:50_000],
-        legitimacy_tier="T1",
-    )
-
-
-# ---------------------------------------------------------------------------
-# Backend selection
-# ---------------------------------------------------------------------------
-
-
-try:
-    from career_ops_kr.channels._scrapling_base import (
-        SCRAPLING_AVAILABLE,
-        ScraplingChannel,
-    )
-except ImportError:  # pragma: no cover — defensive
-    SCRAPLING_AVAILABLE = False
-
-
-if SCRAPLING_AVAILABLE:
-
-    class ShinhanSecChannel(ScraplingChannel):
-        """신한투자증권 채용 공고 수집기 (Scrapling backend)."""
-
-        name = "shinhan_sec"
-        tier = 1
-        default_legitimacy_tier = "T1"
-
-        def __init__(self, **kwargs: Any) -> None:
-            super().__init__(
-                name="shinhan_sec",
-                tier=1,
-                login_url=None,
-                fetcher_mode="fast",
-                **kwargs,
+        if resp is None:
+            self.logger.warning("shinhan_sec: listing fetch failed — returning []")
+            return []
+        status = getattr(resp, "status_code", None)
+        if status != 200:
+            self.logger.warning(
+                "shinhan_sec: listing returned status=%s — returning []",
+                status,
             )
+            return []
+        # Force UTF-8 — Korean recruit pages routinely mis-declare encoding.
+        if getattr(resp, "encoding", None):
+            resp.encoding = "utf-8"
+        html = getattr(resp, "text", "") or ""
 
-        def list_jobs(self, query: dict[str, Any] | None = None) -> list[JobRecord]:
-            try:
-                result = self.fetch_page(LISTING_URL)
-            except Exception as exc:
-                self.logger.error("shinhan_sec: fetch_page raised: %s", exc)
-                return []
-            if result is None:
-                self.logger.warning("shinhan_sec: listing fetch failed — returning []")
-                return []
-            try:
-                jobs = _parse_listing_html(result["html"], self._make_id)
-            except Exception as exc:
-                self.logger.error("shinhan_sec: parse error: %s", exc)
-                return []
-            if not jobs:
-                self.logger.info("shinhan_sec: no matching postings (kw=%s)", KEYWORDS)
-            return jobs
+        try:
+            jobs = self._parse_listing_html(html)
+        except Exception as exc:  # pragma: no cover - defensive
+            self.logger.error("shinhan_sec: parse error: %s", exc)
+            return []
 
-        def get_detail(self, url: str) -> JobRecord | None:
-            try:
-                result = self.fetch_page(url)
-            except Exception as exc:
-                self.logger.warning("shinhan_sec: get_detail(%s) failed: %s", url, exc)
-                return None
-            if result is None:
-                return None
-            try:
-                return _parse_detail_html(result["html"], url, self._make_id)
-            except Exception as exc:
-                self.logger.warning("shinhan_sec: parse detail failed %s: %s", url, exc)
-                return None
-
-else:
-    from career_ops_kr.channels._playwright_base import PlaywrightChannel
-
-    class ShinhanSecChannel(PlaywrightChannel):  # type: ignore[no-redef]
-        """신한투자증권 채용 공고 수집기 (Playwright fallback)."""
-
-        name = "shinhan_sec"
-        tier = 1
-        default_legitimacy_tier = "T1"
-
-        def __init__(self, **kwargs: Any) -> None:
-            super().__init__(
-                name="shinhan_sec",
-                tier=1,
-                login_url=LISTING_URL,
-                requires_login=False,
-                **kwargs,
+        if not jobs:
+            self.logger.info(
+                "shinhan_sec: no matching postings (kw=%s)",
+                KEYWORDS,
             )
+        return jobs
 
-        async def _async_list_jobs(self, query: dict[str, Any] | None = None) -> list[JobRecord]:
-            html = await self.fetch_html(LISTING_URL, wait_selector="body")
-            if html is None:
-                self.logger.warning("shinhan_sec: listing fetch failed — returning []")
-                return []
+    def get_detail(self, url: str) -> JobRecord | None:
+        """Fetch + parse a single detail page. Returns None on failure."""
+        resp = self._retry(
+            requests.get,
+            url,
+            headers=DEFAULT_HEADERS,
+            timeout=15,
+        )
+        if resp is None:
+            return None
+        status = getattr(resp, "status_code", None)
+        if status != 200:
+            self.logger.warning(
+                "shinhan_sec: get_detail %s returned status=%s",
+                url,
+                status,
+            )
+            return None
+        if getattr(resp, "encoding", None):
+            resp.encoding = "utf-8"
+        html = getattr(resp, "text", "") or ""
+        try:
+            return self._parse_detail_html(html, url)
+        except Exception as exc:
+            self.logger.warning("shinhan_sec: parse detail failed %s: %s", url, exc)
+            return None
+
+    # -- Parsing ------------------------------------------------------------
+
+    def _parse_listing_html(self, html: str) -> list[JobRecord]:
+        """Walk every anchor, keep keyword matches, return JobRecord list."""
+        if not html:
+            return []
+        soup = BeautifulSoup(html, "html.parser")
+        jobs: list[JobRecord] = []
+        seen_urls: set[str] = set()
+        now = datetime.now()
+
+        for anchor in soup.find_all("a"):
             try:
-                jobs = _parse_listing_html(html, self._make_id)
-            except Exception as exc:
-                self.logger.error("shinhan_sec: parse error: %s", exc)
-                return []
-            finally:
-                await self.close()
-            if not jobs:
-                self.logger.info("shinhan_sec: no matching postings (kw=%s)", KEYWORDS)
-            return jobs
+                text = (anchor.get_text(" ", strip=True) or "").strip()
+                if not text or len(text) < 4 or len(text) > 300:
+                    continue
+                if not any(kw in text for kw in KEYWORDS):
+                    continue
+                href_raw = anchor.get("href") or ""
+                href = href_raw if isinstance(href_raw, str) else " ".join(href_raw)
+                if not href or href.startswith("#") or href.lower().startswith("javascript"):
+                    continue
+                url = urljoin(self.listing_url, href)
+                if url in seen_urls:
+                    continue
+                seen_urls.add(url)
 
-        async def _async_get_detail(self, url: str) -> JobRecord | None:
-            html = await self.fetch_html(url)
-            await self.close()
-            if html is None:
-                return None
-            return _parse_detail_html(html, url, self._make_id)
+                title = text[:200]
+                container = anchor.find_parent(["li", "tr", "div", "article", "section"])
+                body_text = container.get_text(" ", strip=True) if container else text
+                deadline = deadline_parser(body_text) or deadline_parser(title)
+                archetype = self._infer_archetype(title)
+
+                record = JobRecord(
+                    id=self._make_id(url, title),
+                    source_url=url,  # type: ignore[arg-type]
+                    source_channel=self.name,
+                    source_tier=self.tier,
+                    org=ORG,
+                    title=title,
+                    archetype=archetype,
+                    deadline=deadline,
+                    location="서울",
+                    description=body_text[:2000],
+                    raw_html=None,
+                    legitimacy_tier=self.default_legitimacy_tier,
+                    scanned_at=now,
+                )
+                jobs.append(record)
+            except Exception as exc:
+                self.logger.warning("shinhan_sec: skip bad anchor: %s", exc)
+                continue
+        return jobs
+
+    def _parse_detail_html(self, html: str, url: str) -> JobRecord:
+        """Parse a single detail page into a JobRecord."""
+        soup = BeautifulSoup(html, "html.parser")
+        title = (
+            soup.title.get_text(strip=True) if soup.title else url.rsplit("/", 1)[-1]
+        ) or "신한투자증권 채용"
+        title = title[:200]
+        body = soup.get_text(" ", strip=True)[:5000]
+        archetype = self._infer_archetype(title)
+
+        return JobRecord(
+            id=self._make_id(url, title),
+            source_url=url,  # type: ignore[arg-type]
+            source_channel=self.name,
+            source_tier=self.tier,
+            org=ORG,
+            title=title,
+            archetype=archetype,
+            deadline=deadline_parser(body) or deadline_parser(title),
+            location="서울",
+            description=body,
+            raw_html=html[:50_000],
+            legitimacy_tier=self.default_legitimacy_tier,
+        )
+
+    # -- Tiny extractors ----------------------------------------------------
+
+    @staticmethod
+    def _infer_archetype(title: str) -> str | None:
+        """Infer a coarse archetype from the title.
+
+        Blockchain / digital-asset markers take priority — they map to the
+        project-wide ``BLOCKCHAIN_INTERN`` archetype which the qualifier
+        scores highest. Otherwise fall back to the standard
+        INTERN/ENTRY/EXPERIENCED bucket.
+        """
+        if not title:
+            return None
+        if any(marker in title for marker in BLOCKCHAIN_MARKERS):
+            return "BLOCKCHAIN_INTERN"
+        if "인턴" in title or "intern" in title.lower():
+            return "INTERN"
+        if "신입" in title:
+            return "ENTRY"
+        if "경력" in title:
+            return "EXPERIENCED"
+        return None
