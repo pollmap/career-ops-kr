@@ -2,21 +2,23 @@
 
 [![CI](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml/badge.svg)](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Channels](https://img.shields.io/badge/channels-34-green.svg)](#채널-카탈로그)
-[![Tests](https://img.shields.io/badge/tests-562%20passed-brightgreen.svg)](#개발--테스트)
+[![Channels](https://img.shields.io/badge/channels-36-green.svg)](#채널-카탈로그)
+[![Institutions](https://img.shields.io/badge/institutions-201-orange.svg)](#기관-DB)
+[![Tests](https://img.shields.io/badge/tests-588%2B%20passed-brightgreen.svg)](#개발--테스트)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **한국형 구직 자동화 파이프라인** — 한국 주요 채용 포털 34개를 단일 CLI로 스캔.
-> 금융·핀테크·블록체인·공공기관 도메인 특화. MCP 10도구 + TUI 대시보드 + AI 지원. 완전 오픈소스.
+> **한국형 구직 자동화 파이��라인** — 36채널 + 201기관 DB + Gemma4 AI 채점.
+> 금융·핀테크·블록체인·공공기관·안보기관 도메인 특화. 26 CLI + MCP 10도구 + 로컬 LLM(Ollama). 완전 오픈소스.
 
 ```bash
-career-ops scan --concurrency 4  # 34채널 병렬 스캔
-career-ops score URL             # 10차원 A~F 채점
-career-ops filter "학력 무관"     # 자격 판정
-career-ops auto-pipeline         # scan → score → DB 원스텝
-career-ops interview-prep URL    # STAR 면접 질문 생성
-career-ops notify --summary      # Discord 일일 요약
-career-ops ui                    # TUI 대시보드
+career-ops status                # 전체 상태 대시보드 + 자격증 D-day
+career-ops scan --all            # 36채널 병��� 스캔
+career-ops institutions          # 201기관 aggregator 검색
+career-ops auto-pipeline --ai-score  # scan → Gemma4 AI 채점 → SQLite
+career-ops list --grade A        # A등급 공고만 조회
+career-ops history               # 과거 마감 공고 수집 (패턴 분석)
+career-ops ncs                   # NCS 10영역 대시��드
+career-ops vault-sync            # Obsidian Vault 동기화
 ```
 
 ---
