@@ -25,6 +25,8 @@ from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 RSS_URL = "https://job.alio.go.kr/rss/recruit.xml"
 LANDING_URL = "https://job.alio.go.kr/recruit.do"
 ALT_LIST_URL = "https://job.alio.go.kr/recruitList.do"
+OCCASIONAL_URL = "https://job.alio.go.kr/occasional/researchList.do"
+OCCASIONAL_ALT_URL = "https://job.alio.go.kr/mobile/occasional/researchList.do"
 USER_AGENT = "Mozilla/5.0 (career-ops-kr/0.2.0; +https://github.com/pollmap/career-ops-kr)"
 
 _CAREER_KEYWORDS: tuple[str, ...] = (
@@ -77,6 +79,9 @@ class JobalioChannel(BaseChannel):
     def list_jobs(self, query: dict[str, Any] | None = None) -> list[JobRecord]:
         """Return jobs — RSS first, HTML fallback on empty/failure.
 
+        Also fetches 수시공고 (occasional) postings from OCCASIONAL_URL and
+        merges them with regular postings, deduplicating by record ``id``.
+
         Args:
             query: Optional filter dict. Recognised keys:
                 ``type``: if ``"intern"``, keep only postings containing
@@ -84,15 +89,30 @@ class JobalioChannel(BaseChannel):
         """
         query = query or {}
 
+        # --- regular 정기공고 (RSS → HTML fallback) ---
         rss_jobs = self._list_from_rss(query)
         if rss_jobs:
             self.logger.info("jobalio: %d jobs from RSS", len(rss_jobs))
-            return rss_jobs
+            regular_jobs: list[JobRecord] = rss_jobs
+        else:
+            self.logger.info("jobalio: RSS empty — falling back to HTML landing")
+            html_jobs = self._list_from_html(query)
+            self.logger.info("jobalio: %d jobs from HTML fallback", len(html_jobs))
+            regular_jobs = html_jobs
 
-        self.logger.info("jobalio: RSS empty — falling back to HTML landing")
-        html_jobs = self._list_from_html(query)
-        self.logger.info("jobalio: %d jobs from HTML fallback", len(html_jobs))
-        return html_jobs
+        # --- 수시공고 (occasional) ---
+        occasional_jobs = self._list_from_occasional(query)
+        self.logger.info("jobalio: %d jobs from occasional", len(occasional_jobs))
+
+        # --- combine + dedup by id ---
+        seen_ids: set[str] = set()
+        combined: list[JobRecord] = []
+        for job in regular_jobs + occasional_jobs:
+            if job.id not in seen_ids:
+                seen_ids.add(job.id)
+                combined.append(job)
+
+        return combined
 
     def get_detail(self, url: str) -> JobRecord | None:
         try:
@@ -197,6 +217,121 @@ class JobalioChannel(BaseChannel):
             self.rss_url,
             request_headers={"User-Agent": USER_AGENT},
         )
+
+    # -- internals: occasional (수시공고) ------------------------------------
+
+    def _list_from_occasional(self, query: dict[str, Any]) -> list[JobRecord]:
+        """Fetch 수시공고 from OCCASIONAL_URL with OCCASIONAL_ALT_URL fallback.
+
+        Uses the same 3-tier anchor fallback pattern as ``_list_from_html``.
+        Records are marked with ``archetype="OCCASIONAL"``.
+        """
+        for url in (OCCASIONAL_URL, OCCASIONAL_ALT_URL):
+            try:
+                resp = self._retry(
+                    requests.get,
+                    url,
+                    headers={"User-Agent": USER_AGENT},
+                    timeout=15,
+                )
+            except Exception as exc:
+                self.logger.warning("jobalio occasional fetch %s failed: %s", url, exc)
+                continue
+            if resp is None or resp.status_code != 200:
+                self.logger.warning(
+                    "jobalio occasional %s returned %s",
+                    url,
+                    getattr(resp, "status_code", "n/a"),
+                )
+                continue
+            jobs = self._parse_occasional_html(resp.text, base_url=url, query=query)
+            if jobs:
+                return jobs
+        return []
+
+    def _parse_occasional_html(
+        self,
+        html: str,
+        *,
+        base_url: str,
+        query: dict[str, Any],
+    ) -> list[JobRecord]:
+        """Parse HTML from the occasional listing page into JobRecords.
+
+        Anchor selection is attempted in priority order:
+        1. ``table.tbl_list td a`` / ``ul.list_board li a`` (primary)
+        2. ``a[href*='/occasional/']`` / ``a[href*='/researchDetail']`` (fallback)
+        3. Generic ``_CAREER_KEYWORDS`` scan (generic)
+
+        All resulting records carry ``archetype="OCCASIONAL"``.
+        """
+        if not html:
+            return []
+        soup = BeautifulSoup(html, "html.parser")
+        seen: set[str] = set()
+        results: list[JobRecord] = []
+        now = datetime.now()
+
+        # Tier 1 — structured selectors
+        primary_anchors = soup.select("table.tbl_list td a, ul.list_board li a")
+
+        # Tier 2 — URL-pattern fallback
+        if not primary_anchors:
+            primary_anchors = soup.select("a[href*='/occasional/'], a[href*='/researchDetail']")
+
+        # Tier 3 — generic keyword scan (all anchors)
+        candidate_anchors = primary_anchors if primary_anchors else soup.find_all("a")
+
+        for anchor in candidate_anchors:
+            text = (anchor.get_text(" ", strip=True) or "").strip()
+            if not text or len(text) < 6 or len(text) > 300:
+                continue
+            href_raw = anchor.get("href") or ""
+            href = href_raw if isinstance(href_raw, str) else " ".join(href_raw)
+            if not href or href.startswith("#") or href.lower().startswith("javascript"):
+                continue
+
+            # Tier 3 only: require career keywords
+            if not primary_anchors:
+                blob_lower = (text + " " + href).lower()
+                if not any(kw.lower() in blob_lower for kw in _CAREER_KEYWORDS):
+                    continue
+
+            if query.get("type") == "intern" and "인턴" not in text:
+                continue
+
+            url = urljoin(base_url, href)
+            if url in seen:
+                continue
+            seen.add(url)
+
+            container = anchor.find_parent(["li", "tr", "div", "article", "section"])
+            body = container.get_text(" ", strip=True) if container else text
+            deadline = deadline_parser(body) or deadline_parser(text)
+
+            try:
+                results.append(
+                    JobRecord(
+                        id=self._make_id(url, text),
+                        source_url=url,  # type: ignore[arg-type]
+                        source_channel=self.name,
+                        source_tier=self.tier,
+                        org="공공기관",
+                        title=text[:200],
+                        archetype="OCCASIONAL",
+                        deadline=deadline,
+                        description=body[:2000],
+                        legitimacy_tier=self.default_legitimacy_tier,
+                        scanned_at=now,
+                    )
+                )
+            except Exception as exc:
+                self.logger.warning("jobalio: bad occasional card %r: %s", text, exc)
+                continue
+
+            if len(results) >= 50:
+                break
+        return results
 
     # -- internals: HTML fallback -------------------------------------------
 

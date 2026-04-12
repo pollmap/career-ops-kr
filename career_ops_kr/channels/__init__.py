@@ -41,6 +41,8 @@ from career_ops_kr.channels.jasoseol import JasoseolChannel
 from career_ops_kr.channels.jobalio import JobalioChannel
 from career_ops_kr.channels.jobkorea import JobKoreaChannel
 from career_ops_kr.channels.jobplanet import JobPlanetChannel
+from career_ops_kr.channels.kakao_bank import KakaoBankChannel
+from career_ops_kr.channels.kakao_pay import KakaoPayChannel
 from career_ops_kr.channels.kb_sec import KbSecChannel
 from career_ops_kr.channels.kiwoom_kda import KiwoomKdaChannel
 from career_ops_kr.channels.kiwoomda import KiwoomdaChannel
@@ -84,6 +86,9 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     HanaSecChannel.name: HanaSecChannel,
     NhSecChannel.name: NhSecChannel,
     SamsungSecChannel.name: SamsungSecChannel,
+    # --- Tier 3 fintech direct (company careers pages), 2 channels ---
+    KakaoPayChannel.name: KakaoPayChannel,  # 카카오페이
+    KakaoBankChannel.name: KakaoBankChannel,  # 카카오뱅크
     # --- Tier 4 crypto/fintech, 4 channels ---
     DunamuChannel.name: DunamuChannel,
     BithumbChannel.name: BithumbChannel,
@@ -108,6 +113,8 @@ __all__ = [
     "JobPlanetChannel",
     "JobRecord",
     "JobalioChannel",
+    "KakaoBankChannel",
+    "KakaoPayChannel",
     "KbSecChannel",
     "KiwoomKdaChannel",
     "KiwoomdaChannel",

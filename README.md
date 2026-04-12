@@ -2,101 +2,286 @@
 
 [![CI](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml/badge.svg)](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![Channels](https://img.shields.io/badge/channels-27-green.svg)](#채널-카탈로그)
+[![Tests](https://img.shields.io/badge/tests-449%20passed-brightgreen.svg)](#개발--테스트)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 한국형 AI 구직 자동화 에이전트 — `santifer/career-ops`의 철학을 한국 금융/핀테크/블록체인 시장에 맞춰 포팅.
->
-> Luxon AI 프로젝트 · Claude Code 기반 · Python 단일 스택
-
-## 왜 만드는가
-
-- `dataq.or.kr`, `license.kofia.or.kr`, 링커리어 등 주요 한국 사이트가 **동적 로딩 + 로그인 벽**이라 LLM 단독으로 수집 불가
-- 프로그램마다 "휴학생 가능 / 비전공 가능 / 졸업예정자 요건" 조건이 제각각 → 자격 판정이 반복 노동
-- 74개 타겟 프로그램 × 9개 포털을 주 단위로 수동 폴링하는 건 비현실적
-- **자격증 5개 + KDA 프로그램 + 하반기 인턴 준비를 병행하는 상황에서 구직을 파이프라인으로 운영해야 한다**
-
-## 핵심 특징
-
-- **7개 Claude Code 모드** (MVP): `scan` · `filter` · `score` · `pipeline` · `tracker` · `patterns` · `auto-pipeline`
-- **9개 한국 포털 커버** (MVP): 링커리어 · 잡알리오 · 청년일경험포털 · 신한투자증권 · 키움 KDA · 금투협 · dataq · 한국은행 · 원티드
-- **Pluggable Channel 아키텍처** — RSS/API/requests 우선, Playwright는 4개 어려운 포털에만
-- **User / System 데이터 레이어 분리** — 시스템 업데이트 시 유저 커스터마이징 보존
-- **HITL 5게이트** — 자동 제출 영구 금지, 모든 중요 결정에 찬희 확인 필수
-- **Obsidian Vault + SQLite 이중 저장** — Vault가 단일 진실원, SQLite는 인덱스
-- **Discord 푸시 알림** — HERMES 봇 경유 `#luxon-jobs` 채널
-
-## 도메인 지원 / Generalization
-
-career-ops-kr은 원래 찬희의 **한국 금융 도메인**용으로 만들어졌지만, `CLAUDE.md`가 강제하는 **User / System 레이어 분리 구조** 덕분에 금융 밖의 도메인으로도 그대로 배포할 수 있다. 한 엔진(`career_ops_kr/`)에 **도메인 프리셋**만 갈아 끼우면 된다.
-
-### 지원 도메인 (v0.1)
-
-| preset_id | 도메인 | 대표 포털 / 데이터 소스 | 주요 archetype |
-|-----------|--------|------------------------|----------------|
-| `finance` | 금융/핀테크/블록체인 (기본값) | 링커리어·잡알리오·dataq·한국은행·금투협 | 블록체인·금융IT·리서치·핀테크 |
-| `dev` | 소프트웨어 엔지니어 | 원티드·프로그래머스·점핏·잡코리아·로켓펀치 | 백엔드·프론트엔드·데브옵스·ML엔지니어 |
-| `design` | UX/UI·프로덕트 디자인 | 원티드·디자이너스·노트폴리오·프로그래머스 | UX·UI·프로덕트·비주얼 |
-| `marketing` | 디지털 마케팅·그로스 | 원티드·슈퍼루키·사람인 | 퍼포먼스·콘텐츠·브랜드·그로스 |
-| `research` | 리서치·데이터 분석 | 한국은행·KDI·잡알리오·dataq·KOSSDA | 경제리서치·정책·데이터사이언스 |
-| `public` | 공공/정부/청년정책 | 잡알리오·나라일터·청년일경험·공공기관경영정보 | 공공기관·정부부처·공기업 |
-| `edu` | 교육·에듀테크·연구조교 | 학교 공고·에듀윌·원티드·링커리어 | 연구조교·튜터·에듀테크·커리큘럼 |
-
-> 7개 프리셋은 모두 동일한 엔진(`career_ops_kr/`)을 공유하며, 차이는 `config/*.yml` + `modes/_profile.md` 뿐이다.
-
-### 사용법
+> **한국형 구직 자동화 파이프라인** — 한국 주요 채용 포털 27개를 단일 CLI로 스캔.
+> 금융·핀테크·블록체인·공공기관 도메인 특화. 완전 오픈소스.
 
 ```bash
-# 프리셋 목록 확인
-career-ops init --list-presets
-
-# 도메인 선택해 초기화
-career-ops init --preset dev       # 소프트웨어 엔지니어
-career-ops init --preset research  # 리서치/데이터
-career-ops init --preset finance   # 금융 (기본 — 플래그 없이 `init`만 써도 같음)
-
-# 기존 config 덮어쓰기
-career-ops init --preset design --force
-
-# 플래그 없이 기존 인터랙티브 플로우 (하위 호환)
-career-ops init
+career-ops scan              # 전체 27채널 스캔
+career-ops scan --site kiwoom_kda
+career-ops score             # 프로필 기반 자동 채점
+career-ops list --min-grade B
+career-ops pipeline          # scan → score → 리포트 원스텝
 ```
 
-> `--preset` 플래그 없는 `career-ops init`은 Sprint 1 MVP와 **완전히 동일하게 동작**한다. 기존 사용자는 아무것도 바꿀 필요가 없다.
+---
 
-### 새 도메인 추가
+## 무엇을 하는가
 
-새 도메인(예: `legal`, `healthcare`, `game`)을 만들고 싶다면 [docs/adding-a-preset.md](docs/adding-a-preset.md) 를 참조. 본질적으로 `presets/<domain>.yml` 하나만 작성하면 된다.
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    career-ops-kr 파이프라인                      │
+│                                                                  │
+│  ┌──────────┐   fetch   ┌──────────────┐  score  ┌───────────┐  │
+│  │ 27개 포털 │ ────────▶ │  JobRecord   │ ──────▶ │ A~F 등급  │  │
+│  │  (채널)  │           │  (정규화)    │         │ + 자격판정 │  │
+│  └──────────┘           └──────────────┘         └───────────┘  │
+│        ↑                       ↓                       ↓        │
+│  portals.yml             SQLite 저장소             CLI 출력      │
+│  (키워드필터)             data/jobs.db            Discord 알림   │
+└──────────────────────────────────────────────────────────────────┘
+```
 
-### 배포 모델
+**핵심 기능**:
+- **27개 포털 동시 스캔** — 대학생 특화·공공기관·증권사·핀테크·크립토
+- **JobRecord 표준 스키마** — 포털마다 다른 공고 형식을 단일 pydantic 모델로 정규화
+- **archetype 분류** — `BLOCKCHAIN_INTERN` / `KDA_COHORT` / `DATA` / `ENGINEER` 등 도메인 태그
+- **Legitimacy Tier** — T1(공식)/T2(정부)/T3(aggregator) 신뢰도 레이어
+- **3-tier selector fallback** — PRIMARY CSS → HREF 패턴 → 키워드 스캔 (DOM 변경에 강인)
+- **Zero mock data** — 수집 실패 시 빈 리스트 반환, 추정 데이터 생성 절대 금지
 
-- **본인 사용**: 찬희 로컬 (`C:\Users\lch68\Desktop\career-ops-kr\`) — 금융 프리셋
-- **팀 내부 배포**: Luxon AI 팀원/수강생에게 git clone 후 `--preset <자기 도메인>`
-- **오픈소스 커뮤니티**: `presets/*.yml` PR 기반 기여 → Tier 1~6 포털 큐레이션 공유
+---
 
-자세한 원리는 [docs/generalization.md](docs/generalization.md), 프리셋 카탈로그는 [docs/presets.md](docs/presets.md) 참조.
+## 채널 카탈로그 (27개)
+
+### Tier 1 — General Major (대형 민간 포털, 8채널)
+
+| key | 사이트 | 특징 |
+|-----|--------|------|
+| `linkareer` | linkareer.com | 대학생 특화 — 인턴/대외활동/공모전 |
+| `catch` | catch.co.kr | 대학생 채용 포털 — INTERN/ACTIVITY archetype |
+| `wanted` | wanted.co.kr | 핀테크/IT — API-first 수집 |
+| `jobkorea` | jobkorea.co.kr | 국내 1위 민간 채용 |
+| `incruit` | incruit.com | 대기업·중견 공채 |
+| `jobplanet` | jobplanet.co.kr | 기업 리뷰 + 채용 |
+| `jasoseol` | jasoseol.com | 자소서 문항 + 공고 |
+| `saramin` | saramin.co.kr | 전수 수집 — 페이지네이션 5~20p |
+
+### Tier 2 — Public Agency (공공/정부 포털, 7채널)
+
+| key | 사이트 | 특징 |
+|-----|--------|------|
+| `jobalio` | job.alio.go.kr | 공공기관 공식 — RSS + HTML fallback |
+| `apply_bok` | apply.bok.or.kr | 한국은행 직접 채용 |
+| `yw_work24` | yw.work24.go.kr | 청년일경험 포털 |
+| `kiwoomda` | kiwoomda.com | 키움 DA |
+| `dataq` | dataq.or.kr | 데이터 전문 자격/채용 |
+| `mirae_naeil` | work.go.kr/experi | 미래내일 일경험 — ALT URL fallback |
+| `mjob` | mjob.mainbiz.or.kr | 중소기업진흥공단 일자리 |
+
+### Tier 3 — Target-Specific & Securities (9채널)
+
+| key | 사이트 | 특징 |
+|-----|--------|------|
+| `kiwoom_kda` | recruit.kiwoom.com | **KDA 기수 우선** — `KDA_COHORT` archetype |
+| `shinhan_sec` | recruit.shinhansec.com | **블록체인부 특화** — `BLOCKCHAIN_INTERN` archetype |
+| `kakao_pay` | kakaopay.com/careers | 카카오페이 직채용 |
+| `kakao_bank` | kakaobank.com/careers | 카카오뱅크 직채용 |
+| `mirae_asset` | careers.miraeasset.com | 미래에셋증권 |
+| `kb_sec` | recruit.kbsec.com | KB증권 |
+| `hana_sec` | careers.hanasec.co.kr | 하나증권 |
+| `nh_sec` | recruit.nhqv.com | NH투자증권 |
+| `samsung_sec` | recruit.samsungsecurities.com | 삼성증권 |
+
+### Tier 4 — Crypto/Fintech (크립토 기업, 4채널)
+
+| key | 사이트 | 특징 |
+|-----|--------|------|
+| `dunamu` | careers.dunamu.com | 두나무/업비트 |
+| `bithumb` | bithumbcorp.com/careers | 빗썸코리아 |
+| `toss` | toss.im/career/jobs | 토스그룹 통합 |
+| `lambda256` | lambda256.io/careers | 두나무 자회사 — Luniverse 블록체인 |
+
+---
+
+## 아키텍처
+
+```
+career_ops_kr/
+├── channels/
+│   ├── base.py              ← BaseChannel ABC + JobRecord pydantic 모델
+│   ├── _stub_helpers.py     ← 9개 stub 채널용 팩토리
+│   ├── __init__.py          ← CHANNEL_REGISTRY (27채널 등록)
+│   ├── saramin.py           ← 완전 구현 예시 (페이지네이션 + 3-tier)
+│   ├── shinhan_sec.py       ← BLOCKCHAIN_INTERN archetype 특화
+│   ├── kiwoom_kda.py        ← KDA_COHORT archetype 특화
+│   └── ... (27개 채널 파일)
+├── parser/
+│   └── utils.py             ← 마감일 파싱 SSOT (deadline_parser)
+├── pipeline.py              ← 채널 오케스트레이션
+└── cli.py                   ← Click CLI
+
+config/                      ← USER LAYER (사용자 커스터마이징)
+├── portals.yml              ← 포털 구독 목록 + 키워드 필터
+├── profile.yml              ← 사용자 프로필
+└── scoring_weights.yml      ← A~F 채점 가중치
+
+tests/                       ← 434개 unit test (네트워크 0)
+```
+
+### BaseChannel 인터페이스
+
+```python
+class BaseChannel(ABC):
+    name: str       # 채널 고유 키 (portals.yml key와 일치)
+    tier: int       # 1~5 (낮을수록 우선순위 높음)
+    backend: str    # "requests" | "rss+html" | "api"
+
+    def check(self) -> bool: ...                         # 포털 접근 가능 여부
+    def list_jobs(self, query=None) -> list[JobRecord]: ...
+    def get_detail(self, url: str) -> JobRecord | None: ...
+```
+
+### JobRecord 스키마
+
+```python
+class JobRecord(BaseModel):
+    id: str                    # 16자 SHA-256 stable ID (dedup 키)
+    source_url: str            # 원본 공고 URL
+    org: str                   # 기업/기관명
+    title: str                 # 공고 제목
+    archetype: str             # INTERN / KDA_COHORT / BLOCKCHAIN_INTERN / DATA ...
+    deadline: datetime | None  # 마감일
+    legitimacy_tier: str       # T1~T5
+    fetch_errors: list[str]    # 수집 오류 로그
+```
+
+### 3-tier Selector Fallback
+
+```
+1. PRIMARY     → 포털 특화 CSS selector (div.item_recruit a 등)
+       ↓ 0개 반환 시
+2. HREF 패턴  → a[href*='/recruit/'] 등 URL 패턴
+       ↓ 0개 반환 시
+3. GENERIC     → "채용"/"모집"/"공고" 포함 anchor 전수 스캔
+```
+
+---
+
+## 설치 및 사용법
+
+### 설치
+
+```bash
+git clone https://github.com/pollmap/career-ops-kr.git
+cd career-ops-kr
+uv sync
+```
+
+### 기본 사용
+
+```bash
+# 전체 채널 스캔 (Windows에서 한글 출력)
+PYTHONIOENCODING=utf-8 uv run career-ops scan
+
+# 특정 채널만
+uv run career-ops scan --site kiwoom_kda
+uv run career-ops scan --site shinhan_sec
+uv run career-ops scan --site kakao_pay
+
+# 공고 목록 (등급 필터)
+uv run career-ops list --min-grade B
+
+# 프로필 기반 채점
+uv run career-ops score
+
+# 원스텝 파이프라인
+uv run career-ops pipeline
+```
+
+### 워크플로우
+
+```
+매일 09:00 (Windows 작업 스케줄러)
+      │
+      ▼
+career-ops scan      ← 27채널 순차 스크래핑
+      │
+      ▼
+JobRecord 정규화     ← 포털마다 다른 포맷 → 단일 스키마
+      │
+      ▼
+career-ops score     ← profile.yml + scoring_weights.yml → A~F
+      │
+      ▼
+career-ops list      ← 상위 등급 공고 출력 / Discord 알림
+      │
+      ▼
+수동 지원            ← HITL G5 영구 수동 (자동 제출 없음)
+```
+
+### config/portals.yml 커스터마이징
+
+```yaml
+portals:
+  - name: "링커리어"
+    key: "linkareer"
+    enabled: true          # false → scan 제외
+    filters:
+      include:             # 이 키워드 포함 공고만 수집
+        - "금융"
+        - "핀테크"
+      exclude:             # 이 키워드 포함 공고 제외
+        - "영업"
+```
+
+---
+
+## 개발 / 테스트
+
+```bash
+# 전체 테스트 (434개, 네트워크 0)
+uv run pytest -q
+
+# 특정 채널 테스트
+uv run pytest tests/test_kiwoom_kda_channel.py -v
+
+# 린터 / 포맷 확인
+uv run ruff check .
+uv run ruff format --check .
+```
+
+### 새 채널 추가
+
+```
+1. career_ops_kr/channels/my_portal.py   ← BaseChannel 상속
+2. tests/test_my_portal_channel.py       ← _FakeResponse + monkeypatch 패턴
+3. career_ops_kr/channels/__init__.py    ← CHANNEL_REGISTRY 등록
+4. config/portals.yml                   ← 포털 항목 추가
+```
+
+기존 구현이 잘 된 채널(`saramin.py`, `kiwoom_kda.py`, `kakao_pay.py`)을 템플릿으로 사용.
+
+---
+
+## 현재 상태 (2026-04-12)
+
+| 항목 | 현황 |
+|------|------|
+| 채널 | **27개** |
+| Backend | requests 전용 (Scrapling/Playwright 의존 0개) |
+| Tests | **449 passed** / 0 failed |
+| CI | GitHub Actions ubuntu/windows × py3.11/3.12 |
+| 공개 | [pollmap/career-ops-kr](https://github.com/pollmap/career-ops-kr) (MIT) |
+
+### 다음 작업
+
+- [ ] 잡알리오 수시공고 확장 (`job.alio.go.kr/occasional`)
+- [ ] Discord 웹훅 알림 연결 (#6)
+- [ ] 청년 지원 제도 layer (#19)
+- [ ] Tier 3-4 selector 튜닝 (#5)
+- [ ] VPS Nexus MCP 등록 (#7)
+
+---
 
 ## 레퍼런스
 
-- [santifer/career-ops](https://github.com/santifer/career-ops) — 원본 (740+ 공고 평가 실전 검증)
+- [santifer/career-ops](https://github.com/santifer/career-ops) — 원본 설계 참고
 - [Panniantong/Agent-Reach](https://github.com/Panniantong/Agent-Reach) — Channel 아키텍처 패턴
-- 플랜 원본: `~/.claude/plans/melodic-moseying-cupcake.md`
-
-## 상태
-
-- ✅ **W1 d1** (2026-04-11): 부트스트랩 완료 — 디렉토리, pyproject, CLAUDE.md, _shared.md
-- ⏭ **W1 d2~d7**: User 레이어, 쉬운 채널, parser, qualifier, archetype, scorer, storage
-- ⏭ **W2 d1~d7**: Playwright 채널, 모드, integrity, notifier, CLI
-
-## 설치 (준비 중)
-
-```bash
-# Windows
-cd C:\Users\lch68\Desktop\career-ops-kr
-uv sync
-uv run playwright install chromium
-uv run career-ops --help
-```
 
 ## 라이선스
 
-MIT © 이찬희 (Luxon AI, 2026)
+MIT — see [LICENSE](LICENSE).

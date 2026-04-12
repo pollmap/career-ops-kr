@@ -164,9 +164,7 @@ def test_class_satisfies_channel_protocol(channel: MjobChannel) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_check_returns_true_on_200(
-    channel: MjobChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_check_returns_true_on_200(channel: MjobChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_get(url: str, **_: Any) -> _FakeResponse:
         return _FakeResponse(text="ok", status_code=200)
 
@@ -174,9 +172,7 @@ def test_check_returns_true_on_200(
     assert channel.check() is True
 
 
-def test_check_returns_false_on_4xx(
-    channel: MjobChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_check_returns_false_on_4xx(channel: MjobChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_get(url: str, **_: Any) -> _FakeResponse:
         return _FakeResponse(text="not found", status_code=404)
 
@@ -212,9 +208,7 @@ def test_list_jobs_empty_html_returns_empty_list(
     assert jobs == []
 
 
-def test_list_jobs_parses_table_rows(
-    channel: MjobChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_list_jobs_parses_table_rows(channel: MjobChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     """Primary list page with table.list rows yields valid JobRecords."""
 
     def fake_get(url: str, **_: Any) -> _FakeResponse:
@@ -272,9 +266,7 @@ def test_list_jobs_landing_generic_scan_fallback(
     assert len(jobs) >= 1
 
 
-def test_list_jobs_dedup_same_id(
-    channel: MjobChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_list_jobs_dedup_same_id(channel: MjobChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     """Same HTML on all URLs — dedup must prevent duplicates."""
 
     def fake_get(url: str, **_: Any) -> _FakeResponse:
@@ -299,9 +291,7 @@ def test_list_jobs_fetch_failure_returns_empty(
     assert jobs == []
 
 
-def test_list_jobs_intern_archetype(
-    channel: MjobChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_list_jobs_intern_archetype(channel: MjobChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     """``인턴`` titles should map to archetype == 'INTERN'."""
 
     def fake_get(url: str, **_: Any) -> _FakeResponse:
@@ -329,9 +319,7 @@ def test_list_jobs_experience_type_archetype(
     assert any("체험형" in j.title for j in exp_jobs)
 
 
-def test_list_jobs_id_is_16_chars(
-    channel: MjobChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_list_jobs_id_is_16_chars(channel: MjobChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     """Every JobRecord id must be exactly 16 characters (SHA-256 prefix)."""
 
     def fake_get(url: str, **_: Any) -> _FakeResponse:
@@ -372,9 +360,7 @@ def test_get_detail_parses_sample_html(
     assert record.deadline.month == 5
 
 
-def test_get_detail_404_returns_none(
-    channel: MjobChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_get_detail_404_returns_none(channel: MjobChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     """404 response must return None — never fabricate a record."""
 
     def fake_get(url: str, **_: Any) -> _FakeResponse:
@@ -394,6 +380,7 @@ def test_get_detail_parse_failure_returns_none(
         return _FakeResponse(text="<not-valid-html<><<<<", status_code=200)
 
     monkeypatch.setattr("career_ops_kr.channels.mjob.requests.get", fake_get)
+
     # BeautifulSoup is lenient with broken HTML — patch _parse_detail_html directly
     # to simulate a genuine parse error.
     def _raise(*_args: Any, **_kwargs: Any) -> None:
