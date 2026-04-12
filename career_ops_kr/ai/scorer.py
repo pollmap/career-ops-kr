@@ -17,9 +17,11 @@ from career_ops_kr.channels.base import JobRecord
 logger = logging.getLogger(__name__)
 
 _SYSTEM_PROMPT = (
+    "/no_think\n"
     "당신은 채용 적합도를 평가하는 전문가입니다. "
     "반드시 유효한 JSON 객체 하나만 출력하세요. "
     "마크다운 코드블록, 설명, 추가 텍스트 없이 JSON만 출력하세요. "
+    "생각 과정을 출력하지 마세요. JSON만 출력하세요. "
     '형식: {"score": <0~100 정수>, "reason": "<한국어 이유 1줄>"}'
 )
 
@@ -27,7 +29,9 @@ _JSON_PATTERN = re.compile(r'\{[^{}]*"score"\s*:\s*\d+[^{}]*\}', re.DOTALL)
 
 
 def _extract_json(text: str) -> dict | None:
-    """LLM 응답에서 JSON 객체를 추출합니다."""
+    """LLM 응답에서 JSON 객체를 추출합니다. 잘린 JSON도 복구 시도."""
+    if not text:
+        return None
     # 직접 파싱 시도
     try:
         return json.loads(text.strip())
@@ -40,6 +44,13 @@ def _extract_json(text: str) -> dict | None:
             return json.loads(match.group())
         except json.JSONDecodeError:
             pass
+    # 잘린 JSON 복구: score는 있지만 reason이 잘린 경우
+    score_match = re.search(r'"score"\s*:\s*(\d+)', text)
+    if score_match:
+        score_val = int(score_match.group(1))
+        reason_match = re.search(r'"reason"\s*:\s*"([^"]*)', text)
+        reason_val = reason_match.group(1) if reason_match else ""
+        return {"score": score_val, "reason": reason_val}
     return None
 
 
