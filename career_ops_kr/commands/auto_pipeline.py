@@ -17,6 +17,7 @@ from career_ops_kr.commands._shared import (
     CONFIG_DIR,
     DATA_DIR,
     console,
+    get_ai_client_or_fallback,
     get_store,
     grade_ge,
     load_profile,
@@ -243,7 +244,8 @@ def auto_pipeline_cmd(
                 try:
                     store.upsert(job, fit={
                         "grade": grade_letter,
-                        "total_score": score,
+                        "score": score,
+                        "eligible": score >= 40,
                         "reasons": [reason],
                     })
                     saved += 1
