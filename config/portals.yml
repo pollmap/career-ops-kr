@@ -68,13 +68,33 @@ portals:
       exclude:
         - "영업"
 
+  - name: "미래내일 일경험"
+    key: "mirae_naeil"
+    url: "https://www.work.go.kr/experi/index.do"
+    backend: "requests"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "금융"
+        - "IT"
+        - "데이터"
+        - "디지털"
+        - "인턴형"
+        - "체험형"
+        - "일경험"
+      exclude:
+        - "영업"
+        - "생산"
+
   # ─────────────────────────────────────────────
   # Tier 2 — 금융사 공식 채용
   # ─────────────────────────────────────────────
   - name: "신한투자증권"
     key: "shinhan_sec"
     url: "https://recruit.shinhansec.com"
-    backend: "playwright"
+    backend: "requests"
     tier: 3
     login_required: false
     enabled: true
@@ -86,6 +106,9 @@ portals:
         - "리서치"
         - "퀀트"
         - "IT"
+        - "블록체인"
+        - "STO"
+        - "크립토"
       exclude:
         - "지점영업"
         - "PB"
@@ -93,7 +116,7 @@ portals:
   - name: "키움KDA"
     key: "kiwoom_kda"
     url: "https://recruit.kiwoom.com"
-    backend: "playwright"
+    backend: "requests"
     tier: 3
     login_required: false
     enabled: true

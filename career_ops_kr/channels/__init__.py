@@ -41,13 +41,16 @@ from career_ops_kr.channels.jobalio import JobalioChannel
 from career_ops_kr.channels.jobkorea import JobKoreaChannel
 from career_ops_kr.channels.jobplanet import JobPlanetChannel
 from career_ops_kr.channels.kb_sec import KbSecChannel
+from career_ops_kr.channels.kiwoom_kda import KiwoomKdaChannel
 from career_ops_kr.channels.kiwoomda import KiwoomdaChannel
 from career_ops_kr.channels.lambda256 import Lambda256Channel
 from career_ops_kr.channels.linkareer import LinkareerChannel
 from career_ops_kr.channels.mirae_asset import MiraeAssetChannel
+from career_ops_kr.channels.mirae_naeil import MiraeNaeilChannel
 from career_ops_kr.channels.nh_sec import NhSecChannel
 from career_ops_kr.channels.samsung_sec import SamsungSecChannel
 from career_ops_kr.channels.saramin import SaraminChannel
+from career_ops_kr.channels.shinhan_sec import ShinhanSecChannel
 from career_ops_kr.channels.toss import TossChannel
 from career_ops_kr.channels.wanted import WantedChannel
 from career_ops_kr.channels.yw_work24 import YwWork24Channel
@@ -67,7 +70,11 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     YwWork24Channel.name: YwWork24Channel,  # 청년일경험포털
     KiwoomdaChannel.name: KiwoomdaChannel,  # 키움DA
     DataqChannel.name: DataqChannel,  # 데이터큐
-    # --- Tier 3 securities (Korean brokerage), 5 channels ---
+    MiraeNaeilChannel.name: MiraeNaeilChannel,  # 미래내일 일경험
+    # --- Target-specific (찬희 우선순위 P0), 1 channel ---
+    KiwoomKdaChannel.name: KiwoomKdaChannel,  # 키움 KDA (recruit.kiwoom.com)
+    # --- Tier 3 securities (Korean brokerage), 6 channels ---
+    ShinhanSecChannel.name: ShinhanSecChannel,  # 신한투자증권 (requests 재작성)
     MiraeAssetChannel.name: MiraeAssetChannel,
     KbSecChannel.name: KbSecChannel,
     HanaSecChannel.name: HanaSecChannel,
@@ -97,14 +104,17 @@ __all__ = [
     "JobRecord",
     "JobalioChannel",
     "KbSecChannel",
+    "KiwoomKdaChannel",
     "KiwoomdaChannel",
     "Lambda256Channel",
     "LinkareerChannel",
     "MiraeAssetChannel",
+    "MiraeNaeilChannel",
     "NhSecChannel",
     "NotTunedYetError",
     "SamsungSecChannel",
     "SaraminChannel",
+    "ShinhanSecChannel",
     "TossChannel",
     "WantedChannel",
     "YwWork24Channel",
