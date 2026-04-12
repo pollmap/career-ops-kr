@@ -1106,17 +1106,38 @@ def institutions_cmd(grade: str | None, concurrency: int, top: int) -> None:
                 break
         return results
 
+    def _fuzzy_match(search_name: str, company_name: str) -> bool:
+        """Fuzzy org name matching — 노이즈 필터링."""
+        if not company_name:
+            return False
+        # Exact substring match (either direction)
+        if search_name in company_name or company_name in search_name:
+            return True
+        # Fuzzy match with threshold
+        try:
+            from fuzzywuzzy import fuzz
+            return fuzz.partial_ratio(search_name, company_name) >= 60
+        except ImportError:
+            return search_name.lower() in company_name.lower()
+
+    def _filter_by_org(results: list[JobRecord], search_name: str) -> list[JobRecord]:
+        """Filter results to only include matching org names."""
+        return [r for r in results if _fuzzy_match(search_name, r.org)]
+
     def _search_one(inst: dict) -> tuple[str, list[JobRecord]]:
         import re
+        import time as _time
         name = inst["name"]
         search_name = re.sub(r"\(.*?\)", "", name).strip()
         if len(search_name) < 2:
             return name, []
-        # 3 aggregator 동시 검색
+        # 3 aggregator 동시 검색 + fuzzy 필터 + rate limit
         results: list[JobRecord] = []
-        results.extend(_search_wanted(search_name))
-        results.extend(_search_jobkorea(search_name))
-        results.extend(_search_saramin(search_name))
+        results.extend(_filter_by_org(_search_wanted(search_name), search_name))
+        _time.sleep(0.3)  # rate limit between aggregators
+        results.extend(_filter_by_org(_search_jobkorea(search_name), search_name))
+        _time.sleep(0.3)
+        results.extend(_filter_by_org(_search_saramin(search_name), search_name))
         return name, results
 
     with Progress(

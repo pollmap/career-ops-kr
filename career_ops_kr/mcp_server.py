@@ -61,6 +61,20 @@ SERVER_VERSION = "0.2.0"
 PROTOCOL_VERSION = "2024-11-05"
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _resolve_archetype(raw: str | None) -> Any:
+    """Convert archetype string to Archetype enum, fallback to UNKNOWN."""
+    try:
+        from career_ops_kr.archetype.classifier import Archetype
+        if raw is None:
+            return Archetype.UNKNOWN
+        try:
+            return Archetype(raw)
+        except ValueError:
+            return Archetype.UNKNOWN
+    except ImportError:
+        return raw or "UNKNOWN"
 DATA_DIR = PROJECT_ROOT / "data"
 CONFIG_DIR = PROJECT_ROOT / "config"
 PRESETS_DIR = PROJECT_ROOT / "presets"
@@ -201,7 +215,7 @@ def tool_score_job(url: str) -> dict[str, Any]:
                 "source_url": str(record.source_url),
             },
             qualifier_result=qresult,
-            archetype=record.archetype or "UNKNOWN",
+            archetype=_resolve_archetype(record.archetype),
         )
     except Exception as exc:
         return _error(f"scorer failed: {exc}")
@@ -281,15 +295,30 @@ def tool_generate_cover_letter_draft(url: str, tone: str = "formal_kr") -> str:
             f"Hint: {evaluation.get('hint', 'run scan first')}"
         )
 
-    llm_cls = _safe_import("career_ops_kr.scorer.llm_scorer", "LLMScorer")
-    if llm_cls is not None:
-        try:
-            llm = llm_cls()
-            draft = llm.generate_cover_letter(evaluation=evaluation, tone=tone)
-            if isinstance(draft, str) and draft.strip():
-                return draft
-        except Exception as exc:
-            logger.info("LLMScorer unavailable — using template: %s", exc)
+    # Ollama/OpenRouter AI draft (Phase 2 — ai.client 활용)
+    try:
+        from career_ops_kr.ai.client import get_client, DEFAULT_MODEL
+        client = get_client()
+        resp = client.chat.completions.create(
+            model=DEFAULT_MODEL,
+            messages=[
+                {"role": "system", "content": "채용 지원서 초안을 작성하는 전문가입니다. 한국어로 작성하세요."},
+                {"role": "user", "content": (
+                    f"다음 공고에 대한 지원서 초안을 {tone} 톤으로 작성하세요.\n"
+                    f"기관: {evaluation.get('org', '')}\n"
+                    f"포지션: {evaluation.get('title', '')}\n"
+                    f"적합도: {evaluation.get('grade', 'N/A')}\n"
+                    f"이유: {'; '.join(evaluation.get('reasons', []))}\n"
+                )},
+            ],
+            max_tokens=500,
+            temperature=0.7,
+        )
+        draft = resp.choices[0].message.content.strip()
+        if draft:
+            return draft
+    except Exception as exc:
+        logger.info("AI draft unavailable — using template: %s", exc)
 
     # Deterministic fallback template. Never fabricates facts — it only
     # quotes fields already extracted from the posting.

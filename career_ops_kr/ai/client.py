@@ -1,24 +1,20 @@
-"""OpenRouter API 클라이언트 팩토리.
+"""LLM 클라이언트 팩토리 — Ollama(로컬) 우선, OpenRouter fallback.
 
-OpenRouter는 OpenAI 라이브러리와 100% 호환됩니다.
-base_url만 바꾸면 동일한 코드로 100+ 모델을 교체 사용할 수 있습니다.
+우선순위:
+    1. Ollama (localhost:11434) — 무료, 로컬, 개인정보 안전
+    2. OpenRouter — 클라우드, API 키 필요
 
 환경변수:
-    OPENROUTER_API_KEY  — 필수. sk-or-... 형식.
-    OPENROUTER_MODEL    — 선택. 기본값: DEFAULT_MODEL.
-
-무료 모델 예시:
-    google/gemini-2.0-flash-exp:free
-    meta-llama/llama-3.1-8b-instruct:free
-
-유료 저렴 모델 예시:
-    google/gemini-flash-1.5          — $0.075/1M input
-    deepseek/deepseek-chat           — $0.14/1M input
-    anthropic/claude-haiku-4-5       — $0.25/1M input
+    OLLAMA_HOST         — Ollama 호스트 (기본: http://localhost:11434)
+    OLLAMA_MODEL        — Ollama 모델 (기본: qwen2.5-coder:7b)
+    OPENROUTER_API_KEY  — OpenRouter API 키. Ollama 없을 때 사용.
+    OPENROUTER_MODEL    — OpenRouter 모델 (기본: google/gemini-2.0-flash-exp:free)
+    LLM_BACKEND         — 강제 선택: "ollama" 또는 "openrouter"
 """
 
 from __future__ import annotations
 
+import logging
 import os
 
 try:
@@ -28,32 +24,70 @@ except ImportError as exc:
         "openai 패키지가 필요합니다: uv add openai  또는  pip install openai"
     ) from exc
 
+logger = logging.getLogger(__name__)
+
 _OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 _APP_SITE = "https://github.com/pollmap/career-ops-kr"
 _APP_TITLE = "career-ops-kr"
 
-# 완전 무료 기본 모델 — 프로덕션 품질은 아니지만 career-ops 사용량에 충분
-DEFAULT_MODEL = os.environ.get(
+# Ollama defaults
+_OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+_OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5-coder:7b")
+
+# OpenRouter defaults
+_OPENROUTER_MODEL = os.environ.get(
     "OPENROUTER_MODEL",
     "google/gemini-2.0-flash-exp:free",
 )
 
 
+def _ollama_available() -> bool:
+    """Check if Ollama is running and has models."""
+    try:
+        import urllib.request
+        req = urllib.request.Request(f"{_OLLAMA_HOST}/api/tags", method="GET")
+        with urllib.request.urlopen(req, timeout=2) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
+# Resolve default model + backend at import time
+_backend: str = os.environ.get("LLM_BACKEND", "").lower()
+if _backend == "ollama":
+    DEFAULT_MODEL = _OLLAMA_MODEL
+    _USE_OLLAMA = True
+elif _backend == "openrouter":
+    DEFAULT_MODEL = _OPENROUTER_MODEL
+    _USE_OLLAMA = False
+elif _ollama_available():
+    DEFAULT_MODEL = _OLLAMA_MODEL
+    _USE_OLLAMA = True
+    logger.info("Ollama detected at %s — using local LLM (%s)", _OLLAMA_HOST, _OLLAMA_MODEL)
+else:
+    DEFAULT_MODEL = _OPENROUTER_MODEL
+    _USE_OLLAMA = False
+
+
 def get_client(api_key: str | None = None) -> OpenAI:
-    """OpenRouter API 클라이언트를 반환합니다.
+    """LLM 클라이언트 반환. Ollama 우선, OpenRouter fallback.
 
-    Args:
-        api_key: API 키. None이면 OPENROUTER_API_KEY 환경변수에서 읽습니다.
-
-    Raises:
-        ValueError: API 키가 없을 때.
+    Returns:
+        OpenAI-compatible client (Ollama 또는 OpenRouter).
     """
+    if _USE_OLLAMA:
+        return OpenAI(
+            api_key="ollama",  # Ollama doesn't need a real key
+            base_url=f"{_OLLAMA_HOST}/v1",
+        )
+
+    # OpenRouter fallback
     key = api_key or os.environ.get("OPENROUTER_API_KEY")
     if not key:
         raise ValueError(
-            "OPENROUTER_API_KEY 환경변수를 설정해주세요.\n"
-            "  발급: https://openrouter.ai/keys\n"
-            "  설정: set OPENROUTER_API_KEY=sk-or-..."
+            "LLM 백엔드를 찾을 수 없습니다.\n"
+            "  옵션 1: Ollama 실행 (ollama serve)\n"
+            "  옵션 2: set OPENROUTER_API_KEY=sk-or-..."
         )
     return OpenAI(
         api_key=key,
