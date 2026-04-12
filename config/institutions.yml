@@ -1,0 +1,1362 @@
+version: '1.0'
+source: 금융권_194개_전수조사_취업전략.xlsx (2026-04-12)
+total: 194
+institutions:
+- name: 한국은행
+  slug: ____
+  sector: 중앙은행·금융규제기관
+  grade: D
+  salary: 1억 2,000만+
+  career_url: https://apply.bok.or.kr/
+  feature: 통화정책·경제분석, 고시급 필기(경제학), 16개 지역본부 순환, 최고 연구인프라
+- name: 금융감독원
+  slug: _____
+  sector: 중앙은행·금융규제기관
+  grade: D
+  salary: 9,500만
+  career_url: https://www.fss.or.kr/fss/main/sub1Contents.do?menuNo=200600
+  feature: 금융검사·감리, 회계 전문성 필수(CPA 우대), 준공무원 안정성
+- name: 금융위원회
+  slug: _____
+  sector: 중앙은행·금융규제기관
+  grade: D
+  salary: 8,500만
+  career_url: https://www.fsc.go.kr/no010201
+  feature: 정책 입안·법령 제개정, 5급 공채 출신 다수, 정치적 센싱 필요
+- name: 전국은행연합회
+  slug: _______
+  sector: 협회·연합회
+  grade: B
+  salary: 1억 500만
+  career_url: https://www.kfb.or.kr/recruit/
+  feature: 은행권 이익대변·정책건의, 명동 근무, 영업압박 無, 논술 중시
+- name: 금융투자협회
+  slug: ______
+  sector: 협회·연합회
+  grade: A
+  salary: 7,700만
+  career_url: https://www.kofia.or.kr/brd/m_156/list.do
+  feature: 자본시장 규제·자격시험 주관, 여의도 핵심, K-OTC 운영
+- name: 손해보험협회
+  slug: ______
+  sector: 협회·연합회
+  grade: B
+  salary: 7,776만
+  career_url: https://www.knia.or.kr/recruit/
+  feature: 보험사고 조사·통계, 보험범죄 방지, 종로 근무, 워라밸 우수
+- name: 생명보험협회
+  slug: ______
+  sector: 협회·연합회
+  grade: B
+  salary: 7,200만
+  career_url: https://www.klia.or.kr/recruit/
+  feature: 보험계약 분쟁조정, 설계사 등록관리, 광화문 근무
+- name: 여신금융협회
+  slug: ______
+  sector: 협회·연합회
+  grade: C
+  salary: 7,100만
+  career_url: https://www.crefia.or.kr/recruit/
+  feature: 카드·리스·할부 업계 대변, 최근 경쟁률 급등(150:1+)
+- name: 저축은행중앙회
+  slug: _______
+  sector: 협회·연합회
+  grade: B
+  salary: 7,000만
+  career_url: https://www.fsb.or.kr/recruit/
+  feature: 저축은행 중앙 역할, 통합전산망 운영, 상호금융 특화
+- name: 신용협동조합중앙회
+  slug: _________
+  sector: 협회·연합회
+  grade: C
+  salary: 6,800만
+  career_url: https://www.cu.co.kr/recruit/
+  feature: 신협 감독·지원, 지역밀착, 보수적 문화
+- name: 새마을금고중앙회
+  slug: ________
+  sector: 협회·연합회
+  grade: B
+  salary: 7,500만
+  career_url: https://www.kfcc.co.kr/recruit/
+  feature: 새마을금고 감독, 전국 조직, 지역인재 우대
+- name: 한국거래소(KRX)
+  slug: _____krx
+  sector: 금융인프라 기관
+  grade: C
+  salary: 1억 1,500만
+  career_url: https://recruit.krx.co.kr/
+  feature: 시장운영·상장심사·감시, 부산 본사, 금융공학 필수, 거래대금 연동 성과급
+- name: 한국증권금융
+  slug: ______
+  sector: 금융인프라 기관
+  grade: C
+  salary: 1억 1,200만
+  career_url: https://www.ksfc.co.kr/recruit/
+  feature: 증권사 예탁금 관리·자금 공급, 여의도 본사, 최고 복지·연봉
+- name: 한국예탁결제원
+  slug: _______
+  sector: 금융인프라 기관
+  grade: C
+  salary: 1억 1,100만
+  career_url: https://www.ksd.or.kr/ko/about-ksd/recruit.do
+  feature: 증권 예탁·결제·권리행사, 부산 본사, 전자증권 제도 운영
+- name: 코스콤
+  slug: ___
+  sector: 금융인프라 기관
+  grade: D
+  salary: 8,200만
+  career_url: https://www.koscom.co.kr/recruit/
+  feature: 금융 IT 인프라, 거래소 자회사, 핀테크 확장, 개발자 우대
+- name: 금융결제원
+  slug: _____
+  sector: 금융인프라 기관
+  grade: C
+  salary: 9,200만
+  career_url: https://www.kftc.or.kr/recruit/
+  feature: 은행간 결제·지로·ATM망, 마이데이터 중계, 전산/경영/법 필기 고난도
+- name: 금융보안원
+  slug: _____
+  sector: 금융인프라 기관
+  grade: D
+  salary: 8,000만
+  career_url: https://www.fsec.or.kr/recruit/
+  feature: 금융권 통합보안 관제, 보안/IT 전문성 필수
+- name: 한국신용정보원
+  slug: _______
+  sector: 금융인프라 기관
+  grade: C
+  salary: 8,700만
+  career_url: https://www.kcredit.or.kr/recruit/
+  feature: 신용정보 집중·빅데이터, 높은 초봉, 데이터 분석 중심
+- name: 서울외국환중개
+  slug: _______
+  sector: 금융인프라 기관
+  grade: C
+  salary: 7,500~1억
+  career_url: https://www.smbs.biz/recruit/
+  feature: 금융기관간 외환·자금 중개, 영어 필수, 딜링룸 역동성
+- name: 한국자금중개
+  slug: ______
+  sector: 금융인프라 기관
+  grade: C
+  salary: 6,891만
+  career_url: https://www.kmbi.co.kr/recruit/
+  feature: Call·채권·외환 중개, B2B 거래, 단기금융 시장 전문성
+- name: 한국교직원공제회
+  slug: ________
+  sector: 공제회·공제조합
+  grade: S
+  salary: 8,589만
+  career_url: https://www.ktcu.or.kr/kor/recruit/recruit01.do
+  feature: 교직원 자산운용(수십조), 여의도 본사, 대체투자 강점, 실질 1억+
+- name: 군인공제회
+  slug: _____
+  sector: 공제회·공제조합
+  grade: A
+  salary: 9,784만
+  career_url: https://www.mpmaa.or.kr/recruit/
+  feature: 군인 자산운용, 부동산·PEF 투자, 서울 도곡, 위계 강함
+- name: 경찰공제회
+  slug: _____
+  sector: 공제회·공제조합
+  grade: A
+  salary: 9,277만
+  career_url: https://www.poba.or.kr/recruit/
+  feature: 경찰 자산운용, 이천 아울렛 운영, 억대 연봉 빠름
+- name: 대한지방행정공제회
+  slug: _________
+  sector: 공제회·공제조합
+  grade: A
+  salary: 9,100만
+  career_url: https://www.jbaudit.or.kr/recruit/
+  feature: 공무원 자산운용, 글로벌 대체투자 선두, LP 영향력
+- name: 건설공제조합
+  slug: ______
+  sector: 공제회·공제조합
+  grade: B
+  salary: 1억 51만
+  career_url: https://www.surebuild.co.kr/recruit/
+  feature: 건설보증·융자, 강남 본사, 공제 1위 연봉, 통합전공
+- name: 전문건설공제조합
+  slug: ________
+  sector: 공제회·공제조합
+  grade: C
+  salary: 9,200만
+  career_url: https://www.kscfc.or.kr/recruit/
+  feature: 전문건설 보증, 법학 출제, 건설 특화
+- name: 대한소방공제회
+  slug: _______
+  sector: 공제회·공제조합
+  grade: C
+  salary: 7,400만
+  career_url: https://www.119fund.or.kr/recruit/
+  feature: 소방 공제, 소규모 알짜, 정보 폐쇄적
+- name: 과학기술인공제회
+  slug: ________
+  sector: 공제회·공제조합
+  grade: C
+  salary: 7,500만
+  career_url: https://www.sema.or.kr/recruit/
+  feature: 과학기술인 연금, 대덕 특화, 니치 시장
+- name: 소프트웨어공제조합
+  slug: _________
+  sector: 공제회·공제조합
+  grade: C
+  salary: 7,500만
+  career_url: https://www.swg.or.kr/recruit/
+  feature: SW 기업 지원, IT 업계 특성, 벤처 투자 연계
+- name: 영화인공제회
+  slug: ______
+  sector: 공제회·공제조합
+  grade: D
+  salary: 6,500만
+  career_url: https://www.kfcoop.or.kr/recruit/
+  feature: 영화인 복지, 소규모, 특수 직역
+- name: 한국산업은행
+  slug: ______
+  sector: 정책금융기관·금융공기업
+  grade: B
+  salary: 1억 200만
+  career_url: https://recruit.kdb.co.kr/
+  feature: 기업구조조정·IB, 정책금융 선두, 서울 본사, M&A 자문
+- name: 한국수출입은행
+  slug: _______
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 1억 100만
+  career_url: https://www.koreaexim.go.kr/recruit
+  feature: 수출금융·EDCF, 글로벌 역량, 해외 플랜트·자원개발, 영어 중시
+- name: 중소기업은행(IBK)
+  slug: ______ibk
+  sector: 정책금융기관·금융공기업
+  grade: S
+  salary: 1억 100만
+  career_url: https://recruit.ibk.co.kr/
+  feature: 중기 특화+소매금융, 초봉 1위, 전국 지점망, 지역인재 전형
+- name: 신용보증기금
+  slug: ______
+  sector: 정책금융기관·금융공기업
+  grade: A
+  salary: 9,100만
+  career_url: https://www.kodit.co.kr/recruit/
+  feature: 중기 신용보증·P-CBO, 대구 본사, 기업 신용분석, 전국 순환
+- name: 기술보증기금
+  slug: ______
+  sector: 정책금융기관·금융공기업
+  grade: A
+  salary: 8,600만
+  career_url: https://www.kibo.or.kr/recruit/
+  feature: 기술평가 보증, 부산 본사, Tech Rating 독자 시스템
+- name: 한국주택금융공사
+  slug: ________
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 7,169만
+  career_url: https://www.hf.go.kr/recruit/
+  feature: 보금자리론·주택연금·MBS, 부산 BIFC, 전국 순환
+- name: 한국자산관리공사
+  slug: ________
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 8,400만
+  career_url: https://www.kamco.or.kr/recruit/
+  feature: 부실채권 정리·국유재산 관리, 부산 본사, NPL 시장
+- name: 예금보험공사
+  slug: ______
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 9,200만
+  career_url: https://www.kdic.or.kr/recruit/
+  feature: 예금자 보호·부실금융사 정리, 서울, 금융 안전망 핵심
+- name: 한국투자공사(KIC)
+  slug: ______kic
+  sector: 정책금융기관·금융공기업
+  grade: D
+  salary: 1억 500만
+  career_url: https://www.kic.kr/recruit/
+  feature: 국부펀드 운용, 글로벌 투자, 영어 필수, 초고난도
+- name: 한국무역보험공사
+  slug: ________
+  sector: 정책금융기관·금융공기업
+  grade: B
+  salary: 8,500만
+  career_url: https://www.ksure.or.kr/recruit/
+  feature: 무역보험·해외투자 보험, 서울/부산, 국가 리스크 분석
+- name: 주택도시보증공사
+  slug: ________
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 8,000만
+  career_url: https://www.khug.or.kr/recruit/
+  feature: 주택분양·전세 보증, 부산, 부동산 시장 밀접
+- name: 서울보증보험
+  slug: ______
+  sector: 정책금융기관·금융공기업
+  grade: B
+  salary: 9,000만
+  career_url: https://www.sgic.co.kr/recruit/
+  feature: 보증보험 전문, 예보 최대주주, 서울, 이행보증
+- name: 한국해양진흥공사
+  slug: ________
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 7,136만
+  career_url: https://www.kobc.or.kr/recruit/
+  feature: 선박투자·해운금융, 부산, 신생 기관, 해운 특화
+- name: 서민금융진흥원
+  slug: _______
+  sector: 정책금융기관·금융공기업
+  grade: B
+  salary: 7,000만
+  career_url: https://www.kinfa.or.kr/recruit/
+  feature: 서민금융(햇살론), 서울, 정책 집행, 저신용 금융
+- name: 농업정책보험금융원
+  slug: _________
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 6,800만
+  career_url: https://www.apfs.kr/recruit/
+  feature: 농업재해보험, 농업 특화, 정책 집행
+- name: 신용정보협회
+  slug: ______
+  sector: 정책금융기관·금융공기업
+  grade: C
+  salary: 6,500만
+  career_url: https://www.credit4u.or.kr/recruit/
+  feature: 신용정보업계 자율규제, 소규모
+- name: KB국민은행
+  slug: kb____
+  sector: 시중은행 (D-SIB)
+  grade: A
+  salary: 1억 2,000만+
+  career_url: https://recruit.kbstar.com/
+  feature: 시중은행 1위 근속, WM·IB 강점, 칼퇴 문화, 성과급 최상
+- name: 신한은행
+  slug: ____
+  sector: 시중은행 (D-SIB)
+  grade: A
+  salary: 1억 1,500만+
+  career_url: https://shinhan.recruiter.co.kr/
+  feature: 리딩뱅크 경쟁, 글로벌·IB 인센티브, 성과 중심 문화
+- name: 하나은행
+  slug: ____
+  sector: 시중은행 (D-SIB)
+  grade: A
+  salary: 1억 1,800만+
+  career_url: https://recruit.hanabank.com/
+  feature: 최근 실적 호조, 금융지주 복지, WM·외환 강점
+- name: 우리은행
+  slug: ____
+  sector: 시중은행 (D-SIB)
+  grade: A
+  salary: 1억 1,000만+
+  career_url: https://recruit.wooribank.com/
+  feature: 기업금융 명가, 보수적 문화, PC-OFF, 공적자금 완전 상환
+- name: NH농협은행
+  slug: nh____
+  sector: 시중은행 (D-SIB)
+  grade: S
+  salary: 1억 1,478만
+  career_url: https://recruit.nonghyup.com/
+  feature: 완전 블라인드, 전국 최대 지점망, 순환 필수, 지역인재 우대
+- name: 부산은행(BNK)
+  slug: ____bnk
+  sector: 지방은행
+  grade: C
+  salary: 7,800만
+  career_url: https://recruit.busanbank.co.kr/
+  feature: 부산·경남 거점, BNK금융지주, 지역 밀착도 높음
+- name: 경남은행(BNK)
+  slug: ____bnk
+  sector: 지방은행
+  grade: C
+  salary: 7,600만
+  career_url: https://recruit.knbank.co.kr/
+  feature: 경남·울산 거점, 부산은행과 통합 시너지
+- name: iM뱅크(DGB)
+  slug: im__dgb
+  sector: 지방은행
+  grade: B
+  salary: 8,000만
+  career_url: https://recruit.dgb.co.kr/
+  feature: 구 대구은행, 시중은행 전환 인가, 대구·경북 기반, 디지털 확장
+- name: 광주은행(JB)
+  slug: ____jb
+  sector: 지방은행
+  grade: C
+  salary: 7,500만
+  career_url: https://recruit.kjbank.com/
+  feature: 광주·전남 거점, JB금융지주, 지역경제 의존도 높음
+- name: 전북은행(JB)
+  slug: ____jb
+  sector: 지방은행
+  grade: C
+  salary: 7,400만
+  career_url: https://recruit.jbbank.co.kr/
+  feature: 전북 거점, 광주은행과 지주 공유, 소규모
+- name: 제주은행
+  slug: ____
+  sector: 지방은행
+  grade: D
+  salary: 7,200만
+  career_url: https://www.e-jejubank.com/recruit/
+  feature: 제주 특화, 신한금융그룹 계열, 관광금융
+- name: Sh수협은행
+  slug: sh____
+  sector: 지방은행
+  grade: C
+  salary: 7,600만
+  career_url: https://recruit.suhyup-bank.com/
+  feature: 수산업협동조합 분리, 수산·어촌 금융, 전국 어항 지점
+- name: 카카오뱅크
+  slug: _____
+  sector: 인터넷전문은행
+  grade: C
+  salary: 1억+
+  career_url: https://www.kakaobank.com/careers
+  feature: 메신저 기반, 압도적 사용자, RSU, 비대면 특화, IT 우대
+- name: 토스뱅크
+  slug: ____
+  sector: 인터넷전문은행
+  grade: C
+  salary: 1억+
+  career_url: https://toss.im/career
+  feature: 원앱 전략, 사이닝 보너스, RSU, 초고강도 업무, 스타트업 문화
+- name: 케이뱅크
+  slug: ____
+  sector: 인터넷전문은행
+  grade: C
+  salary: 9,000만
+  career_url: https://www.kbanknow.com/recruit/
+  feature: 1호 인터넷은행, 가상자산 제휴, 규모 작음, 안정화 단계
+- name: 한국씨티은행
+  slug: ______
+  sector: 외국계 은행
+  grade: D
+  salary: 1억 1,000만
+  career_url: https://www.citibank.co.kr/recruit/
+  feature: 소비자금융 축소, 기업금융 집중, 영어 필수, 구조조정 리스크
+- name: SC제일은행
+  slug: sc____
+  sector: 외국계 은행
+  grade: D
+  salary: 1억
+  career_url: https://www.standardchartered.co.kr/recruit/
+  feature: 스탠다드차타드 계열, 글로벌 네트워크, 영어 필수
+- name: 미래에셋증권
+  slug: ______
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: C
+  salary: 1억 5,000만+
+  career_url: https://recruit.miraeasset.com/
+  feature: 자기자본 1위, 글로벌 네트워크, IB·WM·리서치 전방위, 고강도
+- name: 한국투자증권
+  slug: ______
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: C
+  salary: 1억 4,500만
+  career_url: https://career.truefriend.com/
+  feature: IB 전통 강자, 채권·구조화 금융, 리서치 명가, 고스펙 선호
+- name: NH투자증권
+  slug: nh____
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: B
+  salary: 1억 3,500만
+  career_url: https://recruit.nhqv.com/
+  feature: 농협금융 계열, 리테일+IB 균형, 전국 지점망, 안정성 높음
+- name: 삼성증권
+  slug: ____
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: D
+  salary: 1억 6,000만+
+  career_url: https://www.samsungpop.com/recruit/
+  feature: PB 전설(강정구 93억), GSAT, 삼성 브랜드, WM 최강, SKY 집중
+- name: KB증권
+  slug: kb__
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: B
+  salary: 1억 3,000만
+  career_url: https://recruit.kbsec.com/
+  feature: KB금융 시너지, 은행 고객 기반, WM·IB 성장, 안정적
+- name: 하나증권
+  slug: ____
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: B
+  salary: 1억 2,500만
+  career_url: https://recruit.hanaw.com/
+  feature: 하나금융 계열, WM 집중, 최근 성장세, 금융지주 복지
+- name: 메리츠증권
+  slug: _____
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: C
+  salary: 1억 9,200만
+  career_url: https://www.meritz.com/recruit
+  feature: 평균연봉 2위, 성과급 최대 60%, 초고강도, IB·리서치·파생
+- name: 신한투자증권
+  slug: ______
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: B
+  salary: 1억 2,800만
+  career_url: https://www.shinhaninvest.com/recruit/
+  feature: 신한금융 계열, 리테일+IB, 디지털 전환 선도, 안정적
+- name: 키움증권
+  slug: ____
+  sector: 증권사 - 초대형 IB (자기자본 4조+)
+  grade: B
+  salary: 1억 3,200만
+  career_url: https://www.kiwoom.com/h/recruit/main
+  feature: 온라인 1위, 개인투자자 기반, HTS·MTS 강점, 리테일 중심
+- name: 대신증권
+  slug: ____
+  sector: 증권사 - 중견
+  grade: B
+  salary: 1억 1,000만
+  career_url: https://www.daishin.com/recruit/
+  feature: 중견 독립, 리서치 전통, WM 강점, 보수적 문화
+- name: 교보증권
+  slug: ____
+  sector: 증권사 - 중견
+  grade: B
+  salary: 1억 500만
+  career_url: https://www.iprovest.com/recruit/
+  feature: 교보생명 계열, 보험 시너지, 채권·WM 집중
+- name: 한화투자증권
+  slug: ______
+  sector: 증권사 - 중견
+  grade: B
+  salary: 1억 1,500만
+  career_url: https://www.hanwhawm.com/recruit/
+  feature: 한화그룹, 방산·화학 연계, IB 성장, 그룹 복지
+- name: 유안타증권
+  slug: _____
+  sector: 증권사 - 중견
+  grade: A
+  salary: 1억 4,000만
+  career_url: https://recruit.myasset.com/
+  feature: 중국 계열, 리테일 임원제, 이종석 83억, 영업 중심
+- name: 유진투자증권
+  slug: ______
+  sector: 증권사 - 중견
+  grade: B
+  salary: 1억 200만
+  career_url: https://www.eugenefn.com/recruit/
+  feature: 독립 중견, 틈새 IB, 보수적 안정
+- name: 현대차증권
+  slug: _____
+  sector: 증권사 - 중견
+  grade: C
+  salary: 1억 500만
+  career_url: https://www.hmsec.com/recruit/
+  feature: 현대차그룹, 자동차금융 특화, 캐피탈 연계
+- name: 하이투자증권
+  slug: ______
+  sector: 증권사 - 중견
+  grade: B
+  salary: 9,800만
+  career_url: https://www.hi-ib.com/recruit/
+  feature: 중견 독립, WM·채권 중심, 소규모
+- name: IBK투자증권
+  slug: ibk____
+  sector: 증권사 - 중견
+  grade: A
+  salary: 1억 200만
+  career_url: https://www.ibks.com/recruit/
+  feature: 기업은행 계열, 중기 특화 IB, 안정성 높음
+- name: DB금융투자
+  slug: db____
+  sector: 증권사 - 중견
+  grade: A
+  salary: 1억 1,200만
+  career_url: https://www.db-fi.com/recruit/
+  feature: 동부그룹(현 DB), 리서치 우수(RA 고난도 면접), IB 성장
+- name: SK증권
+  slug: sk__
+  sector: 증권사 - 중견
+  grade: B
+  salary: 1억 800만
+  career_url: https://www.sks.co.kr/recruit/
+  feature: SK그룹, IT·반도체 연계, 그룹 복지, 디지털 전환
+- name: iM증권(구 하이)
+  slug: im______
+  sector: 증권사 - 중견
+  grade: C
+  salary: 9,500만
+  career_url: https://www.imeritz.com/recruit/
+  feature: DGB금융그룹, 대구·경북 기반, 지역 특화
+- name: 케이프투자증권
+  slug: _______
+  sector: 증권사 - 중견
+  grade: C
+  salary: 9,000만
+  career_url: https://www.capefn.com/recruit/
+  feature: 독립 중소형, 채권·자기매매, 틈새 전략
+- name: 한국포스증권
+  slug: ______
+  sector: 증권사 - 중견
+  grade: C
+  salary: 8,500만
+  career_url: https://www.fosskorea.com/recruit/
+  feature: 우정사업본부 계열, 펀드 판매 특화, 안정적
+- name: 부국증권
+  slug: ____
+  sector: 증권사 - 중소형
+  grade: B
+  salary: 1억 9,500만
+  career_url: https://www.bookook.co.kr/recruit/
+  feature: 평균연봉 1위(소수정예), 채권·파생 특화, 진현수 차장 41억
+- name: 신영증권
+  slug: ____
+  sector: 증권사 - 중소형
+  grade: S
+  salary: 1억 2,200만
+  career_url: https://www.shinyoung.com/recruit/
+  feature: 가치투자 명가, 마라톤펀드, 보수적, 소수정예 채용
+- name: 한양증권
+  slug: ____
+  sector: 증권사 - 중소형
+  grade: C
+  salary: 8,500만
+  career_url: https://www.hygood.co.kr/recruit/
+  feature: 중소형, 리테일·채권, 정보 폐쇄적
+- name: 유화증권
+  slug: ____
+  sector: 증권사 - 중소형
+  grade: C
+  salary: 8,200만
+  career_url: https://www.yuhwa.co.kr/recruit/
+  feature: 중소형, 지역 기반, 제한적 커리어
+- name: BNK투자증권
+  slug: bnk____
+  sector: 증권사 - 중소형
+  grade: S
+  salary: 1억 7,200만
+  career_url: https://www.bnkfn.co.kr/recruit/
+  feature: BNK금융, 부산 기반, 블라인드 채용, 인턴→정규직
+- name: 흥국증권
+  slug: ____
+  sector: 증권사 - 중소형
+  grade: C
+  salary: 8,800만
+  career_url: https://www.heungkuksec.co.kr/recruit/
+  feature: 중소형, 보수적, 리테일 중심
+- name: 다올투자증권
+  slug: ______
+  sector: 증권사 - 중소형
+  grade: B
+  salary: 9,200만
+  career_url: https://www.daolsec.co.kr/recruit/
+  feature: 구 KTB, 벤처투자 연계, VC 시너지
+- name: KB투자증권
+  slug: kb____
+  sector: 증권사 - 중소형
+  grade: C
+  salary: 9,000만
+  career_url: https://www.kbsec.com/recruit/
+  feature: KB금융지주 자회사, 소규모, 특수 목적
+- name: 리딩투자증권
+  slug: ______
+  sector: 증권사 - 중소형
+  grade: C
+  salary: 8,000만
+  career_url: https://www.leading.co.kr/recruit/
+  feature: 소규모, 자기매매 중심, 틈새 시장
+- name: 코리아에셋투자증권
+  slug: _________
+  sector: 증권사 - 중소형
+  grade: C
+  salary: 8,300만
+  career_url: https://www.koreaasset.co.kr/recruit/
+  feature: 소규모, 채권 특화, 정보 제한적
+- name: 삼성선물
+  slug: ____
+  sector: 선물사
+  grade: C
+  salary: 9,500만
+  career_url: https://www.samsungfutures.com/recruit/
+  feature: 파생상품 전문, 삼성 브랜드, 고난도 전문성
+- name: NH선물
+  slug: nh__
+  sector: 선물사
+  grade: C
+  salary: 8,800만
+  career_url: https://www.nhfutures.co.kr/recruit/
+  feature: 농협 계열, 파생 중개, 소규모
+- name: 하나선물
+  slug: ____
+  sector: 선물사
+  grade: C
+  salary: 8,500만
+  career_url: https://www.hanafutures.com/recruit/
+  feature: 하나금융 계열, 파생 특화, 중소 규모
+- name: 키움선물
+  slug: ____
+  sector: 선물사
+  grade: C
+  salary: 8,200만
+  career_url: https://www.kiwoomfutures.com/recruit/
+  feature: 키움 계열, 온라인 중심, 소규모
+- name: 신한선물
+  slug: ____
+  sector: 선물사
+  grade: C
+  salary: 8,600만
+  career_url: https://www.shinhanfutures.com/recruit/
+  feature: 신한금융 계열, 파생 중개, 소규모
+- name: 삼성생명
+  slug: ____
+  sector: 생명보험사
+  grade: C
+  salary: 1억 5,000만
+  career_url: https://recruit.samsunglife.com/
+  feature: 생보 1위, PS 29~30%, GSAT, 자산운용 강력(200조), SKY 선호
+- name: 한화생명
+  slug: ____
+  sector: 생명보험사
+  grade: A
+  salary: 1억 1,000만+
+  career_url: https://www.hanwhalife.com/recruit/
+  feature: Big3, 한화그룹, 억대 진입, 자산운용·리스크관리, 블라인드
+- name: 교보생명
+  slug: ____
+  sector: 생명보험사
+  grade: B
+  salary: 1억 500만
+  career_url: https://recruit.kyobo.co.kr/
+  feature: Big3, 독립 경영, 보수적, 장기 보장성 강점
+- name: 신한라이프
+  slug: _____
+  sector: 생명보험사
+  grade: B
+  salary: 9,500만
+  career_url: https://www.shinhanlife.co.kr/recruit/
+  feature: 신한금융, 금융지주 시너지, 중견 규모
+- name: NH농협생명
+  slug: nh____
+  sector: 생명보험사
+  grade: B
+  salary: 9,200만
+  career_url: https://www.nhlife.co.kr/recruit/
+  feature: 농협 계열, 지역 밀착, 전국 지점, 안정적
+- name: 하나생명
+  slug: ____
+  sector: 생명보험사
+  grade: B
+  salary: 9,000만
+  career_url: https://www.hanalife.co.kr/recruit/
+  feature: 하나금융, 중견, 금융지주 복지
+- name: KB라이프생명
+  slug: kb_____
+  sector: 생명보험사
+  grade: B
+  salary: 9,300만
+  career_url: https://www.kblife.co.kr/recruit/
+  feature: KB금융, 푸르덴셜 통합, 성장 중
+- name: 동양생명
+  slug: ____
+  sector: 생명보험사
+  grade: C
+  salary: 8,200만
+  career_url: https://www.myangel.co.kr/recruit/
+  feature: 중견 독립, 구조조정 이력, 안정화 단계
+- name: 미래에셋생명
+  slug: ______
+  sector: 생명보험사
+  grade: B
+  salary: 8,800만
+  career_url: https://life.miraeasset.com/recruit/
+  feature: 미래에셋 계열, 자산운용 연계, 중소 규모
+- name: ABL생명
+  slug: abl__
+  sector: 생명보험사
+  grade: C
+  salary: 9,000만
+  career_url: https://www.abllife.co.kr/recruit/
+  feature: 알리안츠 매각 후, 안정화 단계, 중견
+- name: 메트라이프생명
+  slug: _______
+  sector: 생명보험사
+  grade: C
+  salary: 9,500만
+  career_url: https://www.metlife.co.kr/recruit/
+  feature: 외국계, 글로벌 네트워크, 영어 필요
+- name: AIA생명
+  slug: aia__
+  sector: 생명보험사
+  grade: C
+  salary: 1억
+  career_url: https://www.aia.co.kr/ko/careers.html
+  feature: 외국계, 영업 중심, 높은 인센티브, 영어 필수
+- name: 처브라이프생명
+  slug: _______
+  sector: 생명보험사
+  grade: C
+  salary: 9,200만
+  career_url: https://www.chubblife.co.kr/recruit/
+  feature: 외국계, 글로벌 네트워크, 중소 규모
+- name: 푸본현대생명
+  slug: ______
+  sector: 생명보험사
+  grade: C
+  salary: 8,500만
+  career_url: https://www.fubonhyundai.com/recruit/
+  feature: 대만계, 중소형, 정보 제한적
+- name: KDB생명
+  slug: kdb__
+  sector: 생명보험사
+  grade: D
+  salary: 8,000만
+  career_url: https://www.kdblife.co.kr/recruit/
+  feature: 산업은행 계열, 매각 추진 중, 불확실성
+- name: 삼성화재
+  slug: ____
+  sector: 손해보험사
+  grade: C
+  salary: 1억 5,000만
+  career_url: https://recruit.samsungfire.com/
+  feature: 손보 1위, PS 47~50%(역대 최대), GSAT, 자산운용 최강, 워라밸 양호
+- name: 현대해상
+  slug: ____
+  sector: 손해보험사
+  grade: A
+  salary: 1억 1,000만+
+  career_url: https://recruit.hi.co.kr/
+  feature: Big3, 유연한 문화, PS 30%, 워라밸 우수, 복지 최상
+- name: DB손해보험
+  slug: db____
+  sector: 손해보험사
+  grade: A
+  salary: 1억 1,000만+
+  career_url: https://www.idbins.com/recruit/
+  feature: Big3, 동부그룹, 실적 중심, PS 30%, 타이트한 문화
+- name: KB손해보험
+  slug: kb____
+  sector: 손해보험사
+  grade: A
+  salary: 1억+
+  career_url: https://www.kbinsure.co.kr/recruit/
+  feature: KB금융, 억대 진입, 금융지주 안정성, 자산운용
+- name: 메리츠화재
+  slug: _____
+  sector: 손해보험사
+  grade: B
+  salary: 1억 500만
+  career_url: https://www.meritzfire.com/recruit/
+  feature: Big5, 디지털 선도, 성과 중심, 자산운용 강함
+- name: 한화손해보험
+  slug: ______
+  sector: 손해보험사
+  grade: B
+  salary: 9,800만
+  career_url: https://www.hwgeneralins.com/recruit/
+  feature: 한화그룹, 중견, 그룹 복지, 안정적
+- name: 롯데손해보험
+  slug: ______
+  sector: 손해보험사
+  grade: C
+  salary: 9,500만
+  career_url: https://www.lotteins.co.kr/recruit/
+  feature: 롯데그룹, 유통 연계, 중견 규모
+- name: 흥국화재
+  slug: ____
+  sector: 손해보험사
+  grade: C
+  salary: 8,500만
+  career_url: https://www.heungkukfire.co.kr/recruit/
+  feature: 중소형, 보수적, 지역 기반
+- name: MG손해보험
+  slug: mg____
+  sector: 손해보험사
+  grade: C
+  salary: 9,000만
+  career_url: https://www.mgins.co.kr/recruit/
+  feature: 중견, 새마을금고 연계, 지역 밀착
+- name: 농협손해보험
+  slug: ______
+  sector: 손해보험사
+  grade: B
+  salary: 9,200만
+  career_url: https://www.nhfire.co.kr/recruit/
+  feature: 농협 계열, 지역 네트워크, 안정적
+- name: 더케이손해보험
+  slug: _______
+  sector: 손해보험사
+  grade: C
+  salary: 8,200만
+  career_url: https://www.thekinsure.co.kr/recruit/
+  feature: 교원그룹, 중소형, 특수 시장
+- name: 하나손해보험
+  slug: ______
+  sector: 손해보험사
+  grade: B
+  salary: 9,000만
+  career_url: https://www.hanainsure.co.kr/recruit/
+  feature: 하나금융, 중견, 금융지주 복지
+- name: 캐롯손해보험
+  slug: ______
+  sector: 손해보험사
+  grade: C
+  salary: 9,500만
+  career_url: https://www.carrotins.com/recruit/
+  feature: 디지털 보험, 한화 계열, 스타트업 문화, IT 우대
+- name: 코리안리
+  slug: ____
+  sector: 재보험사
+  grade: D
+  salary: 1억 2,000만+
+  career_url: https://www.koreanre.co.kr/recruit/
+  feature: 국내 유일 재보험사, 글로벌 시장, 고도 전문성, 소수정예, 영어 필수
+- name: 신한카드
+  slug: ____
+  sector: 카드사
+  grade: C
+  salary: 1억+
+  career_url: https://www.shinhancard.com/recruit/
+  feature: 카드 1위, 신한금융, 데이터 기업화, 플랫폼 확장
+- name: 삼성카드
+  slug: ____
+  sector: 카드사
+  grade: D
+  salary: 1억 500만
+  career_url: https://www.samsungcard.com/recruit/
+  feature: 삼성 브랜드, GSAT, 프리미엄 마케팅, 데이터 분석
+- name: KB국민카드
+  slug: kb____
+  sector: 카드사
+  grade: B
+  salary: 9,800만
+  career_url: https://recruit.kbcard.com/
+  feature: KB금융, 은행 시너지, 안정적
+- name: 현대카드
+  slug: ____
+  sector: 카드사
+  grade: C
+  salary: 1억 1,000만
+  career_url: https://recruit.hyundaicard.com/
+  feature: 문화마케팅, 특화영역 시험(철학·예술 등), 브랜딩 강자
+- name: 롯데카드
+  slug: ____
+  sector: 카드사
+  grade: C
+  salary: 9,500만
+  career_url: https://www.lottecard.co.kr/recruit/
+  feature: 롯데그룹, 유통 연계, 중견
+- name: 우리카드
+  slug: ____
+  sector: 카드사
+  grade: C
+  salary: 9,200만
+  career_url: https://www.wooricard.com/recruit/
+  feature: 우리금융, 안정적, 규모 중간
+- name: 비씨카드
+  slug: ____
+  sector: 카드사
+  grade: C
+  salary: 9,600만
+  career_url: https://www.bccard.com/recruit/
+  feature: 은행권 공동 소유, VAN 사업, 안정적
+- name: 하나카드
+  slug: ____
+  sector: 카드사
+  grade: C
+  salary: 9,300만
+  career_url: https://www.hanacard.co.kr/recruit/
+  feature: 하나금융, 중견, 금융지주 복지
+- name: 현대캐피탈
+  slug: _____
+  sector: 캐피탈·리스사
+  grade: A
+  salary: 1억 1,700만
+  career_url: https://recruit.hyundaicapital.com/
+  feature: 자동차금융 1위, 현대차 시너지, 할부·리스 강자, 블라인드
+- name: KB캐피탈
+  slug: kb___
+  sector: 캐피탈·리스사
+  grade: A
+  salary: 1억 265만
+  career_url: https://www.kbcapital.co.kr/recruit/
+  feature: KB금융, 다각화, 안정적, 블라인드
+- name: 하나캐피탈
+  slug: _____
+  sector: 캐피탈·리스사
+  grade: B
+  salary: 9,300만
+  career_url: https://www.hanacapital.co.kr/recruit/
+  feature: 하나금융, 중견, 금융지주 복지
+- name: 신한캐피탈
+  slug: _____
+  sector: 캐피탈·리스사
+  grade: B
+  salary: 9,800만
+  career_url: https://www.shinhancapital.co.kr/recruit/
+  feature: 신한금융, 기업금융투자 중심, 중견
+- name: 우리금융캐피탈
+  slug: _______
+  sector: 캐피탈·리스사
+  grade: B
+  salary: 9,000만
+  career_url: https://www.wooricap.com/recruit/
+  feature: 우리금융, 중견, 안정적
+- name: 아주캐피탈
+  slug: _____
+  sector: 캐피탈·리스사
+  grade: B
+  salary: 8,500만
+  career_url: https://www.ajucapital.co.kr/recruit/
+  feature: 독립 중견, 오토론 강점
+- name: 롯데캐피탈
+  slug: _____
+  sector: 캐피탈·리스사
+  grade: C
+  salary: 8,800만
+  career_url: https://www.lottecap.com/recruit/
+  feature: 롯데그룹, 유통 연계
+- name: BNK캐피탈
+  slug: bnk___
+  sector: 캐피탈·리스사
+  grade: C
+  salary: 8,600만
+  career_url: https://www.bnkcapital.co.kr/recruit/
+  feature: BNK금융, 부산 기반, 지역 특화
+- name: JB우리캐피탈
+  slug: jb_____
+  sector: 캐피탈·리스사
+  grade: C
+  salary: 8,200만
+  career_url: https://www.jbwoori.com/recruit/
+  feature: JB금융, 광주·전북 기반
+- name: NH농협캐피탈
+  slug: nh_____
+  sector: 캐피탈·리스사
+  grade: C
+  salary: 8,500만
+  career_url: https://www.nhcapital.co.kr/recruit/
+  feature: 농협 계열, 농기계 금융 특화
+- name: DGB캐피탈
+  slug: dgb___
+  sector: 캐피탈·리스사
+  grade: C
+  salary: 8,300만
+  career_url: https://www.dgbfg.co.kr/recruit/
+  feature: DGB금융, 대구 기반, 지역 특화
+- name: 메리츠캐피탈
+  slug: ______
+  sector: 캐피탈·리스사
+  grade: B
+  salary: 9,800만
+  career_url: https://www.meritzcap.com/recruit/
+  feature: 메리츠금융, 성과 중심, 고강도
+- name: 산은캐피탈
+  slug: _____
+  sector: 캐피탈·리스사
+  grade: B
+  salary: 9,000만
+  career_url: https://www.kdbcapital.co.kr/recruit/
+  feature: 산업은행 계열, 중기 금융, 안정적
+- name: SBI저축은행
+  slug: sbi____
+  sector: 저축은행
+  grade: S
+  salary: 5,949만
+  career_url: https://www.sbisb.co.kr/recruit/
+  feature: 저축은행 1위, 일본 SBI, 디지털 전환, 학점·전공 무관, AI역검
+- name: OK저축은행
+  slug: ok____
+  sector: 저축은행
+  grade: A
+  salary: 7,200만
+  career_url: https://www.oksavingsbank.com/recruit/
+  feature: 대형 저축은행, 광고 마케팅 적극적
+- name: 웰컴저축은행
+  slug: ______
+  sector: 저축은행
+  grade: A
+  salary: 7,000만
+  career_url: https://www.welcomebank.co.kr/recruit/
+  feature: 중견, 안정화, 저신용 대출
+- name: 키움YES저축은행
+  slug: __yes____
+  sector: 저축은행
+  grade: B
+  salary: 7,600만
+  career_url: https://www.kiwoomyes.com/recruit/
+  feature: 키움증권 계열, 온라인 중심, 소규모
+- name: 페퍼저축은행
+  slug: ______
+  sector: 저축은행
+  grade: B
+  salary: 7,400만
+  career_url: https://www.pepperbank.kr/recruit/
+  feature: 외국계, 디지털 특화, 소규모
+- name: 애큐온저축은행
+  slug: _______
+  sector: 저축은행
+  grade: B
+  salary: 6,800만
+  career_url: https://www.acuonsb.co.kr/recruit/
+  feature: 중견, 안정화, 지역 밀착
+- name: 한국투자저축은행
+  slug: ________
+  sector: 저축은행
+  grade: B
+  salary: 8,000만
+  career_url: https://www.kitisb.co.kr/recruit/
+  feature: 한투 계열, 증권 시너지, 중견
+- name: JT저축은행
+  slug: jt____
+  sector: 저축은행
+  grade: C
+  salary: 6,500만
+  career_url: https://www.jtbank.co.kr/recruit/
+  feature: JT그룹, 소규모, 지역 기반
+- name: OSB저축은행
+  slug: osb____
+  sector: 저축은행
+  grade: B
+  salary: 7,000만
+  career_url: https://www.osbsb.co.kr/recruit/
+  feature: 중견, 온라인 특화
+- name: 더케이저축은행
+  slug: _______
+  sector: 저축은행
+  grade: C
+  salary: 6,400만
+  career_url: https://www.theksb.co.kr/recruit/
+  feature: 교원그룹, 소규모, 특수 시장
+- name: 미래에셋자산운용
+  slug: ________
+  sector: 자산운용사
+  grade: C
+  salary: 9,500만+
+  career_url: https://www.am.miraeasset.com/recruit/
+  feature: 운용자산 1위, 글로벌, 펀드매니저 커리어, 인턴 필수, 트랙레코드 중시
+- name: 한국투자신탁운용
+  slug: ________
+  sector: 자산운용사
+  grade: C
+  salary: 9,200만
+  career_url: https://www.kitmc.com/recruit/
+  feature: 한투 계열, 채권·주식 균형, 리서치 전통, 인턴 필수
+- name: 삼성자산운용
+  slug: ______
+  sector: 자산운용사
+  grade: D
+  salary: 9,800만
+  career_url: https://www.samsungfund.com/recruit/
+  feature: 삼성 브랜드, GSAT, 대형 운용사, 안정적
+- name: KB자산운용
+  slug: kb____
+  sector: 자산운용사
+  grade: C
+  salary: 8,800만
+  career_url: https://www.kbam.co.kr/recruit/
+  feature: KB금융, 중견, 금융지주 안정성
+- name: 신한자산운용
+  slug: ______
+  sector: 자산운용사
+  grade: C
+  salary: 8,700만
+  career_url: https://www.shinhanam.com/recruit/
+  feature: 신한금융, 중견, 디지털 자산 관심
+- name: 한화자산운용
+  slug: ______
+  sector: 자산운용사
+  grade: B
+  salary: 8,500만
+  career_url: https://www.hanwhaam.com/recruit/
+  feature: 한화그룹, 중견, 그룹 복지
+- name: NH-Amundi자산운용
+  slug: nh_amundi____
+  sector: 자산운용사
+  grade: B
+  salary: 8,200만
+  career_url: https://www.amundi.co.kr/recruit/
+  feature: 농협+아문디 합작, 중견, 글로벌 연계
+- name: 키움투자자산운용
+  slug: ________
+  sector: 자산운용사
+  grade: B
+  salary: 8,000만
+  career_url: https://www.kiwoomam.com/recruit/
+  feature: 키움 계열, 온라인 기반, 중소형
+- name: 신영자산운용
+  slug: ______
+  sector: 자산운용사
+  grade: S
+  salary: 8,500만
+  career_url: https://www.syfund.co.kr/recruit/
+  feature: 가치투자 명가, 마라톤펀드, 소수정예, 장기 투자 철학
+- name: 교보악사자산운용
+  slug: ________
+  sector: 자산운용사
+  grade: B
+  salary: 8,200만
+  career_url: https://www.kyoboaxa-im.co.kr/recruit/
+  feature: 교보+악사 합작, 보험 연계, 중견
+- name: 이스트스프링자산운용
+  slug: __________
+  sector: 자산운용사
+  grade: C
+  salary: 8,600만
+  career_url: https://www.eastspring.co.kr/recruit/
+  feature: 프루덴셜 계열, 외국계, 글로벌 전략
+- name: 타임폴리오자산운용
+  slug: _________
+  sector: 자산운용사
+  grade: S
+  salary: 변동
+  career_url: https://www.timefolio.co.kr/recruit/
+  feature: 투자대회→펀드매니저 채용, 학벌·학점 무관, 실력 중시
+- name: 트러스톤자산운용
+  slug: ________
+  sector: 자산운용사
+  grade: B
+  salary: 8,000만
+  career_url: https://www.truston.co.kr/recruit/
+  feature: 독립 운용사, 중소형, 퀀트 강점
+- name: 브이아이자산운용
+  slug: ________
+  sector: 자산운용사
+  grade: A
+  salary: 7,500만
+  career_url: https://www.vi-asset.com/recruit/
+  feature: 가치투자 특화, 강방천 대표, 소수정예
+- name: 라자드코리아자산운용
+  slug: __________
+  sector: 자산운용사
+  grade: D
+  salary: 1억+
+  career_url: https://www.lazardkorea.com/recruit/
+  feature: 외국계, 글로벌, 영어 필수, 소수정예
+- name: 얼라이언스번스틴
+  slug: ________
+  sector: 자산운용사
+  grade: D
+  salary: 1억+
+  career_url: https://www.alliancebernstein.com/ko/careers
+  feature: 외국계, 글로벌, 영어 필수, 소수정예
+- name: 한국벤처투자(KVIC)
+  slug: ______kvic
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: B
+  salary: 9,000만
+  career_url: https://www.kvic.or.kr/recruit/
+  feature: 모태펀드 운용, 정부 출자, 공공기관 성격
+- name: 한국성장금융
+  slug: ______
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: B
+  salary: 9,500만
+  career_url: https://www.kgrowth.or.kr/recruit/
+  feature: 정책펀드 운용, 중기부 출자
+- name: MBK파트너스
+  slug: mbk____
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: D
+  salary: 수억 원
+  career_url: https://www.mbkpartnerslp.com/careers
+  feature: 국내 최대 PEF, 신입 채용 없음, 경력직만
+- name: 한앤컴퍼니
+  slug: _____
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: D
+  salary: 수억 원
+  career_url: https://www.hahn.co.kr/careers
+  feature: 대형 PEF, 신입 채용 없음, 경력직만
+- name: IMM인베스트먼트
+  slug: imm______
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: D
+  salary: 1.5억+
+  career_url: https://www.immgroup.com/careers
+  feature: 대형 PEF, 신입 채용 없음, 경력직만
+- name: 스틱인베스트먼트
+  slug: ________
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: D
+  salary: 1.5억+
+  career_url: https://www.stic.co.kr/careers
+  feature: 대형 PEF, 신입 채용 없음, 경력직만
+- name: 스카이레이크인베스트먼트
+  slug: ____________
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: C
+  salary: 8,000만
+  career_url: https://www.skylake.co.kr/recruit/
+  feature: 중견 VC, 바이오/IT 투자, 신입 가능
+- name: 다올인베스트먼트
+  slug: ________
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: B
+  salary: 7,500만
+  career_url: https://www.daol.co.kr/recruit/
+  feature: 중견 VC, 다양한 섹터, 신입 가능
+- name: 한국투자파트너스
+  slug: ________
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: C
+  salary: 9,000만
+  career_url: https://www.kipvc.com/recruit/
+  feature: 한투 계열, 대형 VC, 신입 가능
+- name: 카카오인베스트먼트
+  slug: _________
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: C
+  salary: 1억+
+  career_url: https://www.kakaoinvestment.com/recruit/
+  feature: 카카오 계열, IT 특화, 인턴→전환
+- name: LB인베스트먼트
+  slug: lb______
+  sector: 벤처캐피탈(VC) / 사모펀드(PEF)
+  grade: B
+  salary: 8,500만
+  career_url: https://www.lbinvestment.com/recruit/
+  feature: 중견 VC, 바이오/헬스케어, 신입 가능
+- name: 토스(비바리퍼블리카)
+  slug: _________
+  sector: 핀테크·네오금융
+  grade: C
+  salary: 1억+
+  career_url: https://toss.im/career
+  feature: 금융플랫폼, RSU, 초고강도, 스타트업 문화, IT 우대
+- name: 카카오페이
+  slug: _____
+  sector: 핀테크·네오금융
+  grade: C
+  salary: 1억+
+  career_url: https://kakaopay.com/careers
+  feature: 간편결제 1위, RSU, 카카오 계열, IT 우대
+- name: 네이버페이
+  slug: _____
+  sector: 핀테크·네오금융
+  grade: C
+  salary: 9,500만+
+  career_url: https://recruit.naverfincorp.com/
+  feature: 네이버 계열, 간편결제, IT 우대
+- name: 핀다
+  slug: __
+  sector: 핀테크·네오금융
+  grade: B
+  salary: 8,000만
+  career_url: https://www.finda.co.kr/recruit/
+  feature: 대출비교 플랫폼, 스타트업, 빠른 성장
+- name: 8퍼센트
+  slug: '8___'
+  sector: 핀테크·네오금융
+  grade: B
+  salary: 7,500만
+  career_url: https://8percent.kr/recruit/
+  feature: P2P 금융, 핀테크, 스타트업
+- name: 레이니스트(뱅크샐러드)
+  slug: __________
+  sector: 핀테크·네오금융
+  grade: C
+  salary: 9,000만
+  career_url: https://www.banksalad.com/recruit/
+  feature: 자산관리 앱, 스타트업, IT 우대
+- name: 페이코(NHN)
+  slug: ___nhn
+  sector: 핀테크·네오금융
+  grade: C
+  salary: 9,200만
+  career_url: https://recruit.nhn.com/
+  feature: 간편결제, NHN 계열, 안정적

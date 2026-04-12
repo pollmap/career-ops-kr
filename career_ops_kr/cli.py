@@ -363,14 +363,89 @@ def _scan_parallel(
     summary: dict[str, dict[str, Any]] = {}
     total_count = 0
 
+    def _scrapling_fallback(ch_name: str, ch_cls: type) -> list[Any]:
+        """Scrapling fallback: re-fetch landing page when requests returns 0."""
+        try:
+            from career_ops_kr.channels._scrapling_base import SCRAPLING_AVAILABLE, ScraplingChannel
+            if not SCRAPLING_AVAILABLE:
+                return []
+            from career_ops_kr.channels.base import JobRecord, deadline_parser
+            from bs4 import BeautifulSoup
+            from datetime import datetime
+
+            landing = getattr(ch_cls, "LANDING_URL", None)
+            if landing is None:
+                # Try to get from a fresh instance
+                inst = ch_cls()
+                landing = getattr(inst, "landing_url", None)
+            if not landing:
+                return []
+
+            sc = ScraplingChannel(name=f"{ch_name}_scrapling", tier=getattr(ch_cls, "tier", 6))
+            page_data = sc.fetch_page(landing)
+            if not page_data or not page_data.get("html"):
+                return []
+
+            soup = BeautifulSoup(page_data["html"], "html.parser")
+            results: list[Any] = []
+            now = datetime.now()
+            seen: set[str] = set()
+            org = ch_name.replace("_", " ").title()
+            base_url = landing.split("/", 3)[:3]
+            base = "/".join(base_url) if len(base_url) >= 3 else landing
+
+            for anchor in soup.find_all("a"):
+                text = (anchor.get_text(" ", strip=True) or "").strip()
+                href = anchor.get("href") or ""
+                if not text or len(text) < 4 or len(text) > 300 or not href:
+                    continue
+                if href.startswith("#") or href.lower().startswith("javascript"):
+                    continue
+                if any(kw in text for kw in ("채용", "공고", "모집", "인턴", "신입", "경력", "지원", "recruit")):
+                    if href.startswith("/"):
+                        href = base + href
+                    if "://" not in href:
+                        continue
+                    if href in seen:
+                        continue
+                    seen.add(href)
+                    try:
+                        from career_ops_kr.channels.base import BaseChannel
+                        results.append(JobRecord(
+                            id=BaseChannel._make_id(href, text[:120]),
+                            source_url=href,
+                            source_channel=ch_name,
+                            source_tier=getattr(ch_cls, "tier", 6),
+                            org=org,
+                            title=text[:200],
+                            deadline=deadline_parser(text),
+                            description=text,
+                            legitimacy_tier=getattr(ch_cls, "default_legitimacy_tier", "T5"),
+                            scanned_at=now,
+                        ))
+                    except Exception:
+                        continue
+                    if len(results) >= 30:
+                        break
+            return results
+        except Exception:
+            return []
+
     def _scan_one(ch_name: str, ch_cls: type) -> tuple[str, dict[str, Any]]:
         try:
             instance = ch_cls()
             jobs = instance.list_jobs() or []
+            backend = getattr(ch_cls, "backend", "unknown")
+            # Scrapling auto-fallback: 0건이면 scrapling으로 재시도
+            if not jobs:
+                scrapling_jobs = _scrapling_fallback(ch_name, ch_cls)
+                if scrapling_jobs:
+                    jobs = scrapling_jobs
+                    backend = "scrapling(fallback)"
             return ch_name, {
                 "count": len(jobs),
                 "tier": getattr(ch_cls, "tier", None),
-                "backend": getattr(ch_cls, "backend", "unknown"),
+                "backend": backend,
             }
         except Exception as exc:
             return ch_name, {"count": 0, "error": str(exc)}

@@ -26,6 +26,8 @@ from career_ops_kr.channels._stub_errors import NotTunedYetError
 from career_ops_kr.channels.apply_bok import ApplyBokChannel
 from career_ops_kr.channels.banksalad import BanksaladChannel
 from career_ops_kr.channels.coinone import CoinoneChannel
+from career_ops_kr.channels.customs import CustomsChannel
+from career_ops_kr.channels.dapa import DapaChannel
 from career_ops_kr.channels.base import (
     BaseChannel,
     Channel,
@@ -39,12 +41,16 @@ from career_ops_kr.channels.daishin_sec import DaishinSecChannel
 from career_ops_kr.channels.dataq import DataqChannel
 from career_ops_kr.channels.dunamu import DunamuChannel
 from career_ops_kr.channels.finda import FindaChannel
+from career_ops_kr.channels.fsc import FscChannel
+from career_ops_kr.channels.fss import FssChannel
+from career_ops_kr.channels.gojobs import GoJobsChannel
 from career_ops_kr.channels.hana_sec import HanaSecChannel
 from career_ops_kr.channels.ibk_sec import IbkSecChannel
 from career_ops_kr.channels.incruit import IncruitChannel
 from career_ops_kr.channels.jasoseol import JasoseolChannel
 from career_ops_kr.channels.jobalio import JobalioChannel
 from career_ops_kr.channels.jobkorea import JobKoreaChannel
+from career_ops_kr.channels.kisa import KisaChannel
 from career_ops_kr.channels.jobplanet import JobPlanetChannel
 from career_ops_kr.channels.kakao_bank import KakaoBankChannel
 from career_ops_kr.channels.kakao_pay import KakaoPayChannel
@@ -54,14 +60,19 @@ from career_ops_kr.channels.korea_invest_sec import KoreaInvestSecChannel
 from career_ops_kr.channels.kiwoomda import KiwoomdaChannel
 from career_ops_kr.channels.lambda256 import Lambda256Channel
 from career_ops_kr.channels.linkareer import LinkareerChannel
+from career_ops_kr.channels.mnd import MndChannel
+from career_ops_kr.channels.mofa import MofaChannel
 from career_ops_kr.channels.mirae_asset import MiraeAssetChannel
 from career_ops_kr.channels.mirae_naeil import MiraeNaeilChannel
 from career_ops_kr.channels.mjob import MjobChannel
+from career_ops_kr.channels.nis import NisChannel
 from career_ops_kr.channels.nh_sec import NhSecChannel
 from career_ops_kr.channels.samsung_sec import SamsungSecChannel
+from career_ops_kr.channels.police import PoliceChannel
 from career_ops_kr.channels.saramin import SaraminChannel
 from career_ops_kr.channels.shinhan_sec import ShinhanSecChannel
 from career_ops_kr.channels.toss import TossChannel
+from career_ops_kr.channels.universal import UniversalChannel
 from career_ops_kr.channels.wanted import WantedChannel
 from career_ops_kr.channels.yw_work24 import YwWork24Channel
 
@@ -82,7 +93,20 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     KiwoomdaChannel.name: KiwoomdaChannel,  # 키움DA
     DataqChannel.name: DataqChannel,  # 데이터큐
     MiraeNaeilChannel.name: MiraeNaeilChannel,  # 미래내일 일경험
-    MjobChannel.name: MjobChannel,  # 중소기업진흥공단 일자리
+    MjobChannel.name: MjobChannel,  # 중소기��진흥공단 일자리
+    GoJobsChannel.name: GoJobsChannel,  # 나라일터 (정부일자리 통합포털)
+    # --- Security / Intelligence / Defense (T1), 4 channels ---
+    NisChannel.name: NisChannel,  # 국가정보원
+    PoliceChannel.name: PoliceChannel,  # 경찰청
+    MndChannel.name: MndChannel,  # 국방부
+    DapaChannel.name: DapaChannel,  # 방위사업청
+    # --- Diplomacy / Trade / Finance regulation (T1), 4 channels ---
+    MofaChannel.name: MofaChannel,  # 외교부
+    CustomsChannel.name: CustomsChannel,  # ���세청
+    FscChannel.name: FscChannel,  # 금융위원회
+    FssChannel.name: FssChannel,  # 금융감독원
+    # --- Cyber security quasi-gov (T2), 1 channel ---
+    KisaChannel.name: KisaChannel,  # 한국인터넷��흥원 (KISA)
     # --- Target-specific (찬희 우선순위 P0), 1 channel ---
     KiwoomKdaChannel.name: KiwoomKdaChannel,  # 키움 KDA (recruit.kiwoom.com)
     # --- Tier 3 securities (Korean brokerage), 6 channels ---
@@ -106,6 +130,8 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     BanksaladChannel.name: BanksaladChannel,  # 뱅크샐러드
     FindaChannel.name: FindaChannel,  # 핀다
     CoinoneChannel.name: CoinoneChannel,  # 코인원
+    # --- Universal DB scanner (institutions.yml, 194+ institutions) ---
+    UniversalChannel.name: UniversalChannel,  # 전체 기관 일괄 크롤링
 }
 
 __all__ = [
@@ -118,10 +144,15 @@ __all__ = [
     "CatchChannel",
     "Channel",
     "ChannelError",
+    "CustomsChannel",
+    "DapaChannel",
     "DaishinSecChannel",
     "DataqChannel",
     "DunamuChannel",
     "FindaChannel",
+    "FscChannel",
+    "FssChannel",
+    "GoJobsChannel",
     "HanaSecChannel",
     "IbkSecChannel",
     "IncruitChannel",
@@ -130,6 +161,7 @@ __all__ = [
     "JobPlanetChannel",
     "JobRecord",
     "JobalioChannel",
+    "KisaChannel",
     "KakaoBankChannel",
     "KakaoPayChannel",
     "KbSecChannel",
@@ -138,15 +170,20 @@ __all__ = [
     "KoreaInvestSecChannel",
     "Lambda256Channel",
     "LinkareerChannel",
+    "MndChannel",
+    "MofaChannel",
     "MiraeAssetChannel",
     "MiraeNaeilChannel",
     "MjobChannel",
+    "NisChannel",
     "NhSecChannel",
     "NotTunedYetError",
+    "PoliceChannel",
     "SamsungSecChannel",
     "SaraminChannel",
     "ShinhanSecChannel",
     "TossChannel",
+    "UniversalChannel",
     "WantedChannel",
     "YwWork24Channel",
     "deadline_parser",
