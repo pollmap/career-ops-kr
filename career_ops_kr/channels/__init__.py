@@ -32,6 +32,7 @@ from career_ops_kr.channels.base import (
     deadline_parser,
 )
 from career_ops_kr.channels.bithumb import BithumbChannel
+from career_ops_kr.channels.catch import CatchChannel
 from career_ops_kr.channels.dataq import DataqChannel
 from career_ops_kr.channels.dunamu import DunamuChannel
 from career_ops_kr.channels.hana_sec import HanaSecChannel
@@ -47,6 +48,7 @@ from career_ops_kr.channels.lambda256 import Lambda256Channel
 from career_ops_kr.channels.linkareer import LinkareerChannel
 from career_ops_kr.channels.mirae_asset import MiraeAssetChannel
 from career_ops_kr.channels.mirae_naeil import MiraeNaeilChannel
+from career_ops_kr.channels.mjob import MjobChannel
 from career_ops_kr.channels.nh_sec import NhSecChannel
 from career_ops_kr.channels.samsung_sec import SamsungSecChannel
 from career_ops_kr.channels.saramin import SaraminChannel
@@ -56,21 +58,23 @@ from career_ops_kr.channels.wanted import WantedChannel
 from career_ops_kr.channels.yw_work24 import YwWork24Channel
 
 CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
-    # --- General major portals (Tier 1) — product backbone, 7 channels ---
+    # --- General major portals (Tier 1) — product backbone, 8 channels ---
     LinkareerChannel.name: LinkareerChannel,  # 링커리어 (인턴/대외활동)
+    CatchChannel.name: CatchChannel,  # 캐치 (대학생 특화)
     WantedChannel.name: WantedChannel,  # 원티드 (핀테크/IT)
     JobKoreaChannel.name: JobKoreaChannel,  # 잡코리아
     IncruitChannel.name: IncruitChannel,  # 인크루트
     JobPlanetChannel.name: JobPlanetChannel,  # 잡플래닛
     JasoseolChannel.name: JasoseolChannel,  # 자소설닷컴
     SaraminChannel.name: SaraminChannel,  # 사람인
-    # --- Public-agency portals (Tier 1-2), 5 channels ---
+    # --- Public-agency portals (Tier 1-2), 7 channels ---
     JobalioChannel.name: JobalioChannel,  # 잡알리오 (공공기관)
     ApplyBokChannel.name: ApplyBokChannel,  # 한국은행
     YwWork24Channel.name: YwWork24Channel,  # 청년일경험포털
     KiwoomdaChannel.name: KiwoomdaChannel,  # 키움DA
     DataqChannel.name: DataqChannel,  # 데이터큐
     MiraeNaeilChannel.name: MiraeNaeilChannel,  # 미래내일 일경험
+    MjobChannel.name: MjobChannel,  # 중소기업진흥공단 일자리
     # --- Target-specific (찬희 우선순위 P0), 1 channel ---
     KiwoomKdaChannel.name: KiwoomKdaChannel,  # 키움 KDA (recruit.kiwoom.com)
     # --- Tier 3 securities (Korean brokerage), 6 channels ---
@@ -92,6 +96,7 @@ __all__ = [
     "ApplyBokChannel",
     "BaseChannel",
     "BithumbChannel",
+    "CatchChannel",
     "Channel",
     "ChannelError",
     "DataqChannel",
@@ -110,6 +115,7 @@ __all__ = [
     "LinkareerChannel",
     "MiraeAssetChannel",
     "MiraeNaeilChannel",
+    "MjobChannel",
     "NhSecChannel",
     "NotTunedYetError",
     "SamsungSecChannel",
