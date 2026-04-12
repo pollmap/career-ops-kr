@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
-LANDING_URL = "https://www.police.go.kr/www/open/recruit/recruit01.jsp"
+LANDING_URL = "https://gosi.police.go.kr/"
 USER_AGENT = "career-ops-kr/0.2 (+https://github.com/pollmap/career-ops-kr)"
 
 

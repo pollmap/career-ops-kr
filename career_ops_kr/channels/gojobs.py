@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
-LANDING_URL = "https://www.gojobs.go.kr/jobList.do"
+LANDING_URL = "https://gojobs.go.kr/apmAllList.do"
 USER_AGENT = "career-ops-kr/0.2 (+https://github.com/pollmap/career-ops-kr)"
 
 

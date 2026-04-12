@@ -978,72 +978,145 @@ def institutions_cmd(grade: str | None, concurrency: int, top: int) -> None:
         grades = {g.strip().upper() for g in grade.split(",")}
         insts = [i for i in insts if i.get("grade", "").upper() in grades]
 
-    console.print(f"[green]institutions[/green] {len(insts)}개 기관 × wanted API 검색")
+    console.print(f"[green]institutions[/green] {len(insts)}개 기관 × 3 aggregator (wanted+jobkorea+saramin)")
 
-    # Wanted API 검색
     import requests as _req
+    from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
-    api_tmpl = (
-        "https://www.wanted.co.kr/api/v4/jobs"
-        "?query={query}&country=kr&job_sort=job.latest_order"
-        "&years=-1&limit=10&offset=0"
-    )
     ua = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/124.0.0.0 Safari/537.36 career-ops-kr/0.2"
     )
 
-    from career_ops_kr.channels.base import BaseChannel, JobRecord
-
     all_jobs: list[JobRecord] = []
     org_counts: dict[str, int] = {}
 
-    def _search_one(inst: dict) -> tuple[str, list[JobRecord]]:
-        name = inst["name"]
-        # 검색어: 기관명에서 괄호 제거
-        import re
-        search_name = re.sub(r"\(.*?\)", "", name).strip()
-        if len(search_name) < 2:
-            return name, []
-
-        url = api_tmpl.format(query=search_name)
-        try:
-            resp = _req.get(url, headers={"User-Agent": ua}, timeout=10)
-            if resp.status_code != 200:
-                return name, []
-            payload = resp.json()
-            data_list = payload.get("data", [])
-            if not data_list:
-                return name, []
-        except Exception:
-            return name, []
-
-        results: list[JobRecord] = []
+    def _search_wanted(search_name: str) -> list[JobRecord]:
+        """Wanted JSON API 검색."""
         from datetime import datetime
+        from urllib.parse import quote
+        api_url = (
+            f"https://www.wanted.co.kr/api/v4/jobs"
+            f"?query={quote(search_name)}&country=kr&job_sort=job.latest_order"
+            f"&years=-1&limit=10&offset=0"
+        )
+        try:
+            resp = _req.get(api_url, headers={"User-Agent": ua}, timeout=10)
+            if resp.status_code != 200:
+                return []
+            items = resp.json().get("data", [])
+        except Exception:
+            return []
+        results = []
         now = datetime.now()
-        for item in data_list[:10]:
+        for item in items[:10]:
             try:
-                job_id = str(item.get("id", ""))
-                company = item.get("company", {})
-                company_name = company.get("name", "")
+                jid = str(item.get("id", ""))
+                company_name = item.get("company", {}).get("name", "")
                 title = item.get("position", "") or item.get("title", "")
-                job_url = f"https://www.wanted.co.kr/wd/{job_id}" if job_id else ""
+                job_url = f"https://www.wanted.co.kr/wd/{jid}" if jid else ""
                 if not job_url or not title:
                     continue
                 results.append(JobRecord(
                     id=BaseChannel._make_id(job_url, title[:120]),
-                    source_url=job_url,
-                    source_channel="wanted",
-                    source_tier=1,
-                    org=company_name or search_name,
-                    title=title[:200],
-                    description=title,
-                    legitimacy_tier="T1",
-                    scanned_at=now,
+                    source_url=job_url, source_channel="wanted", source_tier=1,
+                    org=company_name or search_name, title=title[:200],
+                    description=title, legitimacy_tier="T1", scanned_at=now,
                 ))
             except Exception:
                 continue
+        return results
+
+    def _search_jobkorea(search_name: str) -> list[JobRecord]:
+        """잡코리아 HTML 검색 파싱."""
+        from datetime import datetime
+        from urllib.parse import quote
+        from bs4 import BeautifulSoup
+        url = f"https://www.jobkorea.co.kr/Search/?stext={quote(search_name)}&tabType=recruit&Page_No=1"
+        try:
+            resp = _req.get(url, headers={"User-Agent": ua, "Accept": "text/html"}, timeout=10)
+            if resp.status_code != 200:
+                return []
+        except Exception:
+            return []
+        soup = BeautifulSoup(resp.text, "html.parser")
+        results = []
+        now = datetime.now()
+        seen = set()
+        for a in soup.select("a[href*='/Recruit/GI_Read']"):
+            title = a.get_text(" ", strip=True)
+            href = a.get("href", "")
+            if not title or len(title) < 4 or not href:
+                continue
+            if href.startswith("/"):
+                href = "https://www.jobkorea.co.kr" + href
+            if href in seen:
+                continue
+            seen.add(href)
+            try:
+                results.append(JobRecord(
+                    id=BaseChannel._make_id(href, title[:120]),
+                    source_url=href, source_channel="jobkorea", source_tier=1,
+                    org=search_name, title=title[:200],
+                    description=title, legitimacy_tier="T1", scanned_at=now,
+                ))
+            except Exception:
+                continue
+            if len(results) >= 10:
+                break
+        return results
+
+    def _search_saramin(search_name: str) -> list[JobRecord]:
+        """사람인 HTML 검색 파싱."""
+        from datetime import datetime
+        from urllib.parse import quote
+        from bs4 import BeautifulSoup
+        url = f"https://www.saramin.co.kr/zf_user/search?searchword={quote(search_name)}&searchType=search&recruitPage=1"
+        try:
+            resp = _req.get(url, headers={"User-Agent": ua, "Accept": "text/html"}, timeout=10)
+            if resp.status_code != 200:
+                return []
+        except Exception:
+            return []
+        soup = BeautifulSoup(resp.text, "html.parser")
+        results = []
+        now = datetime.now()
+        seen = set()
+        for a in soup.select("a[href*='/zf_user/jobs/relay']"):
+            title = a.get_text(" ", strip=True)
+            href = a.get("href", "")
+            if not title or len(title) < 4 or not href:
+                continue
+            if href.startswith("/"):
+                href = "https://www.saramin.co.kr" + href
+            if href in seen:
+                continue
+            seen.add(href)
+            try:
+                results.append(JobRecord(
+                    id=BaseChannel._make_id(href, title[:120]),
+                    source_url=href, source_channel="saramin", source_tier=1,
+                    org=search_name, title=title[:200],
+                    description=title, legitimacy_tier="T1", scanned_at=now,
+                ))
+            except Exception:
+                continue
+            if len(results) >= 10:
+                break
+        return results
+
+    def _search_one(inst: dict) -> tuple[str, list[JobRecord]]:
+        import re
+        name = inst["name"]
+        search_name = re.sub(r"\(.*?\)", "", name).strip()
+        if len(search_name) < 2:
+            return name, []
+        # 3 aggregator 동시 검색
+        results: list[JobRecord] = []
+        results.extend(_search_wanted(search_name))
+        results.extend(_search_jobkorea(search_name))
+        results.extend(_search_saramin(search_name))
         return name, results
 
     with Progress(
