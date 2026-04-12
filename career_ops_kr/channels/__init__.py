@@ -76,6 +76,33 @@ from career_ops_kr.channels.toss import TossChannel
 from career_ops_kr.channels.universal import UniversalChannel
 from career_ops_kr.channels.wanted import WantedChannel
 from career_ops_kr.channels.yw_work24 import YwWork24Channel
+from career_ops_kr.channels.institutions import (
+    ApfsChannel,
+    BusanBankChannel,
+    EximBankChannel,
+    HanaBankChannel,
+    HyundaiCapitalChannel,
+    JbBankChannel,
+    JejuBankChannel,
+    KBankChannel,
+    KdbBankChannel,
+    KdbLifeChannel,
+    KicChannel,
+    KnbChannel,
+    KobcChannel,
+    KoreanReChannel,
+    KoscomChannel,
+    MeritzCapitalChannel,
+    MeritzSecChannel,
+    MiraeassetSecChannel,
+    OkSavingsChannel,
+    SbiSavingsChannel,
+    ScBankChannel,
+    ShinhanBankChannel,
+    SmbsChannel,
+    TossBankChannel,
+    WelcomeSavingsChannel,
+)
 
 CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     # --- General major portals (Tier 1) — product backbone, 8 channels ---
@@ -122,6 +149,38 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     FindaChannel.name: FindaChannel,  # 핀다
     CoinoneChannel.name: CoinoneChannel,  # 코인원
     # NOTE: UniversalChannel removed (redundant with institutions CLI cmd)
+    # --- Tier 2 정책금융/공공기관 (institutions.py stub batch) ---
+    KicChannel.name: KicChannel,  # 한국투자공사
+    KdbBankChannel.name: KdbBankChannel,  # 한국산업은행
+    EximBankChannel.name: EximBankChannel,  # 한국수출입은행
+    KobcChannel.name: KobcChannel,  # 한국해양진흥공사
+    KoscomChannel.name: KoscomChannel,  # 코스콤
+    ApfsChannel.name: ApfsChannel,  # 농업정책보험금융원
+    SmbsChannel.name: SmbsChannel,  # 서울외국환중개
+    # --- Tier 3 시중은행/지방은행 ---
+    ShinhanBankChannel.name: ShinhanBankChannel,  # 신한은행
+    HanaBankChannel.name: HanaBankChannel,  # 하나은행
+    BusanBankChannel.name: BusanBankChannel,  # 부산은행(BNK)
+    KnbChannel.name: KnbChannel,  # 경남은행(BNK)
+    JbBankChannel.name: JbBankChannel,  # 전북은행(JB)
+    JejuBankChannel.name: JejuBankChannel,  # 제주은행
+    KBankChannel.name: KBankChannel,  # 케이뱅크
+    ScBankChannel.name: ScBankChannel,  # SC제일은행
+    # --- Tier 3 증권사 ---
+    MiraeassetSecChannel.name: MiraeassetSecChannel,  # 미래에셋증권
+    MeritzSecChannel.name: MeritzSecChannel,  # 메리츠증권
+    # --- Tier 3 보험사 ---
+    KdbLifeChannel.name: KdbLifeChannel,  # KDB생명
+    KoreanReChannel.name: KoreanReChannel,  # 코리안리
+    # --- Tier 4 캐피탈 ---
+    MeritzCapitalChannel.name: MeritzCapitalChannel,  # 메리츠캐피탈
+    HyundaiCapitalChannel.name: HyundaiCapitalChannel,  # 현대캐피탈
+    # --- Tier 4 저축은행 ---
+    SbiSavingsChannel.name: SbiSavingsChannel,  # SBI저축은행
+    OkSavingsChannel.name: OkSavingsChannel,  # OK저축은행
+    WelcomeSavingsChannel.name: WelcomeSavingsChannel,  # 웰컴저축은행
+    # --- Tier 4 핀테크/인터넷은행 ---
+    TossBankChannel.name: TossBankChannel,  # 토스뱅크
 }
 
 __all__ = [
@@ -178,4 +237,30 @@ __all__ = [
     "WantedChannel",
     "YwWork24Channel",
     "deadline_parser",
+    # institutions.py stub batch
+    "ApfsChannel",
+    "BusanBankChannel",
+    "EximBankChannel",
+    "HanaBankChannel",
+    "HyundaiCapitalChannel",
+    "JbBankChannel",
+    "JejuBankChannel",
+    "KBankChannel",
+    "KdbBankChannel",
+    "KdbLifeChannel",
+    "KicChannel",
+    "KnbChannel",
+    "KobcChannel",
+    "KoreanReChannel",
+    "KoscomChannel",
+    "MeritzCapitalChannel",
+    "MeritzSecChannel",
+    "MiraeassetSecChannel",
+    "OkSavingsChannel",
+    "SbiSavingsChannel",
+    "ScBankChannel",
+    "ShinhanBankChannel",
+    "SmbsChannel",
+    "TossBankChannel",
+    "WelcomeSavingsChannel",
 ]

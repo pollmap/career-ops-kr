@@ -38,7 +38,7 @@ from __future__ import annotations
 
 from career_ops_kr.channels._stub_helpers import make_stub_channel_class
 
-LISTING_URL = "https://www.samsungpop.com/"
+LISTING_URL = "https://recruit.samsungsec.com/"
 ORG = "삼성증권"
 LOCATION = "서울"
 
