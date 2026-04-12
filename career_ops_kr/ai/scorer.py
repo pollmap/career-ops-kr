@@ -32,9 +32,11 @@ def _extract_json(text: str) -> dict | None:
     """LLM 응답에서 JSON 객체를 추출합니다. 잘린 JSON도 복구 시도."""
     if not text:
         return None
+    # Strip markdown code blocks (```json ... ```)
+    cleaned = re.sub(r"```(?:json)?\s*", "", text).strip().rstrip("`")
     # 직접 파싱 시도
     try:
-        return json.loads(text.strip())
+        return json.loads(cleaned)
     except json.JSONDecodeError:
         pass
     # 정규식으로 JSON 블록 추출 시도
@@ -132,7 +134,7 @@ def score_job(
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=300,
+            max_tokens=1000,
             temperature=0.1,
             **extra_kwargs,
         )
