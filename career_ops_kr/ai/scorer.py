@@ -109,16 +109,29 @@ def score_job(
     """
     user_prompt = _build_user_prompt(job, profile, summary)
     try:
+        # Some models (qwen3, deepseek) use thinking mode — disable it for JSON tasks
+        extra_kwargs: dict = {}
+        model_lower = model.lower()
+        if "qwen3" in model_lower or "deepseek" in model_lower:
+            extra_kwargs["extra_body"] = {"enable_thinking": False}
+
         response = client.chat.completions.create(  # type: ignore[union-attr]
             model=model,
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": user_prompt},
             ],
-            max_tokens=150,
+            max_tokens=300,
             temperature=0.1,
+            **extra_kwargs,
         )
-        raw = response.choices[0].message.content.strip()
+        choice = response.choices[0]
+        raw = (choice.message.content or "").strip()
+
+        # Fallback: some thinking models put content in reasoning_content
+        if not raw and hasattr(choice.message, "reasoning_content"):
+            raw = (choice.message.reasoning_content or "").strip()
+
         parsed = _extract_json(raw)
         if parsed is None:
             logger.warning("score_job JSON parse failed for %s: %r", job.id, raw[:200])

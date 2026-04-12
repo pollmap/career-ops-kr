@@ -41,7 +41,7 @@ _FASTFLOWLM_HOST = os.environ.get("FASTFLOWLM_HOST", "http://localhost:52625")
 _FASTFLOWLM_MODEL = os.environ.get("FASTFLOWLM_MODEL", "qwen3.5:4b")
 
 _OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
-_OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3:14b")
+_OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "gemma4:26b")
 
 _OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 _OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
