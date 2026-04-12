@@ -9,6 +9,26 @@ portals:
   # ─────────────────────────────────────────────
   # Tier 1 — 채용 포털 / 대학생 특화
   # ─────────────────────────────────────────────
+  - name: "캐치"
+    key: "catch"
+    url: "https://www.catch.co.kr/NCS/RecruitListingAll"
+    backend: "requests"
+    tier: 1
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "금융"
+        - "IT"
+        - "핀테크"
+        - "데이터"
+        - "디지털"
+        - "인턴"
+        - "블록체인"
+      exclude:
+        - "영업"
+        - "생산직"
+
   - name: "링커리어"
     key: "linkareer"
     url: "https://linkareer.com/list/recruit"
@@ -67,6 +87,25 @@ portals:
         - "디지털"
       exclude:
         - "영업"
+
+  - name: "중소기업진흥공단 일자리"
+    key: "mjob"
+    url: "https://mjob.mainbiz.or.kr/recruit/list.do"
+    backend: "requests"
+    tier: 2
+    login_required: false
+    enabled: true
+    filters:
+      include:
+        - "금융"
+        - "IT"
+        - "데이터"
+        - "디지털"
+        - "인턴"
+        - "핀테크"
+      exclude:
+        - "영업"
+        - "생산"
 
   - name: "미래내일 일경험"
     key: "mirae_naeil"
