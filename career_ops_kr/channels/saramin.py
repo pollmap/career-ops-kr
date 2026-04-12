@@ -166,9 +166,6 @@ class SaraminChannel(BaseChannel):
                 if key in seen_urls:
                     continue
                 seen_urls.add(key)
-                # fetch_errors 동기화 (defensive — 개별 에러 주입 지점)
-                if self._fetch_errors:
-                    rec.fetch_errors = list(self._fetch_errors)
                 all_jobs.append(rec)
                 new_count += 1
 

@@ -204,9 +204,7 @@ def test_class_attributes() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_check_returns_true_on_200(
-    channel: CatchChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_check_returns_true_on_200(channel: CatchChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_get(url: str, **_: Any) -> _FakeResponse:
         return _FakeResponse(text="ok", status_code=200)
 
@@ -214,9 +212,7 @@ def test_check_returns_true_on_200(
     assert channel.check() is True
 
 
-def test_check_returns_false_on_4xx(
-    channel: CatchChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_check_returns_false_on_4xx(channel: CatchChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     def fake_get(url: str, **_: Any) -> _FakeResponse:
         return _FakeResponse(text="not found", status_code=404)
 
@@ -291,9 +287,7 @@ def test_list_jobs_intern_url_also_fetched(
     assert any(INTERN_URL in u or "InternList" in u for u in captured_urls)
 
 
-def test_list_jobs_dedup_on_same_id(
-    channel: CatchChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_list_jobs_dedup_on_same_id(channel: CatchChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     """Same HTML on both pages -- dedup must prevent duplicate IDs."""
 
     def fake_get(url: str, **_: Any) -> _FakeResponse:
@@ -352,9 +346,7 @@ def test_list_jobs_fallback_selector(
         assert job.source_channel == "catch"
 
 
-def test_list_jobs_generic_scan(
-    channel: CatchChannel, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_list_jobs_generic_scan(channel: CatchChannel, monkeypatch: pytest.MonkeyPatch) -> None:
     """Generic scan: no primary/fallback selectors, matches GENERIC_KEYWORDS in text."""
 
     def fake_get(url: str, **_: Any) -> _FakeResponse:
@@ -444,4 +436,7 @@ def test_infer_archetype_competition() -> None:
 
 
 def test_infer_archetype_general() -> None:
-    assert CatchChannel._infer_archetype("일반 채용 공고", "/NCS/RecruitView?RecruitNo=100") == "GENERAL"
+    assert (
+        CatchChannel._infer_archetype("일반 채용 공고", "/NCS/RecruitView?RecruitNo=100")
+        == "GENERAL"
+    )
