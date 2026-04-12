@@ -28,6 +28,7 @@ from career_ops_kr.channels.banksalad import BanksaladChannel
 from career_ops_kr.channels.coinone import CoinoneChannel
 from career_ops_kr.channels.customs import CustomsChannel
 from career_ops_kr.channels.dapa import DapaChannel
+from career_ops_kr.channels.government import GovernmentChannel
 from career_ops_kr.channels.base import (
     BaseChannel,
     Channel,
@@ -95,18 +96,8 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     MiraeNaeilChannel.name: MiraeNaeilChannel,  # 미래내일 일경험
     MjobChannel.name: MjobChannel,  # 중소기��진흥공단 일자리
     GoJobsChannel.name: GoJobsChannel,  # 나라일터 (정부일자리 통합포털)
-    # --- Security / Intelligence / Defense (T1), 4 channels ---
-    NisChannel.name: NisChannel,  # 국가정보원
-    PoliceChannel.name: PoliceChannel,  # 경찰청
-    MndChannel.name: MndChannel,  # 국방부
-    DapaChannel.name: DapaChannel,  # 방위사업청
-    # --- Diplomacy / Trade / Finance regulation (T1), 4 channels ---
-    MofaChannel.name: MofaChannel,  # 외교부
-    CustomsChannel.name: CustomsChannel,  # ���세청
-    FscChannel.name: FscChannel,  # 금융위원회
-    FssChannel.name: FssChannel,  # 금융감독원
-    # --- Cyber security quasi-gov (T2), 1 channel ---
-    KisaChannel.name: KisaChannel,  # 한국인터넷��흥원 (KISA)
+    # --- Government unified (10 agencies in 1 channel) ---
+    GovernmentChannel.name: GovernmentChannel,  # 국정원/경찰/국방/외교/관세/금융위/금감원/방사청/KISA/나라일터
     # --- Target-specific (찬희 우선순위 P0), 1 channel ---
     KiwoomKdaChannel.name: KiwoomKdaChannel,  # 키움 KDA (recruit.kiwoom.com)
     # --- Tier 3 securities (Korean brokerage), 6 channels ---
@@ -130,8 +121,7 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     BanksaladChannel.name: BanksaladChannel,  # 뱅크샐러드
     FindaChannel.name: FindaChannel,  # 핀다
     CoinoneChannel.name: CoinoneChannel,  # 코인원
-    # --- Universal DB scanner (institutions.yml, 194+ institutions) ---
-    UniversalChannel.name: UniversalChannel,  # 전체 기관 일괄 크롤링
+    # NOTE: UniversalChannel removed (redundant with institutions CLI cmd)
 }
 
 __all__ = [
@@ -153,6 +143,7 @@ __all__ = [
     "FscChannel",
     "FssChannel",
     "GoJobsChannel",
+    "GovernmentChannel",
     "HanaSecChannel",
     "IbkSecChannel",
     "IncruitChannel",
