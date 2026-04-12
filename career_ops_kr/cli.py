@@ -747,6 +747,70 @@ def verify_cmd() -> None:
     console.print(f"[green]verify[/green] {script}")
 
 
+@cli.command("status", help="시스템 상태 대시보드 — LLM/DB/채널 한눈에")
+def status_cmd() -> None:
+    """전체 시스템 상태를 Rich 테이블로 출력."""
+    from datetime import datetime
+
+    console.print(f"\n[bold cyan]career-ops-kr v1.0.0[/bold cyan]  {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+
+    # 1. LLM 백엔드
+    try:
+        from career_ops_kr.ai.client import get_backend_info
+        info = get_backend_info()
+        backend_color = {"fastflowlm": "green", "ollama": "yellow", "openrouter": "blue"}.get(info["backend"], "dim")
+        console.print(f"[bold]LLM:[/bold] [{backend_color}]{info['backend']}[/{backend_color}] model={info['model']} host={info['host']}")
+    except Exception as exc:
+        console.print(f"[bold]LLM:[/bold] [red]unavailable[/red] ({exc})")
+
+    # 2. SQLite DB
+    try:
+        from career_ops_kr.storage.sqlite_store import SQLiteStore
+        store = SQLiteStore(DATA_DIR / "jobs.db")
+        with store._connect() as conn:
+            total = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+            by_grade = conn.execute(
+                "SELECT fit_grade, COUNT(*) FROM jobs GROUP BY fit_grade ORDER BY fit_grade"
+            ).fetchall()
+            latest = conn.execute(
+                "SELECT scanned_at FROM jobs ORDER BY scanned_at DESC LIMIT 1"
+            ).fetchone()
+        grade_str = " ".join(f"{g[0] or '?'}:{g[1]}" for g in by_grade) if by_grade else "(empty)"
+        latest_str = latest[0][:16] if latest else "never"
+        console.print(f"[bold]DB:[/bold] {total}건  grades=[{grade_str}]  latest={latest_str}")
+    except Exception:
+        console.print("[bold]DB:[/bold] [dim]not initialized[/dim]")
+
+    # 3. 채널
+    try:
+        from career_ops_kr.channels import CHANNEL_REGISTRY
+        console.print(f"[bold]Channels:[/bold] {len(CHANNEL_REGISTRY)}개 등록")
+    except Exception:
+        console.print("[bold]Channels:[/bold] [red]import error[/red]")
+
+    # 4. 기관 DB
+    try:
+        import yaml
+        config_path = CONFIG_DIR / "institutions.yml"
+        if config_path.exists():
+            with open(config_path, encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+            insts = data.get("institutions", [])
+            with_url = sum(1 for i in insts if i.get("career_url"))
+            console.print(f"[bold]Institutions:[/bold] {len(insts)}개 ({with_url} with URL)")
+        else:
+            console.print("[bold]Institutions:[/bold] [dim]not found[/dim]")
+    except Exception:
+        console.print("[bold]Institutions:[/bold] [dim]error[/dim]")
+
+    # 5. Config 파일
+    configs = ["profile.yml", "qualifier_rules.yml", "scoring_weights.yml", "archetypes.yml", "portals.yml"]
+    present = sum(1 for c in configs if (CONFIG_DIR / c).exists())
+    console.print(f"[bold]Config:[/bold] {present}/{len(configs)} files")
+
+    console.print()
+
+
 @cli.command("dedup", help="중복 제거 — dedup_tracker.py")
 @click.option("--apply", is_flag=True, help="실제 적용 (기본은 dry-run)")
 def dedup_cmd(apply: bool) -> None:
