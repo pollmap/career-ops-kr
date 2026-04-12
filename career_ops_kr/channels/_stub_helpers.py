@@ -237,54 +237,70 @@ def make_stub_channel_class(
     org: str,
     location: str | None = None,
     legitimacy_tier: str = "T1",
-    fetcher_mode: str = "dynamic",
-    login_url: str | None = None,
+    fetcher_mode: str = "dynamic",  # kept for back-compat; ignored
+    login_url: str | None = None,  # kept for back-compat; ignored
 ) -> type[BaseChannel]:
-    """Factory returning a concrete ScraplingChannel subclass.
+    """Factory returning a concrete BaseChannel subclass (requests backend).
 
     This keeps each portal file thin — the portal only needs to call this
-    factory with its metadata. We build the class here so the generated
-    type picks up the ``list_jobs`` / ``get_detail`` / ``check`` contract
-    once, centrally.
+    factory with its metadata.  The generated class uses ``requests.get``
+    for all HTTP fetches, removing the Scrapling / Playwright dependency
+    chain entirely.
 
-    Graceful degradation: if Scrapling is not installed, a Playwright-based
-    subclass is returned instead. Either way the resulting class satisfies
-    the :class:`Channel` protocol.
+    ``fetcher_mode`` and ``login_url`` are accepted for backward
+    compatibility but silently ignored.
     """
-    try:
-        from career_ops_kr.channels._scrapling_base import (
-            SCRAPLING_AVAILABLE,
-            ScraplingChannel,
-        )
-    except ImportError:
-        SCRAPLING_AVAILABLE = False  # pragma: no cover  # noqa: N806
+    import requests as _requests  # stdlib-adjacent; always available
 
-    base_cls: type[BaseChannel]
-    backend_kwargs: dict[str, Any]
-    if SCRAPLING_AVAILABLE:
-        base_cls = ScraplingChannel
-        backend_kwargs = {"fetcher_mode": fetcher_mode, "login_url": login_url}
-        is_scrapling = True
-    else:
-        from career_ops_kr.channels._playwright_base import PlaywrightChannel
+    _user_agent = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36 "
+        "career-ops-kr/0.2.0"
+    )
 
-        base_cls = PlaywrightChannel
-        backend_kwargs = {
-            "login_url": login_url or listing_url,
-            "requires_login": False,
-        }
-        is_scrapling = False
+    # -- instance methods injected into the dynamic class ----------------
 
     def __init__(self: Any, **kwargs: Any) -> None:  # noqa: N807
-        base_cls.__init__(
-            self,
-            name=channel_name,
-            tier=channel_tier,
-            **backend_kwargs,
-            **kwargs,
-        )
+        BaseChannel.__init__(self)
 
-    def _parse_listing_safe(self: Any, html: str) -> list[JobRecord]:
+    def check(self: Any) -> bool:
+        try:
+            resp = _requests.get(
+                listing_url,
+                headers={"User-Agent": _user_agent},
+                timeout=10,
+            )
+        except _requests.RequestException as exc:
+            self.logger.debug("%s check failed: %s", channel_name, exc)
+            return False
+        return resp.status_code == 200
+
+    def list_jobs(
+        self: Any,
+        query: dict[str, Any] | None = None,
+    ) -> list[JobRecord]:
+        resp = self._retry(
+            _requests.get,
+            listing_url,
+            headers={"User-Agent": _user_agent},
+            timeout=15,
+        )
+        if resp is None:
+            self.logger.warning("%s: landing fetch returned None", channel_name)
+            return []
+        if getattr(resp, "status_code", None) != 200:
+            self.logger.warning(
+                "%s: HTTP %s",
+                channel_name,
+                getattr(resp, "status_code", "?"),
+            )
+            return []
+        if getattr(resp, "encoding", None):
+            resp.encoding = "utf-8"
+        html = getattr(resp, "text", None)
+        if not html:
+            return []
         try:
             return parse_generic_cards(
                 html,
@@ -303,27 +319,28 @@ def make_stub_channel_class(
             self.logger.error("%s: parse error: %s", channel_name, exc)
             return []
 
-    def _scrapling_list_jobs(self: Any, query: dict[str, Any] | None = None) -> list[JobRecord]:
+    def get_detail(self: Any, url: str) -> JobRecord | None:
         try:
-            result = self.fetch_page(listing_url)
+            resp = self._retry(
+                _requests.get,
+                url,
+                headers={"User-Agent": _user_agent},
+                timeout=15,
+            )
         except Exception as exc:
-            self.logger.error("%s: fetch_page raised: %s", channel_name, exc)
-            return []
-        if result is None:
-            self.logger.warning("%s: listing fetch failed — returning []", channel_name)
-            return []
-        return _parse_listing_safe(self, result["html"])
-
-    def _scrapling_get_detail(self: Any, url: str) -> JobRecord | None:
-        try:
-            result = self.fetch_page(url)
-        except Exception as exc:
-            self.logger.warning("%s: get_detail(%s) failed: %s", channel_name, url, exc)
+            self.logger.warning(
+                "%s: get_detail(%s) failed: %s",
+                channel_name,
+                url,
+                exc,
+            )
             return None
-        if result is None:
+        if resp is None or getattr(resp, "status_code", None) != 200:
             return None
+        if getattr(resp, "encoding", None):
+            resp.encoding = "utf-8"
         return parse_detail_page(
-            result["html"],
+            getattr(resp, "text", "") or "",
             url=url,
             make_id=self._make_id,
             source_channel=channel_name,
@@ -333,49 +350,20 @@ def make_stub_channel_class(
             location=location,
         )
 
-    async def _playwright_async_list_jobs(
-        self: Any, query: dict[str, Any] | None = None
-    ) -> list[JobRecord]:
-        html = await self.fetch_html(listing_url, wait_selector="body")
-        try:
-            if html is None:
-                self.logger.warning("%s: listing fetch failed — returning []", channel_name)
-                return []
-            return _parse_listing_safe(self, html)
-        finally:
-            await self.close()
-
-    async def _playwright_async_get_detail(self: Any, url: str) -> JobRecord | None:
-        try:
-            html = await self.fetch_html(url)
-            if html is None:
-                return None
-            return parse_detail_page(
-                html,
-                url=url,
-                make_id=self._make_id,
-                source_channel=channel_name,
-                source_tier=channel_tier,
-                org=org,
-                legitimacy_tier=legitimacy_tier,
-                location=location,
-            )
-        finally:
-            await self.close()
+    # -- assemble dynamic class ------------------------------------------
 
     namespace: dict[str, Any] = {
         "name": channel_name,
         "tier": channel_tier,
+        "backend": "requests",
+        "default_rate_per_minute": 6,
         "default_legitimacy_tier": legitimacy_tier,
         "__init__": __init__,
-        "__doc__": f"Stub channel for {org} ({listing_url}). Selectors pending live-HTML tuning.",
+        "__doc__": f"Stub channel for {org} ({listing_url}).",
+        "check": check,
+        "list_jobs": list_jobs,
+        "get_detail": get_detail,
     }
-    if is_scrapling:
-        namespace["list_jobs"] = _scrapling_list_jobs
-        namespace["get_detail"] = _scrapling_get_detail
-    else:
-        namespace["_async_list_jobs"] = _playwright_async_list_jobs
-        namespace["_async_get_detail"] = _playwright_async_get_detail
 
     # Attribute the generated class to the caller's module so that
     # ``cls.__module__`` round-trips via ``importlib.import_module``.
@@ -388,4 +376,4 @@ def make_stub_channel_class(
     namespace["__module__"] = caller_module
     namespace.setdefault("__qualname__", class_name)
 
-    return type(class_name, (base_cls,), namespace)
+    return type(class_name, (BaseChannel,), namespace)
