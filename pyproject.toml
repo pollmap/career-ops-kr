@@ -33,9 +33,13 @@ dependencies = [
     "fuzzywuzzy>=0.18",
     "python-Levenshtein>=0.25",
     "httpx>=0.27",
+    "openai>=2.31.0",
 ]
 
 [project.optional-dependencies]
+ai = [
+    "openai>=1.0",
+]
 scrapling = [
     "scrapling>=0.2",
     "curl_cffi>=0.6",

@@ -594,6 +594,152 @@ def login_cmd(site: str) -> None:
     console.print(f"[dim]storage_state will be saved to {state_dir / f'{site}.json'}[/dim]")
 
 
+@cli.command("ai-rank", help="AI 적합도 채점 + 우선순위 랭킹 (OpenRouter 필요)")
+@click.option("--site", type=str, default=None, help="특정 채널만 스캔 (기본: 전체)")
+@click.option("--model", type=str, default=None, help="OpenRouter 모델 ID (기본: 환경변수 또는 gemini-flash-free)")
+@click.option("--top", type=int, default=5, help="상위 N개 출력 (기본: 5)")
+@click.option("--api-key", "api_key", type=str, default=None, help="OpenRouter API 키 (기본: OPENROUTER_API_KEY 환경변수)")
+def ai_rank_cmd(
+    site: str | None,
+    model: str | None,
+    top: int,
+    api_key: str | None,
+) -> None:
+    """27개 채널 스캔 → AI 요약 → 적합도 채점 → Top N 우선순위 출력."""
+    import yaml
+
+    # --- 1. AI 모듈 + 채널 레지스트리 임포트 ---
+    try:
+        from career_ops_kr.ai.client import DEFAULT_MODEL, get_client
+        from career_ops_kr.ai.ranker import rank_jobs
+        from career_ops_kr.ai.scorer import score_jobs_batch
+        from career_ops_kr.ai.summarizer import summarize_jobs_batch
+        from career_ops_kr.channels import CHANNEL_REGISTRY
+    except ImportError as exc:
+        console.print(f"[red]import error[/red] {exc}")
+        console.print("[dim]openai 설치: uv add openai[/dim]")
+        sys.exit(2)
+
+    # --- 2. OpenRouter 클라이언트 초기화 ---
+    try:
+        client = get_client(api_key)
+        _model = model or DEFAULT_MODEL
+    except ValueError as exc:
+        console.print(f"[red]API 키 오류[/red] {exc}")
+        sys.exit(1)
+
+    console.print(f"[dim]model: {_model}[/dim]")
+
+    # --- 3. 공고 수집 ---
+    if site:
+        if site not in CHANNEL_REGISTRY:
+            console.print(f"[red]unknown channel[/red] {site}")
+            console.print(f"[dim]사용 가능: {', '.join(CHANNEL_REGISTRY)}[/dim]")
+            sys.exit(1)
+        targets: dict = {site: CHANNEL_REGISTRY[site]}
+    else:
+        targets = dict(CHANNEL_REGISTRY)
+
+    console.print(f"[green]스캔 시작[/green] {len(targets)}개 채널")
+    all_jobs = []
+    for ch_name, cls in targets.items():
+        try:
+            ch = cls()
+            jobs = ch.list_jobs()
+            all_jobs.extend(jobs)
+            if jobs:
+                console.print(f"  [cyan]{ch_name}[/cyan] {len(jobs)}개")
+        except Exception as exc:
+            console.print(f"  [dim]{ch_name}: {exc}[/dim]")
+
+    if not all_jobs:
+        console.print("[yellow]수집된 공고 없음[/yellow] (채널 접속 실패 또는 SPA 채널)")
+        sys.exit(0)
+
+    console.print(f"[green]총 {len(all_jobs)}개[/green] 수집 완료 → AI 분석 시작")
+
+    # --- 4. AI 요약 ---
+    console.print("[cyan]요약 중...[/cyan]", end=" ")
+    summaries = summarize_jobs_batch(all_jobs, client, _model)
+    console.print("[green]완료[/green]")
+
+    # --- 5. profile.yml 로드 ---
+    profile: dict = {}
+    profile_path = CONFIG_DIR / "profile.yml"
+    if profile_path.exists():
+        try:
+            profile = yaml.safe_load(profile_path.read_text(encoding="utf-8")) or {}
+        except Exception as exc:
+            console.print(f"[yellow]profile.yml 로드 실패 (채점 정확도 낮음)[/yellow] {exc}")
+    else:
+        console.print("[yellow]config/profile.yml 없음 — 기본 채점 적용[/yellow]")
+
+    # --- 6. AI 채점 ---
+    console.print("[cyan]채점 중...[/cyan]", end=" ")
+    fit_scores = score_jobs_batch(all_jobs, summaries, profile, client, _model)
+    console.print("[green]완료[/green]")
+
+    # --- 7. 랭킹 ---
+    ranked = rank_jobs(all_jobs, fit_scores, summaries, top_n=top)
+
+    # --- 8. Rich 테이블 출력 ---
+    table = Table(title=f"AI 추천 Top {len(ranked)} (전체 {len(all_jobs)}개 분석)")
+    table.add_column("#", justify="right", style="bold")
+    table.add_column("org", style="cyan")
+    table.add_column("title")
+    table.add_column("archetype", style="dim")
+    table.add_column("fit", justify="right")
+    table.add_column("total", justify="right", style="bold green")
+    table.add_column("D-day", justify="right")
+    table.add_column("이유", style="dim")
+
+    for i, r in enumerate(ranked, 1):
+        days = r.days_left
+        if days is None:
+            dday = "-"
+        elif days < 0:
+            dday = f"[red]D+{abs(days)}[/red]"
+        elif days == 0:
+            dday = "[red]오늘[/red]"
+        elif days <= 3:
+            dday = f"[red]D-{days}[/red]"
+        elif days <= 7:
+            dday = f"[yellow]D-{days}[/yellow]"
+        else:
+            dday = f"D-{days}"
+
+        table.add_row(
+            str(i),
+            r.job.org[:20],
+            r.job.title[:35],
+            r.job.archetype or "-",
+            str(r.fit_score),
+            str(r.total_score),
+            dday,
+            r.fit_reason[:40] if r.fit_reason else "-",
+        )
+
+    console.print(table)
+    console.print(
+        f"[dim]모델: {_model} | "
+        f"fit=AI채점(0~100) | total=fit+마감긴급도+archetype보너스[/dim]"
+    )
+
+    # --- 9. 상세 패널 (Top 3) ---
+    for i, r in enumerate(ranked[:3], 1):
+        summary_text = r.summary or "(요약 없음)"
+        console.print(
+            Panel.fit(
+                f"[bold]{r.job.title}[/bold]  —  {r.job.org}\n"
+                f"[dim]URL:[/dim] {r.job.source_url}\n"
+                f"[dim]요약:[/dim] {summary_text}\n"
+                f"[dim]이유:[/dim] {r.fit_reason}",
+                title=f"#{i} total={r.total_score}",
+                border_style="cyan" if i == 1 else "dim",
+            )
+        )
+
+
 def main() -> None:
     """Entry point for [project.scripts] career-ops = cli:main."""
     try:
