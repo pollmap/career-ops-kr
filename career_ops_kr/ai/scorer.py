@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
+from collections.abc import Callable
 
 from career_ops_kr.channels.base import JobRecord
 
@@ -138,13 +140,30 @@ def score_jobs_batch(
     profile: dict,
     client: object,
     model: str,
+    *,
+    request_delay: float = 0.3,
+    on_progress: Callable[[int, int], None] | None = None,
 ) -> list[tuple[int, str]]:
     """여러 공고를 순차적으로 채점합니다.
+
+    Args:
+        jobs: 채점할 공고 리스트.
+        summaries: jobs와 동일한 순서의 요약 문자열 리스트.
+        profile: config/profile.yml 내용.
+        client: ``openai.OpenAI`` 인스턴스.
+        model: 모델 ID.
+        request_delay: API 호출 간 대기 시간(초). 무료 tier rate limit 방어용.
+        on_progress: (done, total) 콜백. 각 공고 처리 후 호출됨.
 
     Returns:
         jobs와 동일한 순서의 (score, reason) 리스트.
     """
-    return [
-        score_job(job, profile, summary, client, model)
-        for job, summary in zip(jobs, summaries, strict=False)
-    ]
+    total = len(jobs)
+    results: list[tuple[int, str]] = []
+    for i, (job, summary) in enumerate(zip(jobs, summaries, strict=False)):
+        results.append(score_job(job, profile, summary, client, model))
+        if on_progress is not None:
+            on_progress(i + 1, total)
+        if request_delay > 0 and i < total - 1:
+            time.sleep(request_delay)
+    return results

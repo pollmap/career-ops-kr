@@ -2,19 +2,21 @@
 
 [![CI](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml/badge.svg)](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Channels](https://img.shields.io/badge/channels-27-green.svg)](#채널-카탈로그)
-[![Tests](https://img.shields.io/badge/tests-449%20passed-brightgreen.svg)](#개발--테스트)
+[![Channels](https://img.shields.io/badge/channels-34-green.svg)](#채널-카탈로그)
+[![Tests](https://img.shields.io/badge/tests-562%20passed-brightgreen.svg)](#개발--테스트)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **한국형 구직 자동화 파이프라인** — 한국 주요 채용 포털 27개를 단일 CLI로 스캔.
-> 금융·핀테크·블록체인·공공기관 도메인 특화. 완전 오픈소스.
+> **한국형 구직 자동화 파이프라인** — 한국 주요 채용 포털 34개를 단일 CLI로 스캔.
+> 금융·핀테크·블록체인·공공기관 도메인 특화. MCP 10도구 + TUI 대시보드 + AI 지원. 완전 오픈소스.
 
 ```bash
-career-ops scan              # 전체 27채널 스캔
-career-ops scan --site kiwoom_kda
-career-ops score             # 프로필 기반 자동 채점
-career-ops list --min-grade B
-career-ops pipeline          # scan → score → 리포트 원스텝
+career-ops scan --concurrency 4  # 34채널 병렬 스캔
+career-ops score URL             # 10차원 A~F 채점
+career-ops filter "학력 무관"     # 자격 판정
+career-ops auto-pipeline         # scan → score → DB 원스텝
+career-ops interview-prep URL    # STAR 면접 질문 생성
+career-ops notify --summary      # Discord 일일 요약
+career-ops ui                    # TUI 대시보드
 ```
 
 ---
@@ -36,7 +38,7 @@ career-ops pipeline          # scan → score → 리포트 원스텝
 ```
 
 **핵심 기능**:
-- **27개 포털 동시 스캔** — 대학생 특화·공공기관·증권사·핀테크·크립토
+- **34개 포털 병렬 스캔** — 대학생 특화·공공기관·증권사·핀테크·크립토
 - **JobRecord 표준 스키마** — 포털마다 다른 공고 형식을 단일 pydantic 모델로 정규화
 - **archetype 분류** — `BLOCKCHAIN_INTERN` / `KDA_COHORT` / `DATA` / `ENGINEER` 등 도메인 태그
 - **Legitimacy Tier** — T1(공식)/T2(정부)/T3(aggregator) 신뢰도 레이어
@@ -45,7 +47,7 @@ career-ops pipeline          # scan → score → 리포트 원스텝
 
 ---
 
-## 채널 카탈로그 (27개)
+## 채널 카탈로그 (34개)
 
 ### Tier 1 — General Major (대형 민간 포털, 8채널)
 
@@ -72,7 +74,7 @@ career-ops pipeline          # scan → score → 리포트 원스텝
 | `mirae_naeil` | work.go.kr/experi | 미래내일 일경험 — ALT URL fallback |
 | `mjob` | mjob.mainbiz.or.kr | 중소기업진흥공단 일자리 |
 
-### Tier 3 — Target-Specific & Securities (9채널)
+### Tier 3 — Target-Specific & Securities (12채널)
 
 | key | 사이트 | 특징 |
 |-----|--------|------|
@@ -85,8 +87,11 @@ career-ops pipeline          # scan → score → 리포트 원스텝
 | `hana_sec` | careers.hanasec.co.kr | 하나증권 |
 | `nh_sec` | recruit.nhqv.com | NH투자증권 |
 | `samsung_sec` | recruit.samsungsecurities.com | 삼성증권 |
+| `korea_invest_sec` | recruit.truefriend.com | 한국투자증권 |
+| `ibk_sec` | ibks.com/recruit | IBK투자증권 |
+| `daishin_sec` | daishin.com/recruit | 대신증권 |
 
-### Tier 4 — Crypto/Fintech (크립토 기업, 4채널)
+### Tier 4 — Crypto/Fintech (7채널)
 
 | key | 사이트 | 특징 |
 |-----|--------|------|
@@ -94,6 +99,9 @@ career-ops pipeline          # scan → score → 리포트 원스텝
 | `bithumb` | bithumbcorp.com/careers | 빗썸코리아 |
 | `toss` | toss.im/career/jobs | 토스그룹 통합 |
 | `lambda256` | lambda256.io/careers | 두나무 자회사 — Luniverse 블록체인 |
+| `banksalad` | career.banksalad.com | 뱅크샐러드 — 금융 비교 플랫폼 |
+| `finda` | finda.co.kr/careers | 핀다 — 대출 비교 핀테크 |
+| `coinone` | coinone.co.kr/careers | 코인원 — 크립토 거래소 |
 
 ---
 
@@ -261,18 +269,31 @@ uv run ruff format --check .
 
 | 항목 | 현황 |
 |------|------|
-| 채널 | **27개** |
+| 버전 | **v0.2.0** |
+| 채널 | **34개** (T1~T4) |
+| CLI 커맨드 | **19개** (scan/score/filter/batch/notify/apply/interview-prep/followup/project/patterns/vault-sync ...) |
+| MCP 도구 | **10개** (FastMCP + stdio JSON-RPC 이중 지원) |
+| TUI | **5개 화면** (dashboard/jobs/calendar/patterns/help) |
 | Backend | requests 전용 (Scrapling/Playwright 의존 0개) |
-| Tests | **449 passed** / 0 failed |
+| Tests | **562 passed** / 0 failed |
 | CI | GitHub Actions ubuntu/windows × py3.11/3.12 |
 | 공개 | [pollmap/career-ops-kr](https://github.com/pollmap/career-ops-kr) (MIT) |
 
+### v0.2 신규 기능
+
+- **9개 CLI 커맨드**: filter / auto-pipeline / batch / notify / apply / interview-prep / followup / project / patterns
+- **6개 채널 추가**: 한국투자증권 / IBK투자증권 / 대신증권 / 뱅크샐러드 / 핀다 / 코인원
+- **TUI 패턴 화면**: 상태/등급/아키타입 분포 + 거절율 + 인사이트
+- **VaultSync CLI**: `career-ops vault-sync` — SQLite → Obsidian 마크다운 동기화
+- **병렬 스캔**: `career-ops scan --concurrency 4` — ThreadPoolExecutor 기반
+- **AI 지원 도구**: STAR 면접 질문 / 후속 이메일 / 포트폴리오 스프린트 (LLM + fallback)
+- **14섹션 기술 문서**: `docs/ARCHITECTURE.md`
+
 ### 다음 작업
 
-- [ ] 잡알리오 수시공고 확장 (`job.alio.go.kr/occasional`)
-- [ ] Discord 웹훅 알림 연결 (#6)
-- [ ] 청년 지원 제도 layer (#19)
 - [ ] Tier 3-4 selector 튜닝 (#5)
+- [ ] 포털 34개 → 74개 확장
+- [ ] Windows 작업 스케줄러 자동 등록
 - [ ] VPS Nexus MCP 등록 (#7)
 
 ---

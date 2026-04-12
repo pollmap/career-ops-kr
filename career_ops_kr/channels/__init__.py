@@ -24,6 +24,8 @@ from __future__ import annotations
 
 from career_ops_kr.channels._stub_errors import NotTunedYetError
 from career_ops_kr.channels.apply_bok import ApplyBokChannel
+from career_ops_kr.channels.banksalad import BanksaladChannel
+from career_ops_kr.channels.coinone import CoinoneChannel
 from career_ops_kr.channels.base import (
     BaseChannel,
     Channel,
@@ -33,9 +35,12 @@ from career_ops_kr.channels.base import (
 )
 from career_ops_kr.channels.bithumb import BithumbChannel
 from career_ops_kr.channels.catch import CatchChannel
+from career_ops_kr.channels.daishin_sec import DaishinSecChannel
 from career_ops_kr.channels.dataq import DataqChannel
 from career_ops_kr.channels.dunamu import DunamuChannel
+from career_ops_kr.channels.finda import FindaChannel
 from career_ops_kr.channels.hana_sec import HanaSecChannel
+from career_ops_kr.channels.ibk_sec import IbkSecChannel
 from career_ops_kr.channels.incruit import IncruitChannel
 from career_ops_kr.channels.jasoseol import JasoseolChannel
 from career_ops_kr.channels.jobalio import JobalioChannel
@@ -45,6 +50,7 @@ from career_ops_kr.channels.kakao_bank import KakaoBankChannel
 from career_ops_kr.channels.kakao_pay import KakaoPayChannel
 from career_ops_kr.channels.kb_sec import KbSecChannel
 from career_ops_kr.channels.kiwoom_kda import KiwoomKdaChannel
+from career_ops_kr.channels.korea_invest_sec import KoreaInvestSecChannel
 from career_ops_kr.channels.kiwoomda import KiwoomdaChannel
 from career_ops_kr.channels.lambda256 import Lambda256Channel
 from career_ops_kr.channels.linkareer import LinkareerChannel
@@ -86,6 +92,9 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     HanaSecChannel.name: HanaSecChannel,
     NhSecChannel.name: NhSecChannel,
     SamsungSecChannel.name: SamsungSecChannel,
+    KoreaInvestSecChannel.name: KoreaInvestSecChannel,  # 한국투자증권
+    IbkSecChannel.name: IbkSecChannel,  # IBK투자증권
+    DaishinSecChannel.name: DaishinSecChannel,  # 대신증권
     # --- Tier 3 fintech direct (company careers pages), 2 channels ---
     KakaoPayChannel.name: KakaoPayChannel,  # 카카오페이
     KakaoBankChannel.name: KakaoBankChannel,  # 카카오뱅크
@@ -94,19 +103,27 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     BithumbChannel.name: BithumbChannel,
     TossChannel.name: TossChannel,
     Lambda256Channel.name: Lambda256Channel,
+    BanksaladChannel.name: BanksaladChannel,  # 뱅크샐러드
+    FindaChannel.name: FindaChannel,  # 핀다
+    CoinoneChannel.name: CoinoneChannel,  # 코인원
 }
 
 __all__ = [
     "CHANNEL_REGISTRY",
     "ApplyBokChannel",
+    "BanksaladChannel",
     "BaseChannel",
     "BithumbChannel",
+    "CoinoneChannel",
     "CatchChannel",
     "Channel",
     "ChannelError",
+    "DaishinSecChannel",
     "DataqChannel",
     "DunamuChannel",
+    "FindaChannel",
     "HanaSecChannel",
+    "IbkSecChannel",
     "IncruitChannel",
     "JasoseolChannel",
     "JobKoreaChannel",
@@ -118,6 +135,7 @@ __all__ = [
     "KbSecChannel",
     "KiwoomKdaChannel",
     "KiwoomdaChannel",
+    "KoreaInvestSecChannel",
     "Lambda256Channel",
     "LinkareerChannel",
     "MiraeAssetChannel",

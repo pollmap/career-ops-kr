@@ -143,7 +143,7 @@ def test_summarize_jobs_batch_length():
 
     jobs = [_make_job(id=f"id{i:016d}", source_url=f"https://ex.com/{i}") for i in range(3)]
     client = _FakeClient()
-    results = summarize_jobs_batch(jobs, client, "test-model")
+    results = summarize_jobs_batch(jobs, client, "test-model", request_delay=0)
     assert len(results) == 3
 
 
@@ -153,7 +153,7 @@ def test_summarize_jobs_batch_all_strings():
 
     jobs = [_make_job(id=f"id{i:016d}", source_url=f"https://ex.com/{i}") for i in range(2)]
     client = _FakeClient()
-    results = summarize_jobs_batch(jobs, client, "test-model")
+    results = summarize_jobs_batch(jobs, client, "test-model", request_delay=0)
     assert all(isinstance(r, str) for r in results)
 
 
@@ -191,6 +191,17 @@ def test_summarize_jobs_batch_partial_failure():
 
     client = _IntermittentClient()
     client.chat = _FakeChatNamespace2(client)
-    results = summarize_jobs_batch(jobs, client, "test-model")
+    results = summarize_jobs_batch(jobs, client, "test-model", request_delay=0)
     assert len(results) == 3
     assert results[1] == ""  # 실패한 것만 빈 문자열
+
+
+def test_summarize_jobs_batch_on_progress_called():
+    """on_progress 콜백이 각 공고 처리 후 호출된다."""
+    from career_ops_kr.ai.summarizer import summarize_jobs_batch
+
+    jobs = [_make_job(id=f"id{i:016d}", source_url=f"https://ex.com/{i}") for i in range(3)]
+    client = _FakeClient()
+    calls: list[tuple[int, int]] = []
+    summarize_jobs_batch(jobs, client, "test-model", request_delay=0, on_progress=lambda d, t: calls.append((d, t)))
+    assert calls == [(1, 3), (2, 3), (3, 3)]

@@ -22,6 +22,7 @@ from career_ops_kr.tui.screens import (
     DashboardScreen,
     JobDetailScreen,
     JobsListScreen,
+    PatternsScreen,
 )
 
 DEFAULT_DB_PATH = Path("data") / "jobs.db"
@@ -44,7 +45,7 @@ class HelpScreen(Screen[None]):  # type: ignore[misc]
                 "[cyan]d[/cyan]  대시보드 (홈)\n"
                 "[cyan]j[/cyan]  공고 목록\n"
                 "[cyan]c[/cyan]  마감 캘린더\n"
-                "[cyan]p[/cyan]  패턴 분석 (placeholder)\n"
+                "[cyan]p[/cyan]  패턴 분석\n"
                 "[cyan]r[/cyan]  현재 화면 새로고침\n"
                 "[cyan]s[/cyan]  스캔 안내 (CLI 명령 표시)\n"
                 "[cyan]?[/cyan]  도움말 열기/닫기\n"
@@ -103,6 +104,7 @@ class CareerOpsApp(App[None]):  # type: ignore[misc]
         "dashboard": DashboardScreen,
         "jobs": JobsListScreen,
         "calendar": CalendarScreen,
+        "patterns": PatternsScreen,
         "help": HelpScreen,
     }
 
@@ -166,11 +168,7 @@ class CareerOpsApp(App[None]):  # type: ignore[misc]
         self._switch_to("calendar", CalendarScreen)
 
     def action_goto_patterns(self) -> None:
-        self.notify(
-            "패턴 분석 화면은 v0.3 예정입니다.",
-            severity="warning",
-            timeout=4.0,
-        )
+        self._switch_to("patterns", PatternsScreen)
 
     def action_help(self) -> None:
         self.push_screen(HelpScreen())

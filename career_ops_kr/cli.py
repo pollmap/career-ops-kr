@@ -13,6 +13,7 @@ from typing import Any
 import click
 from rich.console import Console
 from rich.panel import Panel
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn, TimeElapsedColumn
 from rich.prompt import Confirm, Prompt
 from rich.table import Table
 
@@ -257,7 +258,20 @@ def init_cmd(preset: str | None, list_presets: bool, force: bool) -> None:
 @click.option("--site", type=str, default=None, help="특정 사이트 이름")
 @click.option("--all", "all_sites", is_flag=True, help="모든 포털 스캔")
 @click.option("--dry-run", is_flag=True, help="네트워크 호출 없이 설정만 검증")
-def scan_cmd(tier: int | None, site: str | None, all_sites: bool, dry_run: bool) -> None:
+@click.option(
+    "--concurrency",
+    type=int,
+    default=1,
+    show_default=True,
+    help="동시 스캔 채널 수 (1=순차, 2+=병렬 ThreadPool)",
+)
+def scan_cmd(
+    tier: int | None,
+    site: str | None,
+    all_sites: bool,
+    dry_run: bool,
+    concurrency: int,
+) -> None:
     if dry_run:
         console.print("[cyan]dry-run[/cyan] scan config OK — no network calls")
         table = Table(title="Scan plan")
@@ -266,9 +280,15 @@ def scan_cmd(tier: int | None, site: str | None, all_sites: bool, dry_run: bool)
         table.add_row("tier", str(tier) if tier else "(any)")
         table.add_row("site", site or "(any)")
         table.add_row("all", str(all_sites))
+        table.add_row("concurrency", str(concurrency))
         console.print(table)
         return
 
+    if concurrency > 1:
+        _scan_parallel(tier=tier, site=site, concurrency=concurrency)
+        return
+
+    # 순차 모드 (기존 동작 보존)
     mcp = _fallback_import("career_ops_kr.mcp_server", "scan mode")
     if mcp is None:
         sys.exit(2)
@@ -297,6 +317,95 @@ def scan_cmd(tier: int | None, site: str | None, all_sites: bool, dry_run: bool)
     channels_summary: dict[str, Any] = result.get("channels", {}) or {}
     for ch_name, info in channels_summary.items():
         info = info or {}
+        table.add_row(
+            ch_name,
+            str(info.get("tier", "")),
+            str(info.get("backend", "")),
+            str(info.get("count", 0)),
+            str(info.get("error", "") or ""),
+        )
+    console.print(table)
+
+
+def _scan_parallel(
+    tier: int | None,
+    site: str | None,
+    concurrency: int,
+) -> None:
+    """병렬 스캔 — ThreadPoolExecutor로 채널별 동시 크롤링."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    try:
+        from career_ops_kr.channels import CHANNEL_REGISTRY
+    except ImportError as exc:
+        console.print(f"[red]channels import 실패[/red]: {exc}")
+        sys.exit(2)
+
+    # 필터 적용
+    targets: list[tuple[str, type]] = []
+    for name, cls in CHANNEL_REGISTRY.items():
+        if site and name != site:
+            continue
+        if tier is not None and getattr(cls, "tier", None) != tier:
+            continue
+        targets.append((name, cls))
+
+    if not targets:
+        console.print("[yellow]대상 채널 없음[/yellow]")
+        return
+
+    console.print(
+        f"[green]parallel scan[/green] {len(targets)}개 채널 × concurrency={concurrency}"
+    )
+
+    from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn, TimeElapsedColumn
+
+    summary: dict[str, dict[str, Any]] = {}
+    total_count = 0
+
+    def _scan_one(ch_name: str, ch_cls: type) -> tuple[str, dict[str, Any]]:
+        try:
+            instance = ch_cls()
+            jobs = instance.list_jobs() or []
+            return ch_name, {
+                "count": len(jobs),
+                "tier": getattr(ch_cls, "tier", None),
+                "backend": getattr(ch_cls, "backend", "unknown"),
+            }
+        except Exception as exc:
+            return ch_name, {"count": 0, "error": str(exc)}
+
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True,
+    ) as prog:
+        task = prog.add_task("[cyan]병렬 스캔[/cyan]", total=len(targets))
+
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            futures = {
+                pool.submit(_scan_one, name, cls): name
+                for name, cls in targets
+            }
+            for future in as_completed(futures):
+                ch_name, info = future.result()
+                summary[ch_name] = info
+                total_count += info.get("count", 0)
+                prog.advance(task)
+
+    # 결과 테이블
+    table = Table(title=f"Parallel scan results (total={total_count})")
+    table.add_column("channel", style="cyan")
+    table.add_column("tier", justify="right")
+    table.add_column("backend", style="dim")
+    table.add_column("count", justify="right")
+    table.add_column("error", style="red")
+
+    for ch_name in sorted(summary):
+        info = summary[ch_name]
         table.add_row(
             ch_name,
             str(info.get("tier", "")),
@@ -599,11 +708,13 @@ def login_cmd(site: str) -> None:
 @click.option("--model", type=str, default=None, help="OpenRouter 모델 ID (기본: 환경변수 또는 gemini-flash-free)")
 @click.option("--top", type=int, default=5, help="상위 N개 출력 (기본: 5)")
 @click.option("--api-key", "api_key", type=str, default=None, help="OpenRouter API 키 (기본: OPENROUTER_API_KEY 환경변수)")
+@click.option("--max-jobs", "max_jobs", type=int, default=30, help="AI 분석 최대 공고 수 (기본: 30, 무료 tier rate limit 방어)")
 def ai_rank_cmd(
     site: str | None,
     model: str | None,
     top: int,
     api_key: str | None,
+    max_jobs: int,
 ) -> None:
     """27개 채널 스캔 → AI 요약 → 적합도 채점 → Top N 우선순위 출력."""
     import yaml
@@ -656,12 +767,34 @@ def ai_rank_cmd(
         console.print("[yellow]수집된 공고 없음[/yellow] (채널 접속 실패 또는 SPA 채널)")
         sys.exit(0)
 
-    console.print(f"[green]총 {len(all_jobs)}개[/green] 수집 완료 → AI 분석 시작")
+    total_collected = len(all_jobs)
+    if total_collected > max_jobs:
+        console.print(
+            f"[yellow]{total_collected}개 수집 → 상위 {max_jobs}개만 AI 분석[/yellow] "
+            f"[dim](--max-jobs {max_jobs})[/dim]"
+        )
+        all_jobs = all_jobs[:max_jobs]
+    else:
+        console.print(f"[green]총 {total_collected}개[/green] 수집 완료 → AI 분석 시작")
+
+    n = len(all_jobs)
 
     # --- 4. AI 요약 ---
-    console.print("[cyan]요약 중...[/cyan]", end=" ")
-    summaries = summarize_jobs_batch(all_jobs, client, _model)
-    console.print("[green]완료[/green]")
+    _progress_columns = (
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TimeElapsedColumn(),
+    )
+    summaries: list[str] = []
+    with Progress(*_progress_columns, console=console, transient=True) as prog:
+        task = prog.add_task("[cyan]요약[/cyan]", total=n)
+
+        def _on_summary(done: int, _total: int) -> None:
+            prog.update(task, completed=done)
+
+        summaries = summarize_jobs_batch(all_jobs, client, _model, on_progress=_on_summary)
+    console.print(f"[green]요약 완료[/green] {n}개")
 
     # --- 5. profile.yml 로드 ---
     profile: dict = {}
@@ -675,9 +808,15 @@ def ai_rank_cmd(
         console.print("[yellow]config/profile.yml 없음 — 기본 채점 적용[/yellow]")
 
     # --- 6. AI 채점 ---
-    console.print("[cyan]채점 중...[/cyan]", end=" ")
-    fit_scores = score_jobs_batch(all_jobs, summaries, profile, client, _model)
-    console.print("[green]완료[/green]")
+    fit_scores: list[tuple[int, str]] = []
+    with Progress(*_progress_columns, console=console, transient=True) as prog:
+        task = prog.add_task("[cyan]채점[/cyan]", total=n)
+
+        def _on_score(done: int, _total: int) -> None:
+            prog.update(task, completed=done)
+
+        fit_scores = score_jobs_batch(all_jobs, summaries, profile, client, _model, on_progress=_on_score)
+    console.print(f"[green]채점 완료[/green] {n}개")
 
     # --- 7. 랭킹 ---
     ranked = rank_jobs(all_jobs, fit_scores, summaries, top_n=top)
@@ -738,6 +877,37 @@ def ai_rank_cmd(
                 border_style="cyan" if i == 1 else "dim",
             )
         )
+
+
+def _register_commands() -> None:
+    """commands/ 서브패키지 커맨드를 cli group에 동적 등록.
+
+    각 모듈 임포트 실패 시 해당 커맨드만 건너뛰고 나머지는 정상 등록.
+    """
+    import logging as _logging
+
+    _log = _logging.getLogger(__name__)
+    _cmds = [
+        ("career_ops_kr.commands.filter_cmd", "filter_cmd"),
+        ("career_ops_kr.commands.auto_pipeline", "auto_pipeline_cmd"),
+        ("career_ops_kr.commands.batch_cmd", "batch_cmd"),
+        ("career_ops_kr.commands.notify_cmd", "notify_cmd"),
+        ("career_ops_kr.commands.apply_cmd", "apply_cmd"),
+        ("career_ops_kr.commands.interview_cmd", "interview_prep_cmd"),
+        ("career_ops_kr.commands.followup_cmd", "followup_cmd"),
+        ("career_ops_kr.commands.project_cmd", "project_cmd"),
+        ("career_ops_kr.commands.patterns_cmd", "patterns_cmd"),
+        ("career_ops_kr.commands.vault_cmd", "vault_sync_cmd"),
+    ]
+    for mod_path, fn_name in _cmds:
+        try:
+            mod = __import__(mod_path, fromlist=[fn_name])
+            cli.add_command(getattr(mod, fn_name))
+        except Exception as exc:
+            _log.debug("command load failed %s: %s", mod_path, exc)
+
+
+_register_commands()
 
 
 def main() -> None:

@@ -150,7 +150,7 @@ def test_score_jobs_batch_length():
     jobs = [_make_job(id=f"id{i:016d}", source_url=f"https://ex.com/{i}") for i in range(4)]
     summaries = ["요약"] * 4
     client = _make_client('{"score": 60, "reason": "배치"}')
-    results = score_jobs_batch(jobs, summaries, _SAMPLE_PROFILE, client, "test")
+    results = score_jobs_batch(jobs, summaries, _SAMPLE_PROFILE, client, "test", request_delay=0)
     assert len(results) == 4
 
 
@@ -161,10 +161,26 @@ def test_score_jobs_batch_all_tuples():
     jobs = [_make_job(id=f"id{i:016d}", source_url=f"https://ex.com/{i}") for i in range(2)]
     summaries = ["", ""]
     client = _make_client('{"score": 75, "reason": "테스트"}')
-    results = score_jobs_batch(jobs, summaries, {}, client, "test")
+    results = score_jobs_batch(jobs, summaries, {}, client, "test", request_delay=0)
     for score, reason in results:
         assert isinstance(score, int)
         assert isinstance(reason, str)
+
+
+def test_score_jobs_batch_on_progress_called():
+    """on_progress 콜백이 각 공고 처리 후 호출된다."""
+    from career_ops_kr.ai.scorer import score_jobs_batch
+
+    jobs = [_make_job(id=f"id{i:016d}", source_url=f"https://ex.com/{i}") for i in range(3)]
+    summaries = ["요약"] * 3
+    client = _make_client('{"score": 55, "reason": "콜백"}')
+    calls: list[tuple[int, int]] = []
+    score_jobs_batch(
+        jobs, summaries, {}, client, "test",
+        request_delay=0,
+        on_progress=lambda d, t: calls.append((d, t)),
+    )
+    assert calls == [(1, 3), (2, 3), (3, 3)]
 
 
 def test_score_job_reason_extracted():
