@@ -954,6 +954,158 @@ def ai_rank_cmd(
         )
 
 
+@cli.command("institutions", help="194개 금융기관 채용공고 일괄 검색 (aggregator API)")
+@click.option("--grade", type=str, default=None, help="적합도 필터: S,A,B,C,D (콤마 구분, 미지정=전체)")
+@click.option("--concurrency", type=int, default=6, help="동시 검색 수")
+@click.option("--top", type=int, default=50, help="상위 N건 표시")
+def institutions_cmd(grade: str | None, concurrency: int, top: int) -> None:
+    """194개 기관을 wanted/jobkorea API에서 기관명 검색 → 실 채용공고 매칭."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from pathlib import Path
+
+    import yaml
+
+    config_path = PROJECT_ROOT / "config" / "institutions.yml"
+    if not config_path.exists():
+        console.print("[red]config/institutions.yml 없음[/red] — 먼저 엑셀 변환 필요")
+        sys.exit(1)
+
+    with open(config_path, encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+
+    insts = data.get("institutions", [])
+    if grade:
+        grades = {g.strip().upper() for g in grade.split(",")}
+        insts = [i for i in insts if i.get("grade", "").upper() in grades]
+
+    console.print(f"[green]institutions[/green] {len(insts)}개 기관 × wanted API 검색")
+
+    # Wanted API 검색
+    import requests as _req
+
+    api_tmpl = (
+        "https://www.wanted.co.kr/api/v4/jobs"
+        "?query={query}&country=kr&job_sort=job.latest_order"
+        "&years=-1&limit=10&offset=0"
+    )
+    ua = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.0.0 Safari/537.36 career-ops-kr/0.2"
+    )
+
+    from career_ops_kr.channels.base import BaseChannel, JobRecord
+
+    all_jobs: list[JobRecord] = []
+    org_counts: dict[str, int] = {}
+
+    def _search_one(inst: dict) -> tuple[str, list[JobRecord]]:
+        name = inst["name"]
+        # 검색어: 기관명에서 괄호 제거
+        import re
+        search_name = re.sub(r"\(.*?\)", "", name).strip()
+        if len(search_name) < 2:
+            return name, []
+
+        url = api_tmpl.format(query=search_name)
+        try:
+            resp = _req.get(url, headers={"User-Agent": ua}, timeout=10)
+            if resp.status_code != 200:
+                return name, []
+            payload = resp.json()
+            data_list = payload.get("data", [])
+            if not data_list:
+                return name, []
+        except Exception:
+            return name, []
+
+        results: list[JobRecord] = []
+        from datetime import datetime
+        now = datetime.now()
+        for item in data_list[:10]:
+            try:
+                job_id = str(item.get("id", ""))
+                company = item.get("company", {})
+                company_name = company.get("name", "")
+                title = item.get("position", "") or item.get("title", "")
+                job_url = f"https://www.wanted.co.kr/wd/{job_id}" if job_id else ""
+                if not job_url or not title:
+                    continue
+                results.append(JobRecord(
+                    id=BaseChannel._make_id(job_url, title[:120]),
+                    source_url=job_url,
+                    source_channel="wanted",
+                    source_tier=1,
+                    org=company_name or search_name,
+                    title=title[:200],
+                    description=title,
+                    legitimacy_tier="T1",
+                    scanned_at=now,
+                ))
+            except Exception:
+                continue
+        return name, results
+
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True,
+    ) as prog:
+        task = prog.add_task("[cyan]기관 검색[/cyan]", total=len(insts))
+
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            futures = {pool.submit(_search_one, inst): inst["name"] for inst in insts}
+            for future in as_completed(futures):
+                inst_name = futures[future]
+                try:
+                    name, jobs = future.result()
+                    if jobs:
+                        org_counts[name] = len(jobs)
+                        all_jobs.extend(jobs)
+                except Exception:
+                    pass
+                prog.advance(task)
+
+    # 중복 제거
+    seen: set[str] = set()
+    unique: list[JobRecord] = []
+    for j in all_jobs:
+        if j.id not in seen:
+            seen.add(j.id)
+            unique.append(j)
+
+    console.print(f"\n[green]결과[/green] {len(unique)}건 (중복 제거 후, {len(org_counts)}개 기관 매칭)")
+
+    # 기관별 매칭 테이블
+    if org_counts:
+        table = Table(title=f"기관별 채용공고 ({len(org_counts)}개 매칭)")
+        table.add_column("#", justify="right")
+        table.add_column("기관명", style="cyan")
+        table.add_column("건수", justify="right", style="bold green")
+        for i, (org, cnt) in enumerate(sorted(org_counts.items(), key=lambda x: -x[1]), 1):
+            if i > top:
+                break
+            table.add_row(str(i), org, str(cnt))
+        console.print(table)
+
+    # 전체 공고 테이블
+    if unique:
+        job_table = Table(title=f"채용공고 Top {min(top, len(unique))}")
+        job_table.add_column("#", justify="right")
+        job_table.add_column("기관", style="cyan")
+        job_table.add_column("포지션")
+        job_table.add_column("URL", style="dim")
+        for i, j in enumerate(unique[:top], 1):
+            job_table.add_row(str(i), j.org[:20], j.title[:40], str(j.source_url)[:50])
+        console.print(job_table)
+
+    if not unique:
+        console.print("[yellow]매칭된 공고 없음 — 현재 채용 중인 기관이 없거나 API 응답 변경[/yellow]")
+
+
 def _register_commands() -> None:
     """commands/ 서브패키지 커맨드를 cli group에 동적 등록.
 
