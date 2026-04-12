@@ -1360,6 +1360,8 @@ def _register_commands() -> None:
         ("career_ops_kr.commands.project_cmd", "project_cmd"),
         ("career_ops_kr.commands.patterns_cmd", "patterns_cmd"),
         ("career_ops_kr.commands.vault_cmd", "vault_sync_cmd"),
+        ("career_ops_kr.commands.history_cmd", "history_cmd"),
+        ("career_ops_kr.commands.ncs_cmd", "ncs_cmd"),
     ]
     for mod_path, fn_name in _cmds:
         try:
