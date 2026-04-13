@@ -60,29 +60,29 @@ ARCHETYPE_LABELS = {
 # ---------------------------------------------------------------------------
 LINKAREER_CSS = """
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 :root {
-  --bg-base:    #070B14;
-  --bg-surface: #0C1525;
-  --bg-elev:    #111D30;
-  --border:     #1C2E47;
-  --border-hi:  #0057A8;
-  --accent:     #0094FF;
-  --accent-dim: rgba(0,148,255,0.10);
-  --accent-glo: rgba(0,148,255,0.22);
-  --green:      #00C87A;
-  --green-dim:  rgba(0,200,122,0.10);
-  --amber:      #F5A623;
-  --amber-dim:  rgba(245,166,35,0.10);
-  --red:        #F43F5E;
-  --red-dim:    rgba(244,63,94,0.10);
-  --purple:     #A78BFA;
-  --purple-dim: rgba(167,139,250,0.10);
-  --txt:        #DDE6F5;
-  --txt-sec:    #8AABCC;
-  --txt-mute:   #4A6585;
-  --ff-disp:    'Oxanium', monospace;
-  --ff-body:    'DM Sans', -apple-system, sans-serif;
-  --ff-mono:    'JetBrains Mono', monospace;
+  --bg-base:    #F5F7FA;
+  --bg-surface: #FFFFFF;
+  --bg-elev:    #EEF1F7;
+  --border:     #DDE3ED;
+  --border-hi:  #0066CC;
+  --accent:     #0066CC;
+  --accent-dim: rgba(0,102,204,0.08);
+  --accent-glo: rgba(0,102,204,0.15);
+  --green:      #1CA760;
+  --green-dim:  rgba(28,167,96,0.10);
+  --amber:      #D97706;
+  --amber-dim:  rgba(217,119,6,0.10);
+  --red:        #DC2626;
+  --red-dim:    rgba(220,38,38,0.10);
+  --purple:     #7C3AED;
+  --purple-dim: rgba(124,58,237,0.10);
+  --txt:        #1A2332;
+  --txt-sec:    #4A5568;
+  --txt-mute:   #8B9AB5;
+  --ff-body:    'Noto Sans KR', 'Inter', -apple-system, sans-serif;
+  --ff-num:     'Inter', -apple-system, sans-serif;
 }
 
 /* ── 전역 ── */
@@ -90,12 +90,13 @@ html, body, [class*="css"] {
   font-family: var(--ff-body) !important;
   background-color: var(--bg-base) !important;
   color: var(--txt) !important;
+  font-size: 15px !important;
 }
 .stApp { background-color: var(--bg-base) !important; }
-.stApp > header { background: var(--bg-base) !important; border-bottom: 1px solid var(--border) !important; }
+.stApp > header { background: var(--bg-surface) !important; border-bottom: 1px solid var(--border) !important; box-shadow: 0 1px 4px rgba(0,0,0,.06) !important; }
 section[data-testid="stSidebar"] { background: var(--bg-surface) !important; border-right: 1px solid var(--border) !important; }
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
-p, .stMarkdown p { color: var(--txt) !important; }
+p, .stMarkdown p { color: var(--txt) !important; font-size: 15px !important; line-height: 1.6 !important; }
 hr { border-color: var(--border) !important; }
 
 /* ── 반응형 중앙 정렬 ── */
@@ -162,198 +163,154 @@ hr { border-color: var(--border) !important; }
 }
 .stTabs [data-baseweb="tab"] {
   font-family: var(--ff-body) !important;
-  font-size: 13px !important; font-weight: 600 !important;
+  font-size: 15px !important; font-weight: 600 !important;
   color: var(--txt-sec) !important;
-  padding: 12px 20px !important;
+  padding: 14px 24px !important;
   border-bottom: 2px solid transparent !important;
   background: transparent !important;
+  margin-bottom: -2px !important;
 }
 .stTabs [aria-selected="true"] {
   color: var(--accent) !important;
   border-bottom: 2px solid var(--accent) !important;
   background: var(--accent-dim) !important;
 }
-.stTabs [data-baseweb="tab-panel"] { background: transparent !important; padding-top: 16px !important; }
+.stTabs [data-baseweb="tab-panel"] { background: transparent !important; padding-top: 20px !important; }
 
-/* ── 통계 카드 그리드 ── */
-.lk-stat-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 28px;
-}
-.lk-stat-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 8px;
-  padding: 16px 18px;
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-.lk-stat-card:hover { box-shadow: 0 0 18px var(--accent-glo); border-color: var(--border-hi); }
-.lk-stat-card.green  { border-left-color: var(--green); }
-.lk-stat-card.amber  { border-left-color: var(--amber); }
-.lk-stat-card.red    { border-left-color: var(--red); }
-.lk-stat-card.purple { border-left-color: var(--purple); }
-.lk-stat-num {
-  font-family: var(--ff-mono);
-  font-size: 26px; font-weight: 600;
-  color: var(--accent);
-  line-height: 1; margin-bottom: 4px;
-}
-.lk-stat-num.green  { color: var(--green); }
-.lk-stat-num.amber  { color: var(--amber); }
-.lk-stat-num.red    { color: var(--red); }
-.lk-stat-num.purple { color: var(--purple); }
-.lk-stat-num.muted  { color: var(--txt-sec); }
-.lk-stat-label {
-  font-family: var(--ff-mono);
-  font-size: 10px; color: var(--txt-mute);
-  text-transform: uppercase; letter-spacing: 0.8px;
-}
-
-/* ── 섹션 헤더 ── */
-.lk-section-title {
-  font-family: var(--ff-disp);
-  font-size: 11px; font-weight: 700;
-  color: var(--txt-sec);
-  text-transform: uppercase; letter-spacing: 2px;
-  margin: 24px 0 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  display: block;
-}
-.lk-section-title::before { display: none !important; }
-
-/* ── Streamlit 네이티브 다크 오버라이드 ── */
+/* ── Streamlit 위젯 ── */
 .stTextInput input,
 .stSelectbox > div > div > div,
 .stMultiSelect > div > div > div {
-  background: var(--bg-elev) !important;
+  background: var(--bg-surface) !important;
   color: var(--txt) !important;
   border: 1px solid var(--border) !important;
   border-radius: 6px !important;
+  font-size: 14px !important;
 }
 .stTextInput input::placeholder { color: var(--txt-mute) !important; }
 .stTextInput label, .stSelectbox label, .stMultiSelect label,
 .stCheckbox label span, .stRadio label span, [data-testid="stWidgetLabel"] {
   color: var(--txt-sec) !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 [data-baseweb="menu"], [data-baseweb="popover"] {
-  background: var(--bg-elev) !important;
+  background: var(--bg-surface) !important;
   border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08) !important;
 }
-[data-baseweb="option"] { color: var(--txt) !important; background: transparent !important; }
+[data-baseweb="option"] { color: var(--txt) !important; background: transparent !important; font-size: 14px !important; }
 [data-baseweb="option"]:hover { background: var(--accent-dim) !important; }
 [data-baseweb="tag"] { background: var(--accent-dim) !important; color: var(--accent) !important; }
 .stButton button {
   background: var(--accent) !important; color: #fff !important;
   border: none !important; border-radius: 6px !important;
-  font-weight: 600 !important; font-size: 13px !important;
-  transition: box-shadow 0.2s !important;
+  font-weight: 600 !important; font-size: 15px !important;
+  padding: 8px 20px !important;
+  transition: background 0.15s, box-shadow 0.15s !important;
 }
-.stButton button:hover { box-shadow: 0 0 18px var(--accent-glo) !important; }
+.stButton button:hover { background: #0055AA !important; box-shadow: 0 2px 10px var(--accent-glo) !important; }
 [data-testid="stExpander"] {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border) !important;
   border-radius: 8px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04) !important;
 }
-[data-testid="stExpander"] summary { color: var(--txt-sec) !important; }
-[data-testid="stExpander"] summary:hover { color: var(--txt) !important; }
-[data-testid="stNotification"] { background: var(--bg-elev) !important; border: 1px solid var(--border) !important; }
-div[data-testid="stMetricValue"] { color: var(--accent) !important; font-family: var(--ff-mono) !important; font-weight: 600 !important; }
-.stRadio div[role="radiogroup"] label span { color: var(--txt) !important; }
+[data-testid="stExpander"] summary { color: var(--txt-sec) !important; font-size: 14px !important; font-weight: 600 !important; }
+[data-testid="stNotification"] { background: var(--bg-surface) !important; border: 1px solid var(--border) !important; }
+div[data-testid="stMetricValue"] { color: var(--accent) !important; font-family: var(--ff-num) !important; font-weight: 700 !important; font-size: 28px !important; }
+.stRadio div[role="radiogroup"] label span { color: var(--txt) !important; font-size: 14px !important; }
+.stCheckbox label span { color: var(--txt) !important; font-size: 14px !important; }
 </style>
 """
 
 # ---------------------------------------------------------------------------
-# 테이블 전용 CSS (st.html iframe embed — 다크 터미널 테마)
+# 테이블 전용 CSS (st.html iframe embed — 화이트 테마)
 # ---------------------------------------------------------------------------
 _TABLE_STYLE = """
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',-apple-system,sans-serif;font-size:13px;color:#DDE6F5;background:#070B14}
-.lk-table-wrap{background:#0C1525;border:1px solid #1C2E47;border-radius:8px;overflow:hidden}
-.lk-table{width:100%;border-collapse:collapse;font-size:13px}
-.lk-table thead th{background:#070B14;color:#5A7899;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:10px;padding:10px 14px;border-bottom:1px solid #1C2E47;text-align:left;white-space:nowrap;text-transform:uppercase;letter-spacing:.8px}
-.lk-table tbody tr{border-bottom:1px solid #1C2E47;transition:background .12s}
-.lk-table tbody tr:hover{background:#0F1F38}
+body{font-family:'Noto Sans KR','Inter',-apple-system,sans-serif;font-size:14px;color:#1A2332;background:#F5F7FA}
+.lk-table-wrap{background:#fff;border:1px solid #DDE3ED;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.lk-table{width:100%;border-collapse:collapse;font-size:14px}
+.lk-table thead th{background:#F8FAFC;color:#8B9AB5;font-family:'Inter',-apple-system,sans-serif;font-weight:600;font-size:11px;padding:11px 14px;border-bottom:1px solid #DDE3ED;text-align:left;white-space:nowrap;text-transform:uppercase;letter-spacing:.7px}
+.lk-table tbody tr{border-bottom:1px solid #EEF1F7;transition:background .1s}
+.lk-table tbody tr:hover{background:#F0F6FF}
 .lk-table tbody tr:last-child{border-bottom:none}
-.lk-table td{padding:12px 14px;vertical-align:middle}
+.lk-table td{padding:13px 14px;vertical-align:middle}
 .td-company{min-width:110px}
-.company-name{font-size:11px;color:#8AABCC;display:block;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.td-title{min-width:200px;max-width:360px}
-.recruit-name{font-size:13px;font-weight:600;color:#DDE6F5;display:block;line-height:1.4}
-.recruit-name a{color:#DDE6F5!important;text-decoration:none}
-.recruit-name a:hover{color:#0094FF!important}
-.recruit-category{font-size:11px;color:#4A6585;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;display:block}
-.short-info{font-size:11px;color:#8AABCC;white-space:nowrap}
-.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;font-family:'JetBrains Mono',monospace}
-.badge-intern{background:rgba(0,148,255,.12);color:#0094FF}
-.badge-entry{background:rgba(0,200,122,.12);color:#00C87A}
-.badge-exp{background:rgba(245,166,35,.12);color:#F5A623}
-.badge-it{background:rgba(167,139,250,.12);color:#A78BFA}
-.badge-default{background:rgba(44,64,96,.3);color:#6B87A8}
-.grade-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;min-width:32px;text-align:center;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
-.grade-A{background:rgba(0,200,122,.15);color:#00C87A;border:1px solid rgba(0,200,122,.3)}
-.grade-B{background:rgba(0,148,255,.15);color:#0094FF;border:1px solid rgba(0,148,255,.3)}
-.grade-C{background:rgba(245,166,35,.15);color:#F5A623;border:1px solid rgba(245,166,35,.3)}
-.grade-D{background:rgba(244,63,94,.12);color:#F43F5E;border:1px solid rgba(244,63,94,.2)}
-.grade-F{background:rgba(44,64,96,.2);color:#6B87A8;border:1px solid rgba(44,64,96,.3)}
-.dday-label{font-size:11px;font-weight:600;white-space:nowrap;font-family:'JetBrains Mono',monospace}
-.dday-urgent{color:#F43F5E}
-.dday-soon{color:#F5A623}
-.dday-ok{color:#0094FF}
-.dday-closed{color:#4A6585}
-.status-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace}
-.status-inbox{background:rgba(44,64,96,.3);color:#6B87A8}
-.status-applied{background:rgba(0,148,255,.12);color:#0094FF}
-.status-passed{background:rgba(0,200,122,.12);color:#00C87A}
-.status-rejected{background:rgba(244,63,94,.12);color:#F43F5E}
-.lk-log-row{background:#0C1525;border:1px solid #1C2E47;border-radius:6px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;font-size:12px}
-.log-channel{font-family:'JetBrains Mono',monospace;font-weight:600;color:#DDE6F5;min-width:150px}
-.log-count{color:#0094FF;font-weight:600;font-family:'JetBrains Mono',monospace}
-.log-time{color:#4A6585;margin-left:auto;font-family:'JetBrains Mono',monospace}
-.log-error{color:#F43F5E}
+.company-name{font-size:12px;color:#8B9AB5;display:block;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.td-title{min-width:200px;max-width:380px}
+.recruit-name{font-size:14px;font-weight:600;color:#1A2332;display:block;line-height:1.45}
+.recruit-name a{color:#1A2332!important;text-decoration:none}
+.recruit-name a:hover{color:#0066CC!important}
+.recruit-category{font-size:12px;color:#8B9AB5;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px;display:block}
+.short-info{font-size:12px;color:#4A5568;white-space:nowrap;font-weight:500}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge-intern{background:#EFF6FF;color:#1D6BBE}
+.badge-entry{background:#F0FDF6;color:#15804D}
+.badge-exp{background:#FFFBEB;color:#B45309}
+.badge-it{background:#F5F3FF;color:#6D28D9}
+.badge-default{background:#F1F5F9;color:#64748B}
+.grade-badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;min-width:36px;text-align:center;font-weight:700;letter-spacing:.3px}
+.grade-A{background:#D1FAE5;color:#065F46}
+.grade-B{background:#DBEAFE;color:#1E40AF}
+.grade-C{background:#FEF3C7;color:#92400E}
+.grade-D{background:#FEE2E2;color:#991B1B}
+.grade-F{background:#F1F5F9;color:#64748B}
+.dday-label{font-size:12px;font-weight:600;white-space:nowrap;font-family:'Inter',-apple-system,sans-serif}
+.dday-urgent{color:#DC2626}
+.dday-soon{color:#D97706}
+.dday-ok{color:#0066CC}
+.dday-closed{color:#8B9AB5}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.status-inbox{background:#F1F5F9;color:#64748B}
+.status-applied{background:#EFF6FF;color:#1D6BBE}
+.status-passed{background:#D1FAE5;color:#065F46}
+.status-rejected{background:#FEE2E2;color:#991B1B}
+.lk-log-row{background:#fff;border:1px solid #DDE3ED;border-radius:8px;padding:12px 16px;margin-bottom:6px;display:flex;align-items:center;gap:12px;font-size:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.log-channel{font-family:'Inter',-apple-system,sans-serif;font-weight:600;color:#1A2332;min-width:150px}
+.log-count{color:#0066CC;font-weight:700;font-family:'Inter',-apple-system,sans-serif}
+.log-time{color:#8B9AB5;margin-left:auto;font-size:12px}
+.log-error{color:#DC2626}
 </style>
 """
 
 # ---------------------------------------------------------------------------
-# 통계 카드 전용 CSS (st.html iframe embed)
+# 통계 카드 전용 CSS (st.html iframe embed — 화이트 테마)
 # ---------------------------------------------------------------------------
 _STAT_STYLE = """
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,'DM Sans',sans-serif;background:#070B14;color:#DDE6F5}
-.lk-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:4px 0 16px}
-.lk-stat-card{background:#0C1525;border:1px solid #1C2E47;border-left:3px solid #0094FF;border-radius:8px;padding:16px 18px}
-.lk-stat-card.green{border-left-color:#00C87A}
-.lk-stat-card.amber{border-left-color:#F5A623}
-.lk-stat-card.red{border-left-color:#F43F5E}
-.lk-stat-card.purple{border-left-color:#A78BFA}
-.lk-stat-num{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:#0094FF;line-height:1;margin-bottom:4px}
-.lk-stat-num.green{color:#00C87A}
-.lk-stat-num.amber{color:#F5A623}
-.lk-stat-num.red{color:#F43F5E}
-.lk-stat-num.purple{color:#A78BFA}
-.lk-stat-num.muted{color:#8AABCC}
-.lk-stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4A6585;text-transform:uppercase;letter-spacing:.8px}
+body{font-family:'Noto Sans KR','Inter',-apple-system,sans-serif;background:#F5F7FA;color:#1A2332}
+.lk-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:4px 0 20px}
+.lk-stat-card{background:#fff;border:1px solid #DDE3ED;border-top:3px solid #0066CC;border-radius:10px;padding:18px 20px;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:box-shadow .15s}
+.lk-stat-card:hover{box-shadow:0 4px 16px rgba(0,102,204,.12)}
+.lk-stat-card.green{border-top-color:#1CA760}
+.lk-stat-card.amber{border-top-color:#D97706}
+.lk-stat-card.red{border-top-color:#DC2626}
+.lk-stat-card.purple{border-top-color:#7C3AED}
+.lk-stat-num{font-family:'Inter',-apple-system,sans-serif;font-size:30px;font-weight:700;color:#0066CC;line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.lk-stat-num.green{color:#1CA760}
+.lk-stat-num.amber{color:#D97706}
+.lk-stat-num.red{color:#DC2626}
+.lk-stat-num.purple{color:#7C3AED}
+.lk-stat-num.muted{color:#4A5568}
+.lk-stat-label{font-family:'Inter',-apple-system,sans-serif;font-size:11px;color:#8B9AB5;text-transform:uppercase;letter-spacing:.9px;font-weight:600}
 @media(max-width:700px){.lk-stat-row{grid-template-columns:repeat(2,1fr)}}
 </style>
 """
 
 # ---------------------------------------------------------------------------
-# 섹션 타이틀 전용 CSS (st.html iframe embed)
+# 섹션 타이틀 전용 CSS (st.html iframe embed — 화이트 테마)
 # ---------------------------------------------------------------------------
 _SECTION_STYLE = """
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#070B14;color:#DDE6F5}
-.lk-section-title{font-family:'Oxanium',monospace;font-size:11px;font-weight:700;color:#8AABCC;text-transform:uppercase;letter-spacing:2px;padding:4px 0 8px;border-bottom:1px solid #1C2E47;display:block;margin:0}
+body{background:#F5F7FA;color:#1A2332;font-family:'Noto Sans KR','Inter',-apple-system,sans-serif}
+.lk-section-title{font-size:13px;font-weight:700;color:#4A5568;text-transform:uppercase;letter-spacing:1.5px;padding:6px 0 10px;border-bottom:2px solid #DDE3ED;display:block;margin:0}
 </style>
 """
 
@@ -489,7 +446,7 @@ def render_job_table(filtered: pd.DataFrame) -> None:
             location = "전국"
         fit_score = row.get("fit_score")
         score_html = (
-            f'<span style="color:#0094FF;font-weight:700;font-family:\'JetBrains Mono\',monospace;">{int(fit_score)}</span>'
+            f'<span style="color:#0066CC;font-weight:700;font-family:Inter,sans-serif;">{int(fit_score)}</span>'
             if fit_score is not None and not pd.isna(fit_score)
             else "—"
         )
@@ -645,19 +602,19 @@ def render_overview(df: pd.DataFrame) -> None:
             y="source_channel",
             orientation="h",
             color="count",
-            color_continuous_scale=["#1C2E47", "#0094FF"],
-            template="plotly_dark",
+            color_continuous_scale=["#BFDBFE", "#0066CC"],
+            template="plotly_white",
             labels={"source_channel": "", "count": "공고 수"},
         )
         fig.update_layout(
             height=400,
             margin=dict(l=10, r=10, t=10, b=10),
             coloraxis_showscale=False,
-            paper_bgcolor="#0C1525",
-            plot_bgcolor="#0C1525",
-            font=dict(color="#8AABCC", size=12),
-            xaxis=dict(gridcolor="#1C2E47", zerolinecolor="#1C2E47"),
-            yaxis=dict(gridcolor="#1C2E47"),
+            paper_bgcolor="#FFFFFF",
+            plot_bgcolor="#F8FAFC",
+            font=dict(color="#4A5568", size=13),
+            xaxis=dict(gridcolor="#EEF1F7", zerolinecolor="#DDE3ED"),
+            yaxis=dict(gridcolor="#EEF1F7"),
         )
         fig.update_traces(marker_line_width=0)
         st.plotly_chart(fig, use_container_width=True)
@@ -746,9 +703,9 @@ def render_jobs(df: pd.DataFrame) -> None:
 
     _expired_hint = f' (만료 {len(expired):,}건 숨김 — 체크박스로 표시)' if expired.shape[0] > 0 and not show_expired else ''
     st.html(
-        f'<p style="font-family:\'DM Sans\',sans-serif;font-size:13px;color:#8AABCC;margin:4px 0 8px;">'
-        f'현재 <span style="color:#0094FF;font-weight:700;">{len(active):,}건</span>'
-        f'<span style="color:#4A6585;font-size:11px;">{_expired_hint}</span>'
+        f'<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:14px;color:#8B9AB5;margin:4px 0 8px;">'
+        f'현재 <span style="color:#0066CC;font-weight:700;">{len(active):,}건</span>'
+        f'<span style="color:#8B9AB5;font-size:12px;">{_expired_hint}</span>'
         f' / 전체 {len(df):,}건</p>'
     )
 
@@ -917,7 +874,7 @@ def render_channel_health(df: pd.DataFrame, log_df: pd.DataFrame) -> None:
           <td>{row["상태"]}</td>
           <td><span class="short-info">{str(row["마지막 스캔"])[:16]}</span></td>
           <td><span class="log-count">+{int(row["최근 수집"])}</span></td>
-          <td><span style="font-weight:700;color:#0094FF;font-family:'JetBrains Mono',monospace;">{int(row["누적 공고"])}</span></td>
+          <td><span style="font-weight:700;color:#0066CC;font-family:Inter,sans-serif;">{int(row["누적 공고"])}</span></td>
           {err_cell}
         </tr>
         """
@@ -965,8 +922,8 @@ def render_tracker(df: pd.DataFrame) -> None:
             c1, c2, c3 = st.columns([4, 2, 2])
             with c1:
                 st.html(
-                    f"<span style='font-family:DM Sans,sans-serif;font-weight:700;font-size:15px;color:#DDE6F5;'>{row['org']}</span> "
-                    f"<span style='font-family:DM Sans,sans-serif;color:#8AABCC;'>— {row['title'][:60]}</span>"
+                    f"<span style='font-family:Noto Sans KR,sans-serif;font-weight:700;font-size:15px;color:#1A2332;'>{row['org']}</span> "
+                    f"<span style='font-family:Noto Sans KR,sans-serif;color:#4A5568;'>— {row['title'][:60]}</span>"
                 )
                 st.caption(
                     f"{row['source_channel']} · Tier {row['source_tier']} · "
@@ -1012,25 +969,27 @@ def main() -> None:
     dot_color = "#00C87A" if db_ok else "#F43F5E"
     db_label = "LIVE" if db_ok else "OFFLINE"
     _header_css = """
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@600;700&family=Inter:wght@500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#070B14}
-.lk-header{background:linear-gradient(120deg,#0C1525 60%,#111D30 100%);border:1px solid #1C2E47;border-top:2px solid #0094FF;padding:16px 28px;display:flex;align-items:center;gap:16px;border-radius:0 0 10px 10px;position:relative;overflow:hidden}
-.lk-logo{font-family:'Oxanium',monospace;font-size:18px;font-weight:800;color:#0094FF;letter-spacing:2px;text-transform:uppercase}
-.lk-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4A6585}
-.co-dot{width:7px;height:7px;border-radius:50%;animation:blink 2s ease infinite;display:inline-block}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+body{background:#F5F7FA}
+.lk-header{background:#fff;border-bottom:2px solid #0066CC;padding:14px 28px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.lk-logo{font-family:'Inter',-apple-system,sans-serif;font-size:17px;font-weight:700;color:#0066CC;letter-spacing:.5px}
+.lk-sub{font-family:'Noto Sans KR',-apple-system,sans-serif;font-size:13px;color:#8B9AB5;font-weight:500}
+.lk-dot{width:8px;height:8px;border-radius:50%;display:inline-block;animation:blink 2s ease infinite}
+.lk-badge{font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#EFF6FF;color:#0066CC}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 </style>
 """
     st.html(
         _header_css + f"""
         <div class="lk-header">
-          <div class="lk-logo">CAREER-OPS-KR</div>
+          <div class="lk-logo">Career-Ops KR</div>
           <span class="lk-sub">한국 금융 · 블록체인 · 디지털 구직 파이프라인</span>
           <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
-            <div class="co-dot" style="background:{dot_color};box-shadow:0 0 8px {dot_color};"></div>
-            <span class="lk-sub">{db_label} · {DB_PATH.name}</span>
+            <div class="lk-dot" style="background:{dot_color};"></div>
+            <span class="lk-badge">{db_label}</span>
+            <span style="font-family:Inter,sans-serif;font-size:12px;color:#8B9AB5;">{DB_PATH.name}</span>
           </div>
         </div>
         """
@@ -1045,18 +1004,15 @@ body{background:#070B14}
 
     df = load_jobs()
     log_df = load_scan_log()
-    channels = sorted(df["source_channel"].dropna().unique().tolist()) if not df.empty else []
 
-    tabs = st.tabs(["📊 대시보드", "🔍 공고 목록", "📡 스캔", "🏥 채널 상태", "📋 지원 트래커"])
+    tabs = st.tabs(["📊 대시보드", "🔍 공고 목록", "🏥 채널 현황", "📋 지원 트래커"])
     with tabs[0]:
         render_overview(df)
     with tabs[1]:
         render_jobs(df)
     with tabs[2]:
-        render_scan(channels)
-    with tabs[3]:
         render_channel_health(df, log_df)
-    with tabs[4]:
+    with tabs[3]:
         render_tracker(df)
 
 
