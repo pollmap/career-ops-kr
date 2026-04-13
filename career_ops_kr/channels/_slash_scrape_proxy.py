@@ -124,6 +124,16 @@ class SlashScrapeProxy:
             self.logger.warning("slash-scrape: invalid url %r", url)
             return None
 
+        # URL scheme 방어 — http/https만 허용 (file://, javascript:, data: 차단)
+        from urllib.parse import urlparse
+        try:
+            _scheme = urlparse(url).scheme.lower()
+        except Exception:
+            _scheme = ""
+        if _scheme not in ("http", "https"):
+            self.logger.warning("slash-scrape: disallowed URL scheme %r (url=%s)", _scheme, url)
+            return None
+
         prompt = f"/scrape {url}"
         cmd = ["claude", "-p", prompt]
 

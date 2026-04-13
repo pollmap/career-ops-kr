@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
 LANDING_URL = "https://www.customs.go.kr/kcs/ad/brd/list.do?mi=2871&bbsId=BBSMSTR_000000000028"
-USER_AGENT = "career-ops-kr/0.2 (+https://github.com/pollmap/career-ops-kr)"
+from career_ops_kr._constants import DEFAULT_USER_AGENT as USER_AGENT  # noqa: E402
 
 
 class CustomsChannel(BaseChannel):

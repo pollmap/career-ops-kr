@@ -18,7 +18,7 @@ from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
 LANDING_URL = "https://www.dataq.or.kr/www/main.do"
 NOTICE_URL = "https://www.dataq.or.kr/www/board/view.do"
-USER_AGENT = "career-ops-kr/0.1 (+https://github.com/pollmap/career-ops-kr)"
+from career_ops_kr._constants import DEFAULT_USER_AGENT as USER_AGENT  # noqa: E402
 
 
 class DataqChannel(BaseChannel):

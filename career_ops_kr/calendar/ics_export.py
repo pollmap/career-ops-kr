@@ -27,8 +27,9 @@ CERT_SCHEDULE: list[dict[str, Any]] = [
 
 
 def _uid(prefix: str, seed: str) -> str:
+    from career_ops_kr._constants import ICS_UID_DOMAIN
     h = hashlib.sha1(seed.encode("utf-8")).hexdigest()[:12]
-    return f"{prefix}-{h}@career-ops-kr.luxon.ai"
+    return f"{prefix}-{h}@{ICS_UID_DOMAIN}"
 
 
 def _parse_deadline(raw: Any) -> date | None:

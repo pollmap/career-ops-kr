@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
-USER_AGENT = "career-ops-kr/0.2 (+https://github.com/pollmap/career-ops-kr)"
+from career_ops_kr._constants import DEFAULT_USER_AGENT as USER_AGENT  # noqa: E402
 
 _DEFAULT_CONFIG = Path(__file__).resolve().parents[2] / "config" / "government_portals.yml"
 

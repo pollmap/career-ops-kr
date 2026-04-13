@@ -31,11 +31,13 @@ from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
 BASE_URL = "https://www.jobplanet.co.kr/"
 SEARCH_URL = "https://www.jobplanet.co.kr/job_postings/search_results"
+from career_ops_kr._constants import DEFAULT_USER_AGENT as _APP_UA  # noqa: E402
+
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/124.0.0.0 Safari/537.36 "
-    "(career-ops-kr/0.2.0; +https://github.com/pollmap/career-ops-kr)"
+    f"({_APP_UA})"
 )
 
 # 상세 공고 URL 패턴 후보 — 잡플래닛은 버전에 따라 경로가 바뀜

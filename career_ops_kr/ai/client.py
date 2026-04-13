@@ -33,8 +33,7 @@ except ImportError as exc:
 
 logger = logging.getLogger(__name__)
 
-_APP_SITE = "https://github.com/pollmap/career-ops-kr"
-_APP_TITLE = "career-ops-kr"
+from career_ops_kr._constants import APP_HOMEPAGE as _APP_SITE, APP_NAME as _APP_TITLE  # noqa: E402
 
 # Backend configs
 _FASTFLOWLM_HOST = os.environ.get("FASTFLOWLM_HOST", "http://localhost:52625")

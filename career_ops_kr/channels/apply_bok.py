@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
 LANDING_URL = "https://apply.bok.or.kr/"
-USER_AGENT = "career-ops-kr/0.1 (+https://github.com/pollmap/career-ops-kr)"
+from career_ops_kr._constants import DEFAULT_USER_AGENT as USER_AGENT  # noqa: E402
 
 
 class ApplyBokChannel(BaseChannel):

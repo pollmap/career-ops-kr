@@ -2,15 +2,15 @@
 # CLAUDE.md 데이터 계약: User 레이어는 찬희 개인 커스터마이징.
 # public 배포 시 이력서/개인 프로필은 포함하지 않고, 템플릿(`templates/profile.example.yml`,
 # `modes/_profile.template.md`)만 공개한다. 새 사용자는 `career-ops init` 으로 생성.
-cv.md                     # 개인 이력서 — 실명/학적/연락처 포함 가능
-config/profile.yml        # 개인 프로필 — 타겟 산업/휴학 상태/스코어 선호 등
-modes/_profile.md         # 개인 narrative / archetype / 협상 스크립트
+cv.md
+config/profile.yml
+modes/_profile.md
 
 # === 유저 데이터 / 런타임 산출물 ===
 data/
 reports/
 output/
-.auth/                    # Playwright storage state (로그인 세션)
+.auth/
 *.db
 *.db-journal
 
@@ -91,3 +91,7 @@ logs/
 # === 플랜/메모 (로컬 전용) ===
 scratch/
 notes/local/
+
+# === 사용자 환경 특화 (범용 배포 제외) ===
+크론등록_관리자실행.bat
+*.user.bat

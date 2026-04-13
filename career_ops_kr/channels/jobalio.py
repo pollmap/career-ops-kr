@@ -27,7 +27,9 @@ LANDING_URL = "https://job.alio.go.kr/recruit.do"
 ALT_LIST_URL = "https://job.alio.go.kr/recruitList.do"
 OCCASIONAL_URL = "https://job.alio.go.kr/occasional/researchList.do"
 OCCASIONAL_ALT_URL = "https://job.alio.go.kr/mobile/occasional/researchList.do"
-USER_AGENT = "Mozilla/5.0 (career-ops-kr/0.2.0; +https://github.com/pollmap/career-ops-kr)"
+from career_ops_kr._constants import DEFAULT_USER_AGENT as _APP_UA  # noqa: E402
+
+USER_AGENT = f"Mozilla/5.0 ({_APP_UA})"
 
 _CAREER_KEYWORDS: tuple[str, ...] = (
     "채용",

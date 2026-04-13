@@ -39,10 +39,12 @@ DOMAIN = "https://www.incruit.com/"
 LIST_URL = "https://job.incruit.com/jobdb_list/searchjob.asp"
 DETAIL_PREFIX = "https://job.incruit.com/jobdb_info/jobpost.asp"
 
+from career_ops_kr._constants import DEFAULT_USER_AGENT as _APP_UA  # noqa: E402
+
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "career-ops-kr/0.2.0 (+https://github.com/pollmap/career-ops-kr)"
+    f"{_APP_UA}"
 )
 
 DEFAULT_PAGES = 3
