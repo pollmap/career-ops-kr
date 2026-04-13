@@ -640,11 +640,10 @@ def render_jobs(df: pd.DataFrame) -> None:
     sel_grade = col4.multiselect("등급", ["A", "B", "C", "D", "F"], placeholder="전체")
     sel_archetype = col5.multiselect("유형", archetypes, placeholder="전체")
 
-    col6, col7, col8, col9 = st.columns([2, 2, 3, 3])
+    col6, col7, col8 = st.columns([2, 3, 3])
     sel_status = col6.multiselect("상태", statuses, placeholder="전체")
     only_open = col7.checkbox("마감 임박만 (7일 내)", value=False)
     only_eligible = col8.checkbox("✅ 자격요건 충족만", value=True)
-    show_expired = col9.checkbox("🗂 만료 공고 포함", value=False)
 
     sort_by = st.radio("정렬", ["적합도순", "마감순", "최신순"], horizontal=True)
 
@@ -691,7 +690,7 @@ def render_jobs(df: pd.DataFrame) -> None:
     else:
         filtered = filtered.sort_values("scanned_at", ascending=False)
 
-    # 현재 / 과거 공고 분리
+    # 만료 공고 제외 — DB에는 남기고 대시보드엔 표시 안 함
     _now = datetime.now()
 
     def _is_expired(deadline: Any) -> bool:
@@ -699,24 +698,14 @@ def render_jobs(df: pd.DataFrame) -> None:
         return dt is not None and dt < _now
 
     active = filtered[~filtered["deadline"].apply(_is_expired)].head(200)
-    expired = filtered[filtered["deadline"].apply(_is_expired)].head(200)
 
-    _expired_hint = f' (만료 {len(expired):,}건 숨김 — 체크박스로 표시)' if expired.shape[0] > 0 and not show_expired else ''
     st.html(
         f'<p style="font-family:\'Noto Sans KR\',sans-serif;font-size:14px;color:#8B9AB5;margin:4px 0 8px;">'
-        f'현재 <span style="color:#0066CC;font-weight:700;">{len(active):,}건</span>'
-        f'<span style="color:#8B9AB5;font-size:12px;">{_expired_hint}</span>'
-        f' / 전체 {len(df):,}건</p>'
+        f'<span style="color:#0066CC;font-weight:700;">{len(active):,}건</span>'
+        f' 표시 중 / 전체 {len(df):,}건</p>'
     )
 
-    # ── 현재 공고 ──────────────────────────────────────────────────────────────
-    st.html(_SECTION_STYLE + '<div class="lk-section-title">📋 현재 공고</div>')
     render_job_table(active)
-
-    # ── 과거 공고 (명시적으로 체크박스 켤 때만 표시) ─────────────────────────
-    if show_expired and not expired.empty:
-        st.html(_SECTION_STYLE + f'<div class="lk-section-title">🗂 만료된 공고 ({len(expired):,}건)</div>')
-        render_job_table(expired)
 
     # 상세보기
     if not filtered.empty:
