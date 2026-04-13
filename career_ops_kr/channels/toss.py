@@ -17,7 +17,7 @@ the downstream archetype classifier should disambiguate:
     * 토스플레이스 (offline POS)
     * 토스씨엑스 (CX operations)
 
-찬희's highest-interest entities are 토스증권 and 토스뱅크 — the
+user's highest-interest entities are 토스증권 and 토스뱅크 — the
 channel should prefer those when a filter is available.
 
 Status

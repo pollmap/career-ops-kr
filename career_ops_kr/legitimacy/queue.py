@@ -2,7 +2,7 @@
 
 Jobs tagged ``T4_NEWS`` or ``T5_UNKNOWN`` by :class:`LegitimacyVerifier`
 have low auto-classification confidence. Instead of silently dropping
-them or trusting the tier, we enqueue them here so 찬희 can batch-review
+them or trusting the tier, we enqueue them here so 사용자 can batch-review
 on a schedule.
 
 Storage

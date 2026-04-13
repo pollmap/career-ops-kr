@@ -22,7 +22,7 @@ Stub channels MUST still fulfil the :class:`BaseChannel` contract:
   than raising).
 * ``list_jobs()`` returns ``[]`` on any failure — parse errors, network
   errors, and :class:`NotTunedYetError` are all caught internally and
-  converted to empty lists. The exception is logged so 찬희 knows exactly
+  converted to empty lists. The exception is logged so 사용자 knows exactly
   which channel needs tuning.
 * ``get_detail()`` returns ``None`` on any failure.
 
@@ -41,7 +41,7 @@ class NotTunedYetError(ChannelError):
     """Raised when stub channel selectors have not yet been tuned.
 
     Carries the channel name so the caller (typically the channel's own
-    ``list_jobs`` method) can log a helpful message pointing 찬희 at the
+    ``list_jobs`` method) can log a helpful message pointing 사용자 at the
     tuning CLI. The message always includes the exact command to run.
     """
 

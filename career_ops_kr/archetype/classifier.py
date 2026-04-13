@@ -1,6 +1,6 @@
 """Keyword-weighted archetype classifier for Korean job postings.
 
-Seven canonical archetypes target 찬희's job-hunt map:
+Seven canonical archetypes target user's job-hunt map:
 
     * BLOCKCHAIN       — 블록체인·STO·DID·크립토 개발/기획
     * DIGITAL_ASSET    — 암호화폐 거래소·수탁·커스터디
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class Archetype(str, Enum):
-    """Job archetype buckets for 찬희 fit scoring.
+    """Job archetype buckets for 사용자 fit scoring.
 
     The Enum members are intentionally **static** — they form the public API
     consumed by tests, reports, and downstream scoring code.  New archetypes

@@ -2,7 +2,7 @@
 
 Complements :mod:`career_ops_kr.scorer.fit_score`. When the rule-based
 :class:`FitScorer` returns a score in the 60–89 range (grades ``D``–``B``),
-this module asks an LLM to re-read the JD + 찬희 profile summary + the
+this module asks an LLM to re-read the JD + 사용자 profile summary + the
 rule-based breakdown and return an adjusted score with reasoning.
 
 Design principles
@@ -24,7 +24,7 @@ Cost model
 ----------
 Haiku 4.5 is ~$1/M input, $5/M output tokens. A typical call is
 ~1.5k in + ~400 out ≈ $0.0035 per ambiguous job. If the rule-based
-scorer flags ~30 % of scans as ambiguous and 찬희 scans ~50 jobs/day,
+scorer flags ~30 % of scans as ambiguous and 사용자 scans ~50 jobs/day,
 that's roughly $0.05/day — effectively free, but the kill-switch above
 still caps runaway usage.
 

@@ -87,7 +87,7 @@ class CareerOpsApp(App[None]):  # type: ignore[misc]
 
     CSS_PATH = "styles.tcss"
     TITLE = "career-ops-kr dashboard v0.2"
-    SUB_TITLE = "찬희 — 구직 파이프라인"
+    SUB_TITLE = "사용자 — 구직 파이프라인"
 
     BINDINGS = [
         Binding("q", "quit", "종료"),

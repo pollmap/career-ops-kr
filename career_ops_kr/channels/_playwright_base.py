@@ -43,7 +43,7 @@ class PlaywrightNotInstalled(ChannelError):
 class LoginRequiredError(ChannelError):
     """Raised when a channel requires user-interactive login.
 
-    The caller (CLI) should catch this and guide 찬희 through the manual
+    The caller (CLI) should catch this and guide 사용자 through the manual
     login flow: ``career-ops login <channel>``.
     """
 

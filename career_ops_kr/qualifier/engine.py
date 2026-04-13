@@ -51,8 +51,8 @@ class QualifierResult(BaseModel):
 
 DEFAULT_NEGATIVE_PATTERNS: list[tuple[str, str]] = [
     # (regex, reason)
-    (r"졸업\s*예정자?", "졸업예정자 요건 (찬희는 휴학 중 2학년 수료)"),
-    (r"(?<!미)졸업자", "졸업자 요건 (찬희는 미졸업)"),
+    (r"졸업\s*예정자?", "졸업예정자 요건 (사용자는 휴학 중 2학년 수료)"),
+    (r"(?<!미)졸업자", "졸업자 요건 (사용자는 미졸업)"),
     (r"4\s*년제\s*대학\s*졸업", "4년제 대학 졸업 요건"),
     (r"학사\s*학위\s*(소지|보유|필수)", "학사 학위 소지자 요건"),
     (r"정보\s*통신\s*(관련)?\s*학과", "정보통신 관련학과 전공 요건"),
@@ -225,21 +225,21 @@ class QualifierEngine:
 
     def _check_numeric(self, text: str) -> QualifierResult | None:
         """Numeric thresholds: semester count, GPA cutoff, age range."""
-        # 학기 수 (찬희 = 4학기 수료). 6학기 이상 요구 → FAIL
+        # 학기 수 (사용자 = 4학기 수료). 6학기 이상 요구 → FAIL
         m = re.search(r"(\d)\s*학기\s*이상", text)
         if m:
             required = int(m.group(1))
             if required >= 6:
                 return QualifierResult(
                     verdict=Verdict.FAIL,
-                    reasons=[f"{required}학기 이상 요건 (찬희 4학기 수료)"],
+                    reasons=[f"{required}학기 이상 요건 (사용자 4학기 수료)"],
                     blocking_rules=[f"semester>={required}"],
                     confidence=0.9,
                 )
             if required <= 4:
                 return QualifierResult(
                     verdict=Verdict.PASS,
-                    reasons=[f"{required}학기 이상 — 찬희 4학기 수료 충족"],
+                    reasons=[f"{required}학기 이상 — 사용자 4학기 수료 충족"],
                     blocking_rules=[],
                     confidence=0.85,
                 )
@@ -252,7 +252,7 @@ class QualifierEngine:
             if gpa + 0.001 < cutoff:
                 return QualifierResult(
                     verdict=Verdict.FAIL,
-                    reasons=[f"학점 {cutoff} 이상 요건 (찬희 {gpa})"],
+                    reasons=[f"학점 {cutoff} 이상 요건 (사용자 {gpa})"],
                     blocking_rules=[f"gpa>={cutoff}"],
                     confidence=0.95,
                 )
@@ -265,7 +265,7 @@ class QualifierEngine:
             if age > age_limit:
                 return QualifierResult(
                     verdict=Verdict.FAIL,
-                    reasons=[f"만 {age_limit}세 이하 (찬희 {age}세)"],
+                    reasons=[f"만 {age_limit}세 이하 (사용자 {age}세)"],
                     blocking_rules=[f"age<={age_limit}"],
                     confidence=0.95,
                 )

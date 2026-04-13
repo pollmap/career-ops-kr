@@ -13,7 +13,7 @@ Backend: ``requests`` + BeautifulSoup — the listing HTML is SSR-friendly
 and does not require a headless browser. If the parse comes back empty
 the channel returns ``[]`` (실데이터 원칙 — 목업 절대 금지).
 
-찬희's scan contract: "전수 수집 — 추리지 말고 가능한 모든 공고".
+user's scan contract: "전수 수집 — 추리지 말고 가능한 모든 공고".
 No keyword whitelist is applied at the channel layer. Downstream
 ``qualifier`` / ``scorer`` modules are responsible for filtering.
 """

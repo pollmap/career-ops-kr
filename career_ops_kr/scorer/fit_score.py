@@ -1,8 +1,8 @@
-"""10-dimensional A~F fit scorer for 찬희's Korean job pipeline.
+"""10-dimensional A~F fit scorer for user's Korean job pipeline.
 
 Dimensions (weights sum to 100):
 
-    role_fit              20 — archetype match with 찬희 preferences
+    role_fit              20 — archetype match with 사용자 preferences
     eligibility_match     20 — Qualifier verdict (FAIL → auto-F)
     compensation          10 — 월급/장려금/지원금 금액
     location              10 — 서울/안산/청주 우선, 수도권 2순위
@@ -11,7 +11,7 @@ Dimensions (weights sum to 100):
     portfolio_usefulness  10 — Python/SQL/MCP/블록체인/AI 키워드
     schedule_conflict      5 — 자격시험 일정과 충돌 여부
     deadline_urgency       3 — D-7 이내 가산점
-    hitl_discretion        2 — 기본 0, 찬희 수동 부여
+    hitl_discretion        2 — 기본 0, 사용자 수동 부여
 
 Grade cutoffs (inclusive lower bound):
     A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, F < 60.
@@ -86,7 +86,7 @@ DEFAULT_GRADE_CUTS: dict[str, float] = {
     "F": 0.0,
 }
 
-# 찬희 preference tiers for archetype fit.
+# 사용자 preference tiers for archetype fit.
 ARCHETYPE_PREFERENCE: dict[Archetype, float] = {
     Archetype.BLOCKCHAIN: 100.0,
     Archetype.DIGITAL_ASSET: 90.0,

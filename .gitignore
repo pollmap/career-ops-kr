@@ -95,3 +95,6 @@ notes/local/
 # === 사용자 환경 특화 (범용 배포 제외) ===
 크론등록_관리자실행.bat
 *.user.bat
+
+# USER 데이터 — 개인 자격증 일정 (템플릿은 templates/certifications.example.yml)
+config/certifications.yml

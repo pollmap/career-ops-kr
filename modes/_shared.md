@@ -7,7 +7,7 @@
 
 ---
 
-## 1. 사용자 요약 (찬희)
+## 1. 사용자 요약 (사용자)
 
 **상세 프로필은 `config/profile.yml` + `modes/_profile.md` 참조.**
 
@@ -23,7 +23,7 @@
 ## 2. 74개 검증 프로그램 데이터셋
 
 - **위치**: `tests/fixtures/programs_verified_20260411.json`
-- **출처**: 2026.04.11 수동 검증 (찬희_검증완료_지원가능_프로그램_최종.md)
+- **출처**: 2026.04.11 수동 검증 (사용자_검증완료_지원가능_프로그램_최종.md)
 - **분류**:
   - 🟢 확정 지원 가능 (7개): 키움 KDA, 미래내일 일경험 등
   - 🟡 패턴 확인 (22개): 신한투자 블록체인부, 디지털 하나로 등
@@ -58,7 +58,7 @@
 inbox          → 새로 스캔, 아직 분류 안 됨
 eligible       → 자격 통과 (Vault 1-eligible/)
 watchlist      → 수시/패턴 모니터링 중 (Vault 2-watchlist/)
-rejected_self  → 찬희 자격 미달 (Vault 3-rejected/)
+rejected_self  → 사용자 자격 미달 (Vault 3-rejected/)
 rejected_site  → 공고가 사라짐 / 취소됨
 preparing      → 지원 준비 중 (자소서 작성 등)
 applied        → 지원 완료 (Vault 4-applied/)

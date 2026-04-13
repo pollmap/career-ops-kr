@@ -10,7 +10,7 @@ exception at module load time, and putting it in this package's
 ``__init__.py`` would create a cycle. It is re-exported here for
 convenience.
 
-**Product Reach Tiers** (찬희 재정의 Sprint 5):
+**Product Reach Tiers** (사용자 재정의 Sprint 5):
     - **General Major (T1)**: Linkareer, Wanted, JobKorea, Incruit,
       JobPlanet, Jasoseol, Saramin — the public-product backbone. These
       are what any user gets out of the box regardless of preset.
@@ -282,7 +282,7 @@ CHANNEL_REGISTRY: dict[str, type[BaseChannel]] = {
     GoJobsChannel.name: GoJobsChannel,  # 나라일터 (정부일자리 통합포털)
     # --- Government unified (10 agencies in 1 channel) ---
     GovernmentChannel.name: GovernmentChannel,  # 국정원/경찰/국방/외교/관세/금융위/금감원/방사청/KISA/나라일터
-    # --- Target-specific (찬희 우선순위 P0), 1 channel ---
+    # --- Target-specific (사용자 우선순위 P0), 1 channel ---
     KiwoomKdaChannel.name: KiwoomKdaChannel,  # 키움 KDA (recruit.kiwoom.com)
     # --- Tier 3 securities (Korean brokerage), 6 channels ---
     ShinhanSecChannel.name: ShinhanSecChannel,  # 신한투자증권 (requests 재작성)

@@ -9,7 +9,7 @@ individual channels can elect to use when the env var
 
 Why this exists
 ---------------
-찬희's local Claude Code installation already has a ``/scrape`` command
+user's local Claude Code installation already has a ``/scrape`` command
 wired up to Scrapling (see the skills list). For environments where
 installing ``scrapling`` directly is painful, this proxy lets us reuse
 the already-working command by piping a single URL at a time.

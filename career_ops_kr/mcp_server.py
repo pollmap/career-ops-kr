@@ -334,7 +334,7 @@ def tool_generate_cover_letter_draft(url: str, tone: str = "formal_kr") -> str:
         f"아키타입: {evaluation.get('archetype', '미판정')}\n"
         f"현재 평가: Grade {evaluation.get('grade', 'N/A')} "
         f"(총점 {evaluation.get('total_score', 'N/A')})\n\n"
-        "--- 찬희 프로필 연결 지점 ---\n"
+        "--- 사용자 프로필 연결 지점 ---\n"
         "(LLMScorer 미설치 — 수동 작성 필요)\n\n"
         f"Reasons: {'; '.join(evaluation.get('reasons', [])) or '(없음)'}\n"
     )

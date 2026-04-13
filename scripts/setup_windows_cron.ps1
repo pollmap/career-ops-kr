@@ -1,8 +1,9 @@
 # career-ops-kr Windows 작업 스케줄러 자동 등록
 # 실행: PowerShell을 관리자 권한으로 열고 .\scripts\setup_windows_cron.ps1
 
-$ProjectDir = "C:\Users\lch68\Desktop\05_개발·도구\career-ops-kr"
-$PythonEnv = "C:\Users\lch68\Desktop\05_개발·도구\career-ops-kr\.venv\Scripts\python.exe"
+# 프로젝트 루트 = 이 스크립트가 있는 scripts/의 상위 디렉토리
+$ProjectDir = Split-Path -Parent $PSScriptRoot
+$PythonEnv = Join-Path $ProjectDir ".venv\Scripts\python.exe"
 
 # 없으면 uv python fallback
 if (-not (Test-Path $PythonEnv)) {
@@ -16,7 +17,7 @@ cd '$ProjectDir'
 uv run career-ops scan --site linkareer
 uv run career-ops scan --site saramin
 uv run career-ops scan --site wanted
-uv run career-ops export --open-only -o 'C:\Users\lch68\Desktop\공고현황_최신.xlsx'
+uv run career-ops export --open-only -o `"`$env:USERPROFILE\Desktop\공고현황_최신.xlsx`"
 "@
 
 $DailyScriptPath = "$ProjectDir\scripts\_daily_scan.ps1"
@@ -49,7 +50,7 @@ $WeeklyScript = @"
 cd '$ProjectDir'
 `$env:PYTHONIOENCODING = 'utf-8'
 uv run career-ops scan --all
-uv run career-ops export --open-only -o 'C:\Users\lch68\Desktop\공고현황_주간풀스캔.xlsx'
+uv run career-ops export --open-only -o `"`$env:USERPROFILE\Desktop\공고현황_주간풀스캔.xlsx`"
 "@
 
 $WeeklyScriptPath = "$ProjectDir\scripts\_weekly_full_scan.ps1"
@@ -76,7 +77,7 @@ Write-Host "✓ Task 2 등록: career-ops-weekly-fullscan (매주 월요일 09:3
 $VaultScript = @"
 cd '$ProjectDir'
 `$env:PYTHONIOENCODING = 'utf-8'
-uv run career-ops vault-sync --path 'C:\Users\lch68\obsidian-vault\career-ops'
+uv run career-ops vault-sync --path `"`$env:USERPROFILE\obsidian-vault\career-ops`"
 "@
 
 $VaultScriptPath = "$ProjectDir\scripts\_vault_sync.ps1"

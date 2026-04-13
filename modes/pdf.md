@@ -9,12 +9,12 @@
 - 공고 하나당 공고 맞춤 CV PDF 1부 생성.
 - **ATS 통과율 우선** — 예쁜 디자인보다 키워드 매칭과 파싱 친화성이 먼저.
 - 결과물은 `output/<org>_<title>_<YYYYMMDD>.pdf`.
-- **제출은 하지 않는다** — 찬희가 수동으로 업로드 (G5 영구 수동).
+- **제출은 하지 않는다** — 사용자가 수동으로 업로드 (G5 영구 수동).
 
 ## Inputs
 
 - `target_job`: `JobRecord` (id, org, title, source_url, raw_description, archetype)
-- `cv_markdown_path`: 기본 `cv.md` (찬희 베이스 이력서)
+- `cv_markdown_path`: 기본 `cv.md` (사용자 베이스 이력서)
 - 선택 인자:
   - `--top-k <n>` : 공고에서 뽑을 키워드 수 (기본 20)
   - `--output-dir <path>` : 출력 디렉토리 (기본 `output/`)
@@ -29,7 +29,7 @@
    - 마크다운을 섹션(Summary / Core Skills / Experience / Education / Certifications / Projects / Languages)으로 파싱.
 3. **Rerank (기본 활성)** — 각 섹션의 항목을 공고 키워드 밀도 내림차순으로 재정렬.
    - Experience 불릿 중 키워드 매칭 0건인 항목은 뒷순위로.
-   - 삭제하지 말 것 — 순서만 바꾼다 (찬희 이력 손실 금지).
+   - 삭제하지 말 것 — 순서만 바꾼다 (사용자 이력 손실 금지).
 4. **키워드 매칭 점수 계산** — (공고 키워드 ∩ CV 키워드) / 공고 키워드 수. %로 출력.
 5. **Jinja2 렌더링** — `templates/cv-template.html`에 context 주입:
    - `name`, `contact`, `summary`, `skills`, `experiences`, `education`, `certifications`, `projects`, `languages`
@@ -45,7 +45,7 @@
 - PDF 경로 (절대경로)
 - 키워드 매칭 점수 (예: `14/20 = 70%`)
 - 매칭된 키워드 리스트
-- 누락된 공고 키워드 리스트 (찬희가 수동 보강 참고용)
+- 누락된 공고 키워드 리스트 (사용자가 수동 보강 참고용)
 
 ## HITL
 
@@ -69,7 +69,7 @@
 - `cv.md` 미존재 → G1 온보딩 게이트 발동 (`_shared.md` 참조).
 - `target_job.raw_description` 공란 → 키워드 추출 불가 → "공고 원문 재크롤링 필요" 에러, PDF 생성 중단.
 - Jinja2 렌더 실패 → 템플릿 placeholder 누락 위치를 구체적으로 보고. **가짜 값 주입 금지.**
-- 1페이지 초과 → 섹션 trim 없이 경고만 출력 (찬희가 수동으로 cv.md 다이어트).
+- 1페이지 초과 → 섹션 trim 없이 경고만 출력 (사용자가 수동으로 cv.md 다이어트).
 
 ## 실데이터 원칙
 

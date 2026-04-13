@@ -10,7 +10,7 @@ from datetime import date
 
 from career_ops_kr.channels.base import JobRecord
 
-# 찬희 우선순위 archetype 보너스
+# 사용자 우선순위 archetype 보너스
 _ARCHETYPE_BONUS: dict[str, int] = {
     "KDA_COHORT": 20,          # 키움 KDA — 최우선
     "BLOCKCHAIN_INTERN": 18,   # 신한 블록체인 — 최우선

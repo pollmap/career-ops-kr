@@ -262,6 +262,14 @@ def init_cmd(preset: str | None, list_presets: bool, force: bool) -> None:
             )
             console.print(f"[green]created[/green] {profile_yml}")
 
+    # certifications.yml 복사 (없으면) — 개인 시험 일정 템플릿
+    cert_yml = CONFIG_DIR / "certifications.yml"
+    if not cert_yml.exists():
+        tmpl_cert = PROJECT_ROOT / "templates" / "certifications.example.yml"
+        if tmpl_cert.exists():
+            cert_yml.write_text(tmpl_cert.read_text(encoding="utf-8"), encoding="utf-8")
+            console.print(f"[green]created[/green] {cert_yml} (templates에서 복사)")
+
     if "modes/_profile.md" in missing:
         tmpl = MODES_DIR / "_profile.template.md"
         if tmpl.exists():
@@ -1391,6 +1399,19 @@ def export_cmd(output: Path | None, status: str | None, days: int | None, open_o
     """SQLite DB → 색상 포맷 Excel 파일 출력."""
     import sqlite3
     from datetime import datetime, timedelta
+
+    # Path traversal 방어: output 지정 시 절대 경로로 정규화 + Windows special device 차단
+    if output is not None:
+        try:
+            output = output.expanduser().resolve()
+        except (OSError, RuntimeError) as exc:
+            console.print(f"[red]invalid output path[/red]: {exc}")
+            sys.exit(2)
+        # Windows 특수 장치명(CON/PRN/AUX/NUL 등) 차단
+        _bad = {"CON", "PRN", "AUX", "NUL"} | {f"COM{i}" for i in range(1, 10)} | {f"LPT{i}" for i in range(1, 10)}
+        if output.stem.upper() in _bad:
+            console.print(f"[red]reserved device name not allowed[/red]: {output.stem}")
+            sys.exit(2)
 
     try:
         import openpyxl

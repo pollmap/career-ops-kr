@@ -69,7 +69,7 @@ SCRAPLING_AVAILABLE: bool = _detect_scrapling()
 class ScraplingNotInstalled(ChannelError):
     """Raised when the ``scrapling`` package is unavailable.
 
-    Carries a human-friendly install hint so the CLI can tell 찬희 exactly
+    Carries a human-friendly install hint so the CLI can tell 사용자 exactly
     what to run. Channels that extend :class:`ScraplingChannel` catch this
     and fall back to the Playwright path.
     """

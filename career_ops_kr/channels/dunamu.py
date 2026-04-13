@@ -2,7 +2,7 @@
 
 Source: https://careers.dunamu.com/
 
-Tier: 4 (crypto / blockchain infra — top priority for 찬희's archetype
+Tier: 4 (crypto / blockchain infra — top priority for user's archetype
 match). Legitimacy: T1 (official corporate career page). Dunamu operates
 Upbit (the largest Korean crypto exchange) and Lambda256 (see
 :mod:`career_ops_kr.channels.lambda256`); its careers site lists

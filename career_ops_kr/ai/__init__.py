@@ -6,7 +6,7 @@
 Example::
 
     import os
-    os.environ["OPENROUTER_API_KEY"] = "sk-or-..."
+    os.environ["OPENROUTER_API_KEY"] = "<YOUR_OPENROUTER_KEY>"
 
     from career_ops_kr.ai.client import get_client, DEFAULT_MODEL
     from career_ops_kr.ai.summarizer import summarize_job
