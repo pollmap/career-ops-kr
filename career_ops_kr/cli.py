@@ -48,7 +48,7 @@ def _ensure_project_dirs() -> None:
 
 
 @click.group(help="career-ops-kr — 한국형 구직 자동화 CLI (Luxon AI)")
-@click.version_option("0.2.0", prog_name="career-ops")
+@click.version_option("1.0.0", prog_name="career-ops")
 def cli() -> None:
     """Root group."""
     _ensure_project_dirs()

@@ -1,6 +1,6 @@
 [project]
 name = "career-ops-kr"
-version = "0.2.0"
+version = "1.0.0"
 description = "한국형 AI 구직 자동화 에이전트 — santifer/career-ops 철학의 한국 포팅 (Luxon AI)"
 readme = "README.md"
 requires-python = ">=3.11"
