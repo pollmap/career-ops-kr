@@ -272,9 +272,9 @@ def tool_query_by_archetype(archetype: str) -> list[dict[str, Any]]:
         return []
     try:
         store = store_cls(DATA_DIR / "jobs.db")
-        # Prefer a dedicated search() if available.
+        # search(keyword, archetype=) — pass archetype as named param
         if hasattr(store, "search"):
-            return list(store.search(archetype=archetype))
+            return list(store.search(keyword=archetype, archetype=archetype))
         return []
     except Exception as exc:
         logger.warning("query_by_archetype failed: %s", exc)
