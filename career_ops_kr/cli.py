@@ -638,7 +638,18 @@ def pipeline_cmd(limit: int) -> None:
 @click.option("--grade", type=str, default=None)
 @click.option("--status", type=str, default=None)
 @click.option("--archetype", type=str, default=None)
-def list_cmd(grade: str | None, status: str | None, archetype: str | None) -> None:
+@click.option(
+    "--sector",
+    type=click.Choice(["금융", "공공", "안보", "핀테크", "기타"]),
+    default=None,
+    help="섹터 필터 (금융/공공/안보/핀테크/기타)",
+)
+def list_cmd(
+    grade: str | None,
+    status: str | None,
+    archetype: str | None,
+    sector: str | None,
+) -> None:
     db = DATA_DIR / "jobs.db"
     if not db.exists():
         console.print("[yellow]no jobs found[/yellow] (empty DB)")
@@ -668,17 +679,30 @@ def list_cmd(grade: str | None, status: str | None, archetype: str | None) -> No
     if status:
         jobs = [j for j in jobs if (j.get("status") or "") == status]
 
+    if sector:
+        from career_ops_kr.sector import infer_sector
+
+        jobs = [
+            j for j in jobs
+            if infer_sector(j.get("source_channel"), j.get("org"), j.get("title")) == sector
+        ]
+
     if not jobs:
         console.print("[yellow]no jobs found[/yellow] (filter matched 0 rows)")
-        console.print(f"[dim]filters: grade={grade} status={status} archetype={archetype}[/dim]")
+        console.print(
+            f"[dim]filters: grade={grade} status={status} "
+            f"archetype={archetype} sector={sector}[/dim]"
+        )
         return
 
     table = Table(title=f"Jobs ({len(jobs)})")
-    for col in ("id", "org", "title", "grade", "status", "deadline"):
+    for col in ("id", "sector", "org", "title", "grade", "status", "deadline"):
         table.add_column(col)
+    from career_ops_kr.sector import infer_sector as _sec
     for job in jobs:
         table.add_row(
             str(job.get("id") or "")[:12],
+            _sec(job.get("source_channel"), job.get("org"), job.get("title")),
             str(job.get("org") or ""),
             str(job.get("title") or ""),
             str(job.get("fit_grade") or ""),
@@ -686,7 +710,10 @@ def list_cmd(grade: str | None, status: str | None, archetype: str | None) -> No
             str(job.get("deadline") or ""),
         )
     console.print(table)
-    console.print(f"[dim]filters: grade={grade} status={status} archetype={archetype}[/dim]")
+    console.print(
+        f"[dim]filters: grade={grade} status={status} "
+        f"archetype={archetype} sector={sector}[/dim]"
+    )
 
 
 @cli.command("sync-vault", help="SQLite → Obsidian Vault 동기화")
