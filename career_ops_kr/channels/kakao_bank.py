@@ -35,8 +35,8 @@ from bs4 import BeautifulSoup, Tag
 
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
-LANDING_URL = "https://www.kakaobank.com/careers"
-LIST_URL = "https://www.kakaobank.com/careers/jobs"
+LANDING_URL = "https://kakaobank.recruiter.co.kr/"
+LIST_URL = "https://kakaobank.recruiter.co.kr/"
 ORG = "카카오뱅크"
 
 USER_AGENT = (

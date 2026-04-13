@@ -33,7 +33,7 @@ class GoJobsChannel(BaseChannel):
 
     def check(self) -> bool:
         try:
-            resp = requests.get(self.landing_url, headers={"User-Agent": USER_AGENT}, timeout=10)
+            resp = requests.get(self.landing_url, headers={"User-Agent": USER_AGENT}, timeout=10, verify=False)
         except requests.RequestException:
             return False
         return resp.status_code == 200
@@ -120,4 +120,4 @@ class GoJobsChannel(BaseChannel):
         )
 
     def _get_landing(self) -> requests.Response:
-        return requests.get(self.landing_url, headers={"User-Agent": USER_AGENT}, timeout=15)
+        return requests.get(self.landing_url, headers={"User-Agent": USER_AGENT}, timeout=15, verify=False)

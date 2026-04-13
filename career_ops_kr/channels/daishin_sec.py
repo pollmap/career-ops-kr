@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from career_ops_kr.channels._stub_helpers import make_stub_channel_class
 
-LISTING_URL = "https://www.daishin.com/recruit/"
+LISTING_URL = "https://www.daishin.com/g.ds?m=4027&p=3979&v=2983"
 ORG = "대신증권"
 LOCATION = "서울"
 

@@ -33,8 +33,8 @@ from bs4 import BeautifulSoup, Tag
 
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
-BASE_URL = "https://recruit.kiwoom.com/"
-LIST_URL = "https://recruit.kiwoom.com/"
+BASE_URL = "https://www.kiwoom.com/h/help/social/VHelpSocialView"
+LIST_URL = "https://www.kiwoom.com/h/help/social/VHelpSocialView"
 ORG = "키움증권"
 
 USER_AGENT = (

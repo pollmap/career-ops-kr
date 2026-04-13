@@ -280,6 +280,27 @@ def make_stub_channel_class(
         self: Any,
         query: dict[str, Any] | None = None,
     ) -> list[JobRecord]:
+        # recruiter.co.kr / greetinghr.com = React SPA → Playwright 필요
+        _is_spa = (
+            "recruiter.co.kr" in listing_url
+            or "greetinghr.com" in listing_url
+        )
+        if _is_spa:
+            try:
+                from career_ops_kr.scrapers.recruiter_spa import fetch_recruiter_jobs
+                return fetch_recruiter_jobs(
+                    listing_url,
+                    channel_name=channel_name,
+                    channel_tier=channel_tier,
+                    org=org,
+                    location=location,
+                    legitimacy_tier=legitimacy_tier,
+                    make_id=self._make_id,
+                )
+            except Exception as exc:
+                self.logger.warning("%s: playwright fetch failed: %s", channel_name, exc)
+                return []
+
         resp = self._retry(
             _requests.get,
             listing_url,

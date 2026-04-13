@@ -47,8 +47,20 @@ USER_AGENT = (
 )
 
 # 기본/최대 페이지 수 (전수 수집 지향)
-DEFAULT_PAGES = 5
+DEFAULT_PAGES = 3
 MAX_PAGES = 20
+
+# 키워드 미지정 시 사용하는 금융 업종 기본 검색어
+DEFAULT_FINANCE_KEYWORDS: tuple[str, ...] = (
+    "은행",
+    "증권사",
+    "보험",
+    "자산운용",
+    "카드사",
+    "캐피탈",
+    "저축은행",
+    "핀테크",
+)
 
 # 응답 타임아웃
 REQUEST_TIMEOUT = 20
@@ -135,51 +147,52 @@ class SaraminChannel(BaseChannel):
         category = str(query.get("category") or "").strip()
         location = str(query.get("location") or "").strip()
 
+        # 키워드 없으면 금융 업종 기본 검색어 순회
+        search_keywords = (keyword,) if keyword else DEFAULT_FINANCE_KEYWORDS
+
         all_jobs: list[JobRecord] = []
         seen_urls: set[str] = set()
 
-        for page_num in range(1, pages + 1):
-            url = self._build_list_url(
-                page=page_num,
-                keyword=keyword,
-                category=category,
-                location=location,
-            )
-            self.logger.info("saramin: fetching page %d/%d", page_num, pages)
+        for kw in search_keywords:
+            for page_num in range(1, pages + 1):
+                url = self._build_list_url(
+                    page=page_num,
+                    keyword=kw,
+                    category=category,
+                    location=location,
+                )
+                self.logger.info("saramin: [%s] fetching page %d/%d", kw, page_num, pages)
 
-            html = self._fetch_page(url)
-            if html is None:
-                # 개별 페이지 실패는 전수 정책상 건너뛰고 계속
-                self._fetch_errors.append(f"page={page_num}: fetch failed")
-                continue
-
-            try:
-                page_jobs = self._parse_list(html, base_url=url)
-            except Exception as exc:
-                self.logger.warning("saramin: parse page %d failed: %s", page_num, exc)
-                self._fetch_errors.append(f"page={page_num}: parse failed: {exc}")
-                continue
-
-            new_count = 0
-            for rec in page_jobs:
-                key = str(rec.source_url)
-                if key in seen_urls:
+                html = self._fetch_page(url)
+                if html is None:
+                    self._fetch_errors.append(f"kw={kw} page={page_num}: fetch failed")
                     continue
-                seen_urls.add(key)
-                all_jobs.append(rec)
-                new_count += 1
 
-            self.logger.info(
-                "saramin: page %d yielded %d new records (total=%d)",
-                page_num,
-                new_count,
-                len(all_jobs),
-            )
+                try:
+                    page_jobs = self._parse_list(html, base_url=url)
+                except Exception as exc:
+                    self.logger.warning("saramin: parse page %d failed: %s", page_num, exc)
+                    self._fetch_errors.append(f"kw={kw} page={page_num}: parse failed: {exc}")
+                    continue
 
-            # 더 이상 새 공고가 없으면 early stop (불필요한 요청 방지).
-            if page_num > 1 and new_count == 0:
+                new_count = 0
+                for rec in page_jobs:
+                    key = str(rec.source_url)
+                    if key in seen_urls:
+                        continue
+                    seen_urls.add(key)
+                    all_jobs.append(rec)
+                    new_count += 1
+
                 self.logger.info(
-                    "saramin: page %d returned 0 new records — early stop",
+                    "saramin: [%s] page %d yielded %d new records (total=%d)",
+                    kw, page_num, new_count, len(all_jobs),
+                )
+
+                # 더 이상 새 공고가 없으면 early stop
+                if page_num > 1 and new_count == 0:
+                    self.logger.info(
+                        "saramin: [%s] page %d returned 0 new records — early stop", kw,
                     page_num,
                 )
                 break

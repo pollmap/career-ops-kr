@@ -1341,6 +1341,220 @@ def institutions_cmd(grade: str | None, concurrency: int, top: int) -> None:
         console.print("[yellow]매칭된 공고 없음 — 현재 채용 중인 기관이 없거나 API 응답 변경[/yellow]")
 
 
+@cli.command("export", help="공고 DB → Excel 파일 출력 (색상 포맷 포함)")
+@click.option("--output", "-o", type=click.Path(path_type=Path), default=None,
+              help="출력 파일 경로 (기본: output/jobs_YYYYMMDD.xlsx)")
+@click.option("--status", type=str, default=None, help="상태 필터 (inbox/applied/passed/rejected)")
+@click.option("--days", type=int, default=None, help="마감 N일 이내만 추출")
+@click.option("--open-only", is_flag=True, default=False, help="마감 전 공고만")
+def export_cmd(output: Path | None, status: str | None, days: int | None, open_only: bool) -> None:
+    """SQLite DB → 색상 포맷 Excel 파일 출력."""
+    import sqlite3
+    from datetime import datetime, timedelta
+
+    try:
+        import openpyxl
+        from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+        from openpyxl.utils import get_column_letter
+    except ImportError:
+        console.print("[red]openpyxl 필요[/red] — `uv add openpyxl` 실행")
+        sys.exit(1)
+
+    db = DATA_DIR / "jobs.db"
+    if not db.exists():
+        console.print("[yellow]DB 없음[/yellow] — career-ops scan --all 먼저 실행")
+        sys.exit(1)
+
+    conn = sqlite3.connect(str(db))
+    conn.row_factory = sqlite3.Row
+
+    query = "SELECT * FROM jobs WHERE 1=1"
+    params: list = []
+    if status:
+        query += " AND status = ?"
+        params.append(status)
+    if open_only:
+        query += " AND (deadline IS NULL OR deadline >= date('now'))"
+    if days:
+        cutoff = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
+        query += " AND deadline IS NOT NULL AND deadline <= ?"
+        params.append(cutoff)
+    query += " ORDER BY deadline ASC NULLS LAST, source_tier ASC"
+
+    rows = conn.execute(query, params).fetchall()
+    conn.close()
+
+    if not rows:
+        console.print("[yellow]조건에 맞는 공고 없음[/yellow]")
+        return
+
+    # 출력 경로
+    if output is None:
+        out_dir = PROJECT_ROOT / "output"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        output = out_dir / f"jobs_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    else:
+        output.parent.mkdir(parents=True, exist_ok=True)
+
+    # --- Excel 빌드 ---
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "공고목록"
+
+    # 컬럼 정의
+    COLS = [
+        ("기관", "org", 20),
+        ("공고명", "title", 45),
+        ("유형", "archetype", 8),
+        ("채널", "source_channel", 18),
+        ("Tier", "source_tier", 5),
+        ("마감일", "deadline", 12),
+        ("D-Day", "_dday", 8),
+        ("지역", "location", 8),
+        ("상태", "status", 8),
+        ("Grade", "fit_grade", 7),
+        ("URL", "source_url", 40),
+    ]
+
+    # 헤더 스타일
+    HEADER_FILL = PatternFill("solid", fgColor="1530FF")  # 링커리어 다크블루
+    HEADER_FONT = Font(bold=True, color="FFFFFF", size=10)
+    thin = Side(style="thin", color="DDDDDD")
+    BORDER = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+    for col_idx, (label, _, width) in enumerate(COLS, 1):
+        cell = ws.cell(row=1, column=col_idx, value=label)
+        cell.fill = HEADER_FILL
+        cell.font = HEADER_FONT
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.border = BORDER
+        ws.column_dimensions[get_column_letter(col_idx)].width = width
+    ws.row_dimensions[1].height = 22
+    ws.freeze_panes = "A2"
+
+    # D-day 계산
+    today = datetime.now().date()
+
+    def calc_dday(deadline_str: str | None) -> str:
+        if not deadline_str:
+            return "—"
+        try:
+            d = datetime.strptime(str(deadline_str)[:10], "%Y-%m-%d").date()
+            delta = (d - today).days
+            if delta < 0:
+                return "마감"
+            if delta == 0:
+                return "D-DAY"
+            return f"D-{delta}"
+        except Exception:
+            return "—"
+
+    # 색상 정의
+    FILL_URGENT  = PatternFill("solid", fgColor="FFE8E8")  # 3일 내 — 연빨강
+    FILL_SOON    = PatternFill("solid", fgColor="FFF3E0")  # 7일 내 — 연주황
+    FILL_OK      = PatternFill("solid", fgColor="F2FAFF")  # 그 외 — 연파랑
+    FILL_CLOSED  = PatternFill("solid", fgColor="F5F5F5")  # 마감 — 회색
+    FILL_APPLIED = PatternFill("solid", fgColor="E8FFE8")  # applied — 연초록
+
+    STATUS_LABELS = {"inbox": "📥 대기", "applied": "📤 지원", "passed": "✅ 합격", "rejected": "❌ 탈락"}
+    ARCH_LABELS   = {"INTERN": "인턴", "ENTRY": "신입", "EXPERIENCED": "경력", "IT": "IT"}
+
+    for row_idx, row in enumerate(rows, 2):
+        dday = calc_dday(row["deadline"])
+        try:
+            delta = int(dday.replace("D-", "")) if dday.startswith("D-") else (0 if dday == "D-DAY" else -1)
+        except Exception:
+            delta = 999
+
+        # 행 배경
+        if row["status"] == "applied":
+            row_fill = FILL_APPLIED
+        elif dday == "마감":
+            row_fill = FILL_CLOSED
+        elif delta <= 3:
+            row_fill = FILL_URGENT
+        elif delta <= 7:
+            row_fill = FILL_SOON
+        else:
+            row_fill = FILL_OK
+
+        values = {
+            "org": row["org"] or "",
+            "title": row["title"] or "",
+            "archetype": ARCH_LABELS.get(row["archetype"] or "", row["archetype"] or ""),
+            "source_channel": row["source_channel"] or "",
+            "source_tier": row["source_tier"],
+            "deadline": str(row["deadline"] or "")[:10] or "",
+            "_dday": dday,
+            "location": row["location"] or "전국",
+            "status": STATUS_LABELS.get(row["status"] or "", row["status"] or ""),
+            "fit_grade": row["fit_grade"] or "",
+            "source_url": row["source_url"] or "",
+        }
+
+        for col_idx, (_, key, _) in enumerate(COLS, 1):
+            cell = ws.cell(row=row_idx, column=col_idx, value=values[key])
+            cell.fill = row_fill
+            cell.border = BORDER
+            cell.alignment = Alignment(vertical="center", wrap_text=(key == "title"))
+            cell.font = Font(size=9)
+            # URL 컬럼 → 하이퍼링크
+            if key == "source_url" and values[key].startswith("http"):
+                cell.hyperlink = values[key]
+                cell.value = "🔗 링크"
+                cell.font = Font(size=9, color="0563C1", underline="single")
+            # D-day 컬럼 색
+            if key == "_dday":
+                if dday in ("마감",):
+                    cell.font = Font(size=9, color="999999")
+                elif delta <= 3:
+                    cell.font = Font(size=9, bold=True, color="C0392B")
+                elif delta <= 7:
+                    cell.font = Font(size=9, bold=True, color="E67E22")
+                else:
+                    cell.font = Font(size=9, color="2980B9")
+
+        ws.row_dimensions[row_idx].height = 18
+
+    # 요약 시트
+    ws2 = wb.create_sheet("요약")
+    ws2["A1"] = "career-ops-kr DB 현황"
+    ws2["A1"].font = Font(bold=True, size=14, color="1530FF")
+    ws2["A2"] = f"출력일시: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    ws2["A3"] = f"총 공고: {len(rows)}건"
+
+    summary_data = [
+        ("", ""),
+        ("채널별 공고 수", ""),
+    ]
+    chan_counts: dict[str, int] = {}
+    for row in rows:
+        ch = row["source_channel"] or "?"
+        chan_counts[ch] = chan_counts.get(ch, 0) + 1
+    for ch, n in sorted(chan_counts.items(), key=lambda x: -x[1]):
+        summary_data.append((ch, n))
+
+    summary_data.append(("", ""))
+    summary_data.append(("유형별 공고 수", ""))
+    arch_counts: dict[str, int] = {}
+    for row in rows:
+        a = ARCH_LABELS.get(row["archetype"] or "", row["archetype"] or "기타")
+        arch_counts[a] = arch_counts.get(a, 0) + 1
+    for a, n in sorted(arch_counts.items(), key=lambda x: -x[1]):
+        summary_data.append((a, n))
+
+    for r_idx, (k, v) in enumerate(summary_data, 5):
+        ws2.cell(row=r_idx, column=1, value=k).font = Font(size=10, bold=(v == ""))
+        if v != "":
+            ws2.cell(row=r_idx, column=2, value=v).font = Font(size=10)
+    ws2.column_dimensions["A"].width = 25
+    ws2.column_dimensions["B"].width = 10
+
+    wb.save(str(output))
+    console.print(f"[green]Excel 출력 완료[/green]  → [bold]{output}[/bold]")
+    console.print(f"   공고 {len(rows)}건 | 필터: status={status} days={days} open_only={open_only}")
+
+
 def _register_commands() -> None:
     """commands/ 서브패키지 커맨드를 cli group에 동적 등록.
 

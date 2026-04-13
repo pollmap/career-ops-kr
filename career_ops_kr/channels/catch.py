@@ -31,8 +31,8 @@ from bs4 import BeautifulSoup, Tag
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
 
 LANDING_URL = "https://www.catch.co.kr/"
-RECRUIT_URL = "https://www.catch.co.kr/NCS/RecruitListingAll"
-INTERN_URL = "https://www.catch.co.kr/NCS/RecruitInternList"
+RECRUIT_URL = "https://www.catch.co.kr/NCS/RecruitCategory"
+INTERN_URL = "https://www.catch.co.kr/NCS/RecruitCategory?recruitType=2"
 ORG = "캐치"
 
 USER_AGENT = (

@@ -44,9 +44,16 @@ API_SEARCH_TMPL = (
 SEARCH_PAGE_TMPL = "https://www.wanted.co.kr/search?query={query}&tab=position"
 
 SEARCH_QUERIES: tuple[str, ...] = (
+    # 금융 업종
+    "은행",
+    "증권",
+    "보험",
+    "자산운용",
+    "카드사",
+    "캐피탈",
+    "저축은행",
+    # 기타 금융/IT
     "핀테크",
-    "블록체인",
-    "크립토",
     "디지털자산",
     "데이터",
     "AI",

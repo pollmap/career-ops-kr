@@ -36,7 +36,7 @@ from __future__ import annotations
 
 from career_ops_kr.channels._stub_helpers import make_stub_channel_class
 
-LISTING_URL = "https://recruit.kbsec.com/"
+LISTING_URL = "https://kbsec.recruiter.co.kr/career/home"
 ORG = "KB증권"
 LOCATION = "서울"
 

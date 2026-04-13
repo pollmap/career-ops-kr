@@ -34,7 +34,7 @@ from __future__ import annotations
 
 from career_ops_kr.channels._stub_helpers import make_stub_channel_class
 
-LISTING_URL = "https://recruit.nhqv.com/"
+LISTING_URL = "https://nhqv.recruiter.co.kr/career/home"
 ORG = "NH투자증권"
 LOCATION = "서울"
 
