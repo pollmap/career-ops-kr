@@ -1577,6 +1577,7 @@ def _register_commands() -> None:
         ("career_ops_kr.commands.history_cmd", "history_cmd"),
         ("career_ops_kr.commands.ncs_cmd", "ncs_cmd"),
         ("career_ops_kr.commands.web_cmd", "web_cmd"),
+        ("career_ops_kr.commands.reclassify_cmd", "reclassify_cmd"),
     ]
     for mod_path, fn_name in _cmds:
         try:
