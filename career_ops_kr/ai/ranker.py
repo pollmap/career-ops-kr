@@ -46,14 +46,14 @@ class RankedJob:
     legitimacy_bonus: int  # legitimacy_tier 보너스
     total_score: int       # fit_score + urgency + archetype + legitimacy (최대 100 클램프)
     summary: str = field(default="")  # AI 요약 (표시용)
+    basis_date: date = field(default_factory=date.today, repr=False)
 
     @property
     def days_left(self) -> int | None:
         """오늘 기준 마감까지 남은 일수. deadline 없으면 None."""
         if self.job.deadline is None:
             return None
-        today = date.today()
-        return (self.job.deadline - today).days
+        return (self.job.deadline - self.basis_date).days
 
 
 def _urgency_bonus(deadline: date | None, today: date) -> int:
@@ -114,6 +114,7 @@ def rank_jobs(
                 legitimacy_bonus=leg_bonus,
                 total_score=total,
                 summary=summary,
+                basis_date=_today,
             )
         )
 

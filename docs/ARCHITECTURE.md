@@ -34,7 +34,7 @@
 까지 처리하는 구직 자동화 파이프라인이다.
 
 ```
-[27개 한국 채용 포털]
+[212개 한국 채용 채널/기관 엔트리]
       ↓  CHANNEL_REGISTRY
 [QualifierEngine]  ← 학력/전공 자격 필터 (PASS/CONDITIONAL/FAIL)
       ↓
@@ -42,7 +42,7 @@
       ↓
 [SQLiteStore]      ← WAL 모드 SQLite, 상태 추적
       ↓
-[CLI 18개 커맨드]  ← click + rich (터미널)
+[CLI 27개 커맨드]  ← click + rich (터미널)
 [MCP 10개 도구]   ← Nexus MCP 에이전트 인터페이스
 [TUI 대시보드]    ← textual 기반 시각화
 [Discord Notifier] ← 마감 알림 / 요약 리포트
@@ -59,7 +59,7 @@
 찬희는 2026년 상반기에 **블록체인 인턴 → 금융 IT 인턴 → 핀테크 인턴** 순서로 취업 트랙을
 밟고 있다. 문제는:
 
-- 한국 채용 포털이 **27개** 이상 분산돼 있어 매일 수동 탐색이 불가능
+- 한국 채용 채널/기관 엔트리가 **212개** 이상 분산돼 있어 매일 수동 탐색이 불가능
 - 공고마다 "졸업예정자 지원 불가", "이공계 전공 필수" 같은 **자격 요건 함정**이 숨어 있음
 - 적합도를 직관으로만 판단 → 지원 우선순위가 불명확
 - 마감일 관리 실패 → 기회 손실
@@ -80,7 +80,7 @@
 
 | 항목 | 원본 career-ops | career-ops-kr |
 |------|-----------------|---------------|
-| 채용 포털 | 해외 범용 | 한국 27개 특화 (링커리어, 사람인, 잡코리아 등) |
+| 채용 포털 | 해외 범용 | 한국 212개 채널/기관 엔트리 특화 |
 | 자격 판정 | 영어 키워드 | 한국어 정규식 ("학력무관", "재학생 지원 가능") |
 | 채점 archetype | 직군 중립 | 찬희 맞춤 8개 (BLOCKCHAIN, DIGITAL_ASSET, RESEARCH 등) |
 | 언어 | 영어 | 한국어 (CLI 출력, 모드 파일) |
@@ -98,7 +98,7 @@
 │                        인터페이스 레이어                          │
 │                                                                   │
 │  CLI (click)      TUI (textual)     MCP Server (stdio/FastMCP)   │
-│  18개 커맨드       4개 화면          10개 도구                     │
+│  27개 커맨드       4개 화면          10개 도구                     │
 │  career-ops *     career-ops ui     python -m career_ops_kr.mcp  │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
@@ -134,7 +134,7 @@
 └───────────────────────────┬─────────────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────────────┐
-│                       채널 레이어 (27개)                          │
+│                    채널 레이어 (212개 엔트리)                     │
 │                                                                   │
 │  BaseChannel (ABC + retry/rate-limit)                            │
 │  ├── linkareer / saramin / jobkorea / wanted / incruit           │
@@ -623,7 +623,7 @@ career-ops batch [--limit 50] [--concurrency 3] [--status inbox]
          ▼
 batch_cmd.py
          │
-         ├─ SQLiteStore.search(keyword="") → status 필터 → inbox 목록
+         ├─ SQLite direct query → status 필터 → inbox 목록 (limit 그대로 유지)
          │
          ├─ G4 게이트: 5건 이상
          │
@@ -631,7 +631,7 @@ batch_cmd.py
                 │
                 ├─ asyncio.Semaphore(concurrency)     ← 동시 채점 수 제한
                 ├─ loop.run_in_executor(None, tool_score_job, url)  ← Windows 호환
-                └─ gather() → 결과 수집 → store.set_status("graded")
+                └─ gather() → 결과 수집 → store.upsert(fit=...) + store.set_status("graded")
 ```
 
 ### 6.5 interview-prep 워크플로우
@@ -764,7 +764,7 @@ BaseChannel(ABC)
 |-----------|-----------|------|
 | `career_ops_scan_jobs` | `tool_scan_jobs(tier, site)` | 채널 스캔, count summary |
 | `career_ops_score_job` | `tool_score_job(url)` | URL → 완전 평가 dict |
-| `career_ops_list_eligible` | `tool_list_eligible(grade)` | 학점 필터 목록 |
+| `career_ops_list_eligible` | `tool_list_eligible(grade)` | 최소 grade 이상 목록 (`C`면 `A/B/C`) |
 | `career_ops_get_deadline_calendar` | `tool_get_deadline_calendar(days)` | N일 이내 마감 |
 | `career_ops_query_by_archetype` | `tool_query_by_archetype(archetype)` | 아키타입 필터 |
 | `career_ops_generate_cover_letter_draft` | `tool_generate_cover_letter_draft(url, tone)` | 커버레터 초안 |
@@ -772,6 +772,14 @@ BaseChannel(ABC)
 | `career_ops_verify_pipeline` | `tool_verify_pipeline()` | 파이프라인 헬스체크 |
 | `career_ops_apply_preset` | `tool_apply_preset(preset_id)` | 프리셋 적용 |
 | `career_ops_get_stats` | `tool_get_stats()` | DB 통계 |
+
+2026-04-13 live verification snapshot:
+
+- `career_ops_get_stats()` → `total=446`, `graded=446`
+- `career_ops_list_eligible("C")` → `353` (`A/B/C` 포함)
+- `career_ops_list_eligible("D")` → `398`
+- `career_ops_query_by_archetype("GENERAL")` → `24`
+- `career_ops_scan_jobs(site="saramin")` → `320`
 
 **트랜스포트 이중화**:
 1. FastMCP (`pip install mcp`) → 우선 시도
@@ -1129,7 +1137,7 @@ profile_template:
 ### 10.2 테스트 커버리지
 
 ```
-tests/ 총 테스트: ~449+ (Sprint 5 기준) + Sprint 6~9 신규 66개
+tests/ 총 테스트: 609 collected (2026-04-13 기준)
 ─────────────────────────────────────────────────────────
 채널 테스트:         test_channels_*.py (채널당 ~5개)
 엔진 테스트:         test_qualifier_engine.py, test_fit_scorer.py
@@ -1263,7 +1271,7 @@ stats = mcp.call("career_ops_get_stats", {})
 
 ### 12.1 엘리베이터 피치 (30초)
 
-> "한국 채용 포털 27개를 자동으로 긁어서, 학력/전공 자격 필터로 걸러내고,
+> "한국 채용 채널 212개 엔트리를 자동으로 수집해서, 학력/전공 자격 필터로 걸러내고,
 > 10개 차원으로 A~F 학점을 매겨서 SQLite에 저장하는 구직 자동화 파이프라인입니다.
 > Discord 알림, MCP 에이전트 연동, AI 면접 준비까지 되어 있고,
 > 사용자 설정 파일은 시스템이 절대 건드리지 않는 HITL 철학으로 설계했습니다."

@@ -105,6 +105,13 @@ def _error(message: str, hint: str | None = None) -> dict[str, Any]:
     return out
 
 
+def _serialize_enumish(value: Any) -> Any:
+    """Return enum values in a storage-friendly form."""
+    if value is None:
+        return None
+    return getattr(value, "value", value)
+
+
 def _module_missing(name: str) -> dict[str, Any]:
     return _error(
         f"module '{name}' not loaded",
@@ -228,12 +235,8 @@ def tool_score_job(url: str) -> dict[str, Any]:
         "archetype": record.archetype,
         "legitimacy": record.legitimacy_tier,
         "deadline": str(record.deadline) if record.deadline else None,
-        "qualifier_verdict": getattr(qresult, "verdict", None).__str__()
-        if getattr(qresult, "verdict", None) is not None
-        else None,
-        "grade": getattr(breakdown, "grade", None).__str__()
-        if getattr(breakdown, "grade", None) is not None
-        else None,
+        "qualifier_verdict": _serialize_enumish(getattr(qresult, "verdict", None)),
+        "grade": _serialize_enumish(getattr(breakdown, "grade", None)),
         "total_score": getattr(breakdown, "total", None),
         "reasons": list(getattr(breakdown, "reasons", []) or []),
     }
@@ -246,6 +249,8 @@ def tool_list_eligible(grade: str = "A") -> list[dict[str, Any]]:
         return []
     try:
         store = store_cls(DATA_DIR / "jobs.db")
+        if hasattr(store, "list_at_or_above_grade"):
+            return list(store.list_at_or_above_grade(grade))
         return list(store.list_by_grade(grade))
     except Exception as exc:
         logger.warning("list_eligible failed: %s", exc)
@@ -272,9 +277,9 @@ def tool_query_by_archetype(archetype: str) -> list[dict[str, Any]]:
         return []
     try:
         store = store_cls(DATA_DIR / "jobs.db")
-        # search(keyword, archetype=) — pass archetype as named param
+        # Pass an empty keyword so this tool behaves as a pure archetype filter.
         if hasattr(store, "search"):
-            return list(store.search(keyword=archetype, archetype=archetype))
+            return list(store.search(keyword="", archetype=archetype))
         return []
     except Exception as exc:
         logger.warning("query_by_archetype failed: %s", exc)

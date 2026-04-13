@@ -51,7 +51,7 @@ _PROGRESS_COLS = (
     type=click.Choice(["channels", "institutions", "both"]),
     default="both",
     show_default=True,
-    help="수�� 소스: channels(45채널), institutions(194기관 aggregator), both",
+    help="수집 소스: channels(212채널 엔트리), institutions(201기관 aggregator), both",
 )
 @click.option("--ai-score", "ai_score", is_flag=True, help="Ollama/OpenRouter AI 채점 활성화")
 @click.option("--concurrency", type=int, default=6, help="institutions 검색 동시성")

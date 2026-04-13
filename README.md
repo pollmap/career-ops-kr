@@ -2,13 +2,13 @@
 
 [![CI](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml/badge.svg)](https://github.com/pollmap/career-ops-kr/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Channels](https://img.shields.io/badge/channels-36+-green.svg)](#채널-카탈로그)
+[![Channels](https://img.shields.io/badge/channels-212-green.svg)](#채널-카탈로그)
 [![Institutions](https://img.shields.io/badge/institutions-201-orange.svg)](#기관-DB)
-[![Tests](https://img.shields.io/badge/tests-449%2B%20passed-brightgreen.svg)](#개발--테스트)
+[![Tests](https://img.shields.io/badge/tests-609%20collected-blue.svg)](#개발--테스트)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **한국형 구직 자동화 파이프라인** — 36채널 + 201기관 DB + AI 채점.
-> 금융·핀테크·블록체인·공공기관·안보기관 도메인 특화. 26 CLI 커맨드. 완전 오픈소스.
+> **한국형 구직 자동화 파이프라인** — 212채널 엔트리 + 201기관 DB + AI 채점.
+> 금융·핀테크·블록체인·공공기관·안보기관 도메인 특화. 27 CLI 커맨드. 완전 오픈소스.
 
 **누구나 사용 가능합니다.** `config/profile.yml` 하나만 바꾸면 자신의 도메인에 맞게 바로 사용할 수 있도록 설계되었습니다.
 
@@ -43,7 +43,7 @@ cp templates/profile.example.yml config/profile.yml
 # 3. 스캔 실행
 uv run career-ops scan --site linkareer    # 링커리어만
 uv run career-ops scan --site saramin      # 사람인만
-uv run career-ops scan --all              # 전체 36채널
+uv run career-ops scan --all              # 전체 채널 레지스트리 스캔
 
 # 4. 결과 확인
 uv run career-ops list                    # 터미널 테이블
@@ -61,7 +61,7 @@ uv run career-ops export                  # 엑셀 파일로 출력
 │                    career-ops-kr 파이프라인                      │
 │                                                                  │
 │  ┌──────────┐   fetch    ┌──────────────┐  score  ┌──────────┐  │
-│  │ 36개 채널 │ ─────────> │  JobRecord   │ ──────> │ A~F 등급 │  │
+│  │ 212개 채널│ ─────────> │  JobRecord   │ ──────> │ A~F 등급 │  │
 │  │ (포털/직채)│           │  (정규화)    │         │ +자격판정│  │
 │  └──────────┘           └──────────────┘         └──────────┘  │
 │        ↑                       ↓                       ↓        │
@@ -79,11 +79,11 @@ uv run career-ops export                  # 엑셀 파일로 출력
 career-ops status              # LLM/DB/채널/자격증 D-day 한눈에
 
 # 수집
-career-ops scan --all                    # 36채널 전체 스캔
+career-ops scan --all                    # 전체 채널 레지스트리 스캔
 career-ops scan --site linkareer         # 특정 채널만
 career-ops scan --tier 1                 # Tier 1 채널만
 career-ops history                       # 과거 마감 공고 수집 (패턴 분석)
-career-ops institutions                  # 194개 금융기관 aggregator 검색
+career-ops institutions                  # 201개 금융기관 aggregator 검색
 
 # 조회
 career-ops list                          # 공고 테이블 출력
@@ -94,7 +94,7 @@ career-ops export --open-only -o jobs.xlsx
 
 # AI 채점
 career-ops score <URL>                   # 단일 공고 상세 채점
-career-ops batch                         # inbox 전체 배치 채점
+career-ops batch                         # inbox 전체 배치 채점 + fit_grade 저장
 career-ops ai-rank                       # AI 적합도 랭킹
 career-ops auto-pipeline --ai-score      # scan → 채점 → 저장 원스텝
 
@@ -116,7 +116,9 @@ career-ops init                          # 첫 실행 온보딩
 
 ---
 
-## 채널 카탈로그 (36개)
+## 채널 카탈로그 (36개 대표 예시)
+
+현재 `CHANNEL_REGISTRY`는 `212`개 엔트리이며, 아래 표는 핵심 대표 채널만 발췌한 목록입니다.
 
 ### Tier 1 — 대형 포털 (범용, 8채널)
 
@@ -188,14 +190,14 @@ career_ops_kr/
 ├── channels/
 │   ├── base.py              # BaseChannel ABC + JobRecord pydantic 모델
 │   ├── _stub_helpers.py     # 팩토리 기반 stub 채널 생성
-│   ├── __init__.py          # CHANNEL_REGISTRY (36채널 등록)
+│   ├── __init__.py          # CHANNEL_REGISTRY (212개 엔트리 등록)
 │   ├── linkareer.py         # Next.js __NEXT_DATA__ JSON + CSS 와일드카드
 │   ├── saramin.py           # 금융 키워드 반복 + 페이지네이션
 │   ├── wanted.py            # JSON API-first + HTML fallback
 │   ├── shinhan_sec.py       # BLOCKCHAIN_INTERN archetype 특화
 │   ├── kiwoom_kda.py        # KDA_COHORT archetype 특화
-│   └── ... (36개 채널)
-├── cli.py                   # Click CLI (26개 커맨드)
+│   └── ... (대표 채널 예시, 전체 212개)
+├── cli.py                   # Click CLI (27개 커맨드)
 └── pipeline.py              # 채널 오케스트레이션
 
 config/                      # 사용자 설정 (본인 것으로 교체)
@@ -278,7 +280,7 @@ class JobRecord(BaseModel):
 
 ```
 System Layer (엔진 — 건드릴 필요 없음)
-├── career_ops_kr/channels/*.py   # 36개 채널 스크레이퍼
+├── career_ops_kr/channels/*.py   # 212개 채널/기관 엔트리 스크레이퍼
 ├── career_ops_kr/cli.py          # CLI 커맨드
 └── career_ops_kr/pipeline.py     # 오케스트레이션
 
@@ -389,10 +391,10 @@ $env:PYTHONIOENCODING="utf-8"; uv run career-ops scan --all
 매일 09:00 (Windows 작업 스케줄러 또는 수동)
       │
       ▼
-career-ops scan --all        # 36채널 스캔 → 신규 공고 수집
+career-ops scan --all        # 전체 채널 레지스트리 스캔 → 신규 공고 수집
       │
       ▼
-career-ops batch              # inbox 공고 AI 채점 (A~F)
+career-ops batch              # inbox 공고 배치 채점 + SQLite 저장
       │
       ▼
 career-ops list --grade A     # A등급 공고 확인
@@ -412,7 +414,13 @@ career-ops interview-prep <URL>  # 면접 준비
 ## 개발 / 테스트
 
 ```bash
-# 전체 테스트 (449개, 네트워크 0 — 완전 offline)
+# 전체 테스트 자산 확인 (609 collected)
+uv run pytest --collect-only -q
+
+# 핵심 회귀 테스트
+uv run pytest tests/test_ai_ranker.py tests/test_mcp_server.py tests/test_cmd_batch.py -q
+
+# 전체 테스트 실행
 uv run pytest -q
 
 # 특정 채널 테스트
@@ -442,11 +450,11 @@ uv run ruff format --check .
 | 항목 | 현황 |
 |------|------|
 | 버전 | **v0.2.0** |
-| 채널 | **36개** (T1~T5) |
-| 기관 DB | **194개** 금융기관 |
-| CLI 커맨드 | **26개** |
+| 채널 | **212개 엔트리** (`CHANNEL_REGISTRY`) |
+| 기관 DB | **201개** 금융기관 |
+| CLI 커맨드 | **27개** |
 | Backend | requests 전용 (Playwright 의존 0) |
-| Tests | **449 passed** / 0 failed |
+| Tests | **609 collected** |
 | CI | GitHub Actions ubuntu/windows x py3.11/3.12 |
 | 공개 | [pollmap/career-ops-kr](https://github.com/pollmap/career-ops-kr) (MIT) |
 

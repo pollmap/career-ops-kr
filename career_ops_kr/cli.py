@@ -932,7 +932,7 @@ def ai_rank_cmd(
     api_key: str | None,
     max_jobs: int,
 ) -> None:
-    """27개 채널 스캔 → AI 요약 → 적합도 채점 → Top N 우선순위 출력."""
+    """채널 레지스트리 스캔 → AI 요약 → 적합도 채점 → Top N 우선순위 출력."""
     import yaml
 
     # --- 1. AI 모듈 + 채널 레지스트리 임포트 ---
@@ -1095,12 +1095,12 @@ def ai_rank_cmd(
         )
 
 
-@cli.command("institutions", help="194개 금융기관 채용공고 일괄 검색 (aggregator API)")
+@cli.command("institutions", help="201개 금융기관 채용공고 일괄 검색 (aggregator API)")
 @click.option("--grade", type=str, default=None, help="적합도 필터: S,A,B,C,D (콤마 구분, 미지정=전체)")
 @click.option("--concurrency", type=int, default=6, help="동시 검색 수")
 @click.option("--top", type=int, default=50, help="상위 N건 표시")
 def institutions_cmd(grade: str | None, concurrency: int, top: int) -> None:
-    """194개 기관을 wanted/jobkorea API에서 기관명 검색 → 실 채용공고 매칭."""
+    """201개 기관을 wanted/jobkorea API에서 기관명 검색 → 실 채용공고 매칭."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
     from pathlib import Path
 
@@ -1576,6 +1576,7 @@ def _register_commands() -> None:
         ("career_ops_kr.commands.vault_cmd", "vault_sync_cmd"),
         ("career_ops_kr.commands.history_cmd", "history_cmd"),
         ("career_ops_kr.commands.ncs_cmd", "ncs_cmd"),
+        ("career_ops_kr.commands.web_cmd", "web_cmd"),
     ]
     for mod_path, fn_name in _cmds:
         try:

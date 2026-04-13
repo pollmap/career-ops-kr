@@ -90,7 +90,7 @@ MCP 서비스 재시작 후 25초 대기.
 |--------|------|
 | `career_ops_scan_jobs` | 채널 스캔 실행 (tier/site 필터) |
 | `career_ops_score_job` | URL → A~F 채점 |
-| `career_ops_list_eligible` | grade 기준 공고 조회 |
+| `career_ops_list_eligible` | 최소 grade 이상 공고 조회 (`C`면 `A/B/C`) |
 | `career_ops_get_deadline_calendar` | N일 이내 마감 공고 |
 | `career_ops_query_by_archetype` | archetype별 조회 |
 | `career_ops_generate_cover_letter_draft` | 지원서 초안 생성 |
@@ -98,6 +98,26 @@ MCP 서비스 재시작 후 25초 대기.
 | `career_ops_verify_pipeline` | 파이프라인 헬스체크 |
 | `career_ops_apply_preset` | 프리셋 적용 |
 | `career_ops_get_stats` | DB 통계 |
+
+### 4.1 2026-04-13 live verification snapshot
+
+- `career_ops_get_stats()` → `total=446`, `by_status={graded: 446}`, `by_grade={B: 5, C: 348, D: 45, F: 48}`
+- `career_ops_list_eligible("B")` → `5`
+- `career_ops_list_eligible("C")` → `353`
+- `career_ops_list_eligible("D")` → `398`
+- `career_ops_query_by_archetype("GENERAL")` → `24`
+- `career_ops_get_deadline_calendar(days=30)` → `24`
+- `career_ops_run_patterns(days=30)` → `total_analyzed=200`
+- `career_ops_verify_pipeline()` → `ok=true`, `7/7 checks`
+- `career_ops_score_job(sample_url)` → plain grade string (`"B"`), not enum repr
+- `career_ops_scan_jobs(site="saramin")` → `320`
+
+추가로 반영된 동작 수정:
+
+- `career_ops_query_by_archetype`는 이제 텍스트 검색을 섞지 않고 archetype 필터만 적용
+- `career_ops_score_job`는 `FitGrade.C` 대신 `C`처럼 저장 가능한 grade 값을 반환
+- `career-ops batch`는 `fit_grade`, `fit_score`, `eligible`를 SQLite에 실제 저장
+- `career-ops batch --limit N`은 더 이상 `search()`의 200건 제한에 잘리지 않음
 
 ### 주의사항
 

@@ -1,18 +1,16 @@
-"""career-ops batch — DB inbox 비동기 배치 채점.
-
-Windows asyncio 호환: run_in_executor(None, tool_score_job, url) 패턴.
-G4 게이트: 5건 이상이면 Confirm 후 진행.
-"""
+"""Batch-score inbox jobs and persist fit results back into SQLite."""
 
 from __future__ import annotations
 
 import asyncio
+import json
 import sys
 
 import click
 from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn, TimeElapsedColumn
 from rich.prompt import Confirm
 
+from career_ops_kr.channels.base import JobRecord
 from career_ops_kr.commands._shared import console, get_store
 
 _PROGRESS_COLS = (
@@ -24,36 +22,36 @@ _PROGRESS_COLS = (
 
 
 @click.command("batch")
-@click.option("--limit", type=int, default=50, show_default=True, help="최대 처리 건수")
+@click.option("--limit", type=int, default=50, show_default=True, help="Maximum jobs to process")
 @click.option(
     "--concurrency",
     type=int,
     default=3,
     show_default=True,
-    help="동시 채점 수 (ThreadPoolExecutor 기반)",
+    help="Concurrent score requests",
 )
-@click.option("--status", type=str, default="inbox", show_default=True, help="처리할 status 필터")
-@click.option("--dry-run", "dry_run", is_flag=True, help="DB 조회만, 실제 채점 없음")
+@click.option("--status", type=str, default="inbox", show_default=True, help="Status filter")
+@click.option("--dry-run", "dry_run", is_flag=True, help="Only inspect DB rows without scoring")
 def batch_cmd(
     limit: int,
     concurrency: int,
     status: str,
     dry_run: bool,
 ) -> None:
-    """DB inbox 공고를 비동기 배치 채점하여 grade/status 업데이트."""
+    """Score existing DB rows and persist fit-grade data."""
     if dry_run:
-        console.print("[cyan]dry-run[/cyan] 모드: DB 조회만 수행")
+        console.print("[cyan]dry-run[/cyan] mode: DB query only")
         store = get_store()
         if store is None:
-            console.print("[yellow]DB 없음[/yellow]")
+            console.print("[yellow]DB not found[/yellow]")
             return
         inbox = _get_inbox(store, status, limit)
-        console.print(f"  inbox {status} 건수: {len(inbox)}")
+        console.print(f"  inbox {status} count: {len(inbox)}")
         return
 
     store = get_store()
     if store is None:
-        console.print("[yellow]DB 없음 — career-ops scan 먼저 실행하세요.[/yellow]")
+        console.print("[yellow]DB 없음 — run career-ops scan first[/yellow]")
         return
 
     inbox = _get_inbox(store, status, limit)
@@ -62,8 +60,8 @@ def batch_cmd(
         return
 
     if len(inbox) >= 5:
-        console.print(f"[yellow]G4 게이트[/yellow]: {len(inbox)}건 일괄 채점 예정")
-        if not Confirm.ask("계속 진행?", default=True):
+        console.print(f"[yellow]G4 batch gate[/yellow]: about to score {len(inbox)} jobs")
+        if not Confirm.ask("Continue?", default=True):
             console.print("[yellow]aborted[/yellow]")
             return
 
@@ -71,12 +69,24 @@ def batch_cmd(
 
 
 def _get_inbox(store: object, status: str, limit: int) -> list[dict]:
-    """DB에서 status 필터 inbox 목록 반환."""
+    """Return DB rows filtered by status."""
     try:
+        if hasattr(store, "_connect"):
+            with store._connect() as conn:  # type: ignore[attr-defined]
+                rows = conn.execute(
+                    """
+                    SELECT * FROM jobs
+                    WHERE status = ?
+                    ORDER BY scanned_at DESC
+                    LIMIT ?
+                    """,
+                    (status, int(limit)),
+                ).fetchall()
+            return [dict(row) for row in rows]
         all_jobs = store.search(keyword="")  # type: ignore[union-attr]
         return [j for j in all_jobs if (j.get("status") or "inbox") == status][:limit]
     except Exception as exc:
-        console.print(f"[red]DB 조회 실패[/red]: {exc}")
+        console.print(f"[red]DB query failed[/red]: {exc}")
         return []
 
 
@@ -85,11 +95,11 @@ async def _batch_main(
     concurrency: int,
     store: object,
 ) -> None:
-    """비동기 배치 채점 메인 루프."""
+    """Run rule-based scoring for existing DB rows."""
     try:
         from career_ops_kr import mcp_server as mcp
     except Exception as exc:
-        console.print(f"[red]mcp_server import 실패[/red]: {exc}")
+        console.print(f"[red]mcp_server import failed[/red]: {exc}")
         sys.exit(1)
 
     sem = asyncio.Semaphore(concurrency)
@@ -98,7 +108,7 @@ async def _batch_main(
     done_count = 0
 
     with Progress(*_PROGRESS_COLS, console=console, transient=True) as prog:
-        task = prog.add_task("[cyan]배치 채점[/cyan]", total=total)
+        task = prog.add_task("[cyan]batch scoring[/cyan]", total=total)
 
         async def _score_one(job: dict) -> dict | None:
             nonlocal done_count
@@ -109,9 +119,7 @@ async def _batch_main(
                 return None
             try:
                 async with sem:
-                    result = await loop.run_in_executor(
-                        None, mcp.tool_score_job, url
-                    )
+                    result = await loop.run_in_executor(None, mcp.tool_score_job, url)
                     return result if isinstance(result, dict) else None
             except Exception:
                 return None
@@ -119,7 +127,7 @@ async def _batch_main(
                 done_count += 1
                 prog.update(task, completed=done_count)
 
-        tasks = [asyncio.create_task(_score_one(j)) for j in inbox]
+        tasks = [asyncio.create_task(_score_one(job)) for job in inbox]
         results = await asyncio.gather(*tasks, return_exceptions=False)
 
     saved = 0
@@ -129,10 +137,53 @@ async def _batch_main(
         try:
             job_id = job.get("id") or ""
             grade = result.get("grade") or ""
-            if job_id and grade:
-                store.set_status(job_id, "graded")  # type: ignore[union-attr]
-                saved += 1
-        except Exception:
-            pass
+            if not job_id or not grade:
+                continue
 
-    console.print(f"[green]배치 완료[/green] {total}건 처리 → {saved}건 grade 업데이트")
+            record = _row_to_job_record(job)
+            store.upsert(  # type: ignore[union-attr]
+                record,
+                fit={
+                    "grade": grade,
+                    "score": result.get("total_score"),
+                    "eligible": grade != "F",
+                },
+            )
+            store.set_status(job_id, "graded")  # type: ignore[union-attr]
+            saved += 1
+        except Exception:
+            continue
+
+    console.print(f"[green]batch complete[/green] processed {total} jobs → saved {saved} grades")
+
+
+def _row_to_job_record(row: dict) -> JobRecord:
+    """Rehydrate a SQLite row into a JobRecord."""
+    fetch_errors = row.get("fetch_errors")
+    if isinstance(fetch_errors, str):
+        try:
+            parsed = json.loads(fetch_errors)
+            fetch_errors = parsed if isinstance(parsed, list) else []
+        except json.JSONDecodeError:
+            fetch_errors = []
+    elif not isinstance(fetch_errors, list):
+        fetch_errors = []
+
+    return JobRecord.model_validate(
+        {
+            "id": row.get("id"),
+            "source_url": row.get("source_url"),
+            "source_channel": row.get("source_channel"),
+            "source_tier": row.get("source_tier"),
+            "org": row.get("org"),
+            "title": row.get("title"),
+            "archetype": row.get("archetype"),
+            "deadline": row.get("deadline"),
+            "posted_at": row.get("posted_at"),
+            "location": row.get("location"),
+            "description": row.get("description") or "",
+            "legitimacy_tier": row.get("legitimacy_tier") or "T5",
+            "scanned_at": row.get("scanned_at"),
+            "fetch_errors": fetch_errors,
+        }
+    )

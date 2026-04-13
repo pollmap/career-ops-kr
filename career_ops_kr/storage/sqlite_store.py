@@ -188,6 +188,41 @@ class SQLiteStore:
             ).fetchall()
         return [dict(r) for r in rows]
 
+    def list_at_or_above_grade(self, grade: str) -> list[dict[str, Any]]:
+        """Return rows whose fit_grade meets or exceeds the threshold."""
+        order = {"A": 0, "B": 1, "C": 2, "D": 3, "F": 4}
+        target = order.get(str(grade).upper())
+        if target is None:
+            return []
+
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT * FROM jobs
+                WHERE fit_grade IS NOT NULL
+                  AND CASE fit_grade
+                        WHEN 'A' THEN 0
+                        WHEN 'B' THEN 1
+                        WHEN 'C' THEN 2
+                        WHEN 'D' THEN 3
+                        WHEN 'F' THEN 4
+                        ELSE 99
+                      END <= ?
+                ORDER BY
+                  CASE fit_grade
+                    WHEN 'A' THEN 0
+                    WHEN 'B' THEN 1
+                    WHEN 'C' THEN 2
+                    WHEN 'D' THEN 3
+                    WHEN 'F' THEN 4
+                    ELSE 99
+                  END ASC,
+                  fit_score DESC
+                """,
+                (target,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
     def list_upcoming_deadlines(self, days: int = 7) -> list[dict[str, Any]]:
         today = date.today().isoformat()
         with self._connect() as conn:
