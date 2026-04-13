@@ -56,6 +56,116 @@ ARCHETYPE_LABELS = {
 }
 
 # ---------------------------------------------------------------------------
+# 섹터 분류 — 채널명 기반 (aggregator 공고는 org/title 키워드로 추론)
+# ---------------------------------------------------------------------------
+_FINANCE_CHANNELS: frozenset[str] = frozenset({
+    # 은행
+    "kb_bank", "shinhan_bank", "hana_bank", "woori_bank", "nh_bank",
+    "busan_bank", "knb", "im_bank", "kwangju_bank", "jb_bank", "jeju_bank",
+    "sh_bank", "kakao_bank", "toss_bank", "k_bank", "sc_bank", "citi_bank",
+    "kdb_bank", "exim_bank", "ibk_bank",
+    # 증권
+    "shinhan_sec", "mirae_asset", "kb_sec", "hana_sec", "nh_sec",
+    "samsung_sec", "korea_invest_sec", "ibk_sec", "daishin_sec",
+    "kyobo_sec", "hanwha_sec", "yuanta_sec", "eugene_sec",
+    "hyundai_car_sec", "hi_sec", "db_fi", "sk_sec", "im_sec",
+    "cape_sec", "koreafoss_sec", "bookook_sec", "shinyoung_sec",
+    "hanyang_sec", "yuhwa_sec", "bnk_sec", "heungkuk_sec", "daol_sec",
+    "leading_sec", "korea_asset_sec", "meritz_sec", "miraeasset_sec",
+    "kiwoom_kda", "kiwoomda",
+    # 선물
+    "samsung_futures", "nh_futures", "hana_futures", "kiwoom_futures",
+    "shinhan_futures",
+    # 생명보험
+    "samsung_life", "hanwha_life", "kyobo_life", "shinhan_life",
+    "nh_life", "hana_life", "kb_life", "dongyang_life", "miraeasset_life",
+    "abl_life", "metlife", "aia_life", "chubb_life", "fubon_life", "kdb_life",
+    # 손해보험
+    "samsung_fire", "hyundai_marine", "db_ins", "kb_ins", "meritz_fire",
+    "hanwha_ins", "lotte_ins", "heungkuk_fire", "mg_ins", "nh_fire",
+    "thek_ins", "hana_ins", "carrot_ins", "korean_re",
+    # 카드
+    "shinhan_card", "samsung_card", "kb_card", "hyundai_card", "lotte_card",
+    "woori_card", "bc_card", "hana_card",
+    # 캐피탈
+    "kb_capital", "hana_capital", "shinhan_capital", "woori_capital",
+    "aju_capital", "lotte_capital", "bnk_capital", "jb_woori_capital",
+    "nh_capital", "dgb_capital", "kdb_capital", "meritz_capital",
+    "hyundai_capital",
+    # 저축은행
+    "sbi_savings", "ok_savings", "welcome_savings", "kiwoom_yes_savings",
+    "pepper_savings", "aquon_savings", "kit_savings", "jt_savings",
+    "osb_savings", "thek_savings",
+    # 자산운용
+    "miraeasset_am", "kit_am", "samsung_am", "kb_am", "shinhan_am",
+    "hanwha_am", "nh_amundi_am", "kiwoom_am", "shinyoung_am",
+    "kyobo_axa_am", "eastspring_am", "timefolio_am", "truston_am",
+    "vi_am", "lazard_am", "ab_am",
+    # 금융 인프라·협회·규제
+    "kic", "kobc", "koscom", "smbs", "apfs",
+    "kfb", "kofia", "knia", "klia", "crefia", "fsb", "cu_central",
+    "kfcc", "krx", "ksfc", "ksd", "kftc", "fsec", "kcredit",
+    "kfmb", "krca", "kodit", "kibo", "hf", "kamco", "kdic",
+    "ksure", "hug", "sgi", "kinfa", "fsc", "fss",
+})
+
+_SECURITY_CHANNELS: frozenset[str] = frozenset({
+    "nis", "mnd", "mofa", "police", "customs", "dapa", "kisa", "government",
+})
+
+_PUBLIC_CHANNELS: frozenset[str] = frozenset({
+    "apply_bok", "jobalio", "gojobs", "yw_work24", "dataq",
+    "mirae_naeil", "mjob", "ktcu", "mac", "poba", "loginet",
+    "cgc", "special_cgc", "firefighter_fund", "sema", "sw_fund",
+    "kofic_fund", "kvic", "kgf",
+})
+
+_FINTECH_CHANNELS: frozenset[str] = frozenset({
+    "toss", "kakao_pay", "banksalad", "finda", "naver_pay",
+    "eight_percent", "payco", "dunamu", "bithumb", "lambda256",
+    "coinone", "kakao_inv", "lb_inv", "mbk", "hahn_co", "imm",
+    "stic", "skylake", "daol_inv", "kit_partners",
+})
+
+# 키워드 기반 섹터 추론 (aggregator 채널용)
+_FINANCE_KW: tuple[str, ...] = (
+    "은행", "증권", "보험", "카드", "캐피탈", "저축", "자산운용", "투자",
+    "금융", "선물", "파생", "운용사", "신탁", "펀드", "리츠", "금감원",
+    "금융위", "예탁", "결제원", "거래소", "KRX", "KIC", "산업은행",
+    "수출입은행", "기업은행", "신용보증", "주택금융", "예금보험",
+)
+_SECURITY_KW: tuple[str, ...] = (
+    "국정원", "안보", "국방", "국가정보", "방위사업", "외교부", "경찰",
+    "관세", "KISA", "정보보호", "사이버", "군", "보안",
+)
+_PUBLIC_KW: tuple[str, ...] = (
+    "공사", "공단", "공기업", "공공기관", "청", "처", "원", "연구원",
+    "한국은행", "한국거래소", "한국투자공사", "공제회", "중앙회",
+)
+
+
+def _infer_sector(channel: str, org: str, title: str) -> str:
+    """채널명 → 섹터. aggregator는 org/title 키워드로 추론."""
+    ch = str(channel).lower()
+    if ch in _FINANCE_CHANNELS:
+        return "금융"
+    if ch in _SECURITY_CHANNELS:
+        return "안보"
+    if ch in _PUBLIC_CHANNELS:
+        return "공공"
+    if ch in _FINTECH_CHANNELS:
+        return "핀테크"
+    # aggregator fallback: keyword match
+    combined = f"{org} {title}"
+    if any(kw in combined for kw in _SECURITY_KW):
+        return "안보"
+    if any(kw in combined for kw in _FINANCE_KW):
+        return "금융"
+    if any(kw in combined for kw in _PUBLIC_KW):
+        return "공공"
+    return "기타"
+
+# ---------------------------------------------------------------------------
 # CSS — Linkareer 디자인 시스템
 # ---------------------------------------------------------------------------
 LINKAREER_CSS = """
@@ -434,11 +544,18 @@ def render_job_table(filtered: pd.DataFrame) -> None:
         st.info("해당 조건의 공고가 없습니다.")
         return
 
+    _SECTOR_PILL = {
+        "금융":  ("background:#EBF5FF;color:#1A56DB;border:1px solid #93C5FD;", "금융"),
+        "공공":  ("background:#F0FDF4;color:#16A34A;border:1px solid #86EFAC;", "공공"),
+        "안보":  ("background:#FFF7ED;color:#C2410C;border:1px solid #FDBA74;", "안보"),
+        "핀테크": ("background:#FAF5FF;color:#7C3AED;border:1px solid #C4B5FD;", "핀테크"),
+        "기타":  ("background:#F9FAFB;color:#6B7280;border:1px solid #D1D5DB;", "기타"),
+    }
+
     rows_html = ""
     for _, row in filtered.iterrows():
         title = safe_str(row.get("title"), 70)
         org = safe_str(row.get("org"), 20)
-        category = safe_str(row.get("description"), 50) if row.get("archetype") is None else ""
         url = row.get("source_url", "#") or "#"
         channel = safe_str(row.get("source_channel"), 20)
         location = safe_str(row.get("location"), 12)
@@ -450,6 +567,9 @@ def render_job_table(filtered: pd.DataFrame) -> None:
             if fit_score is not None and not pd.isna(fit_score)
             else "—"
         )
+        sector = row.get("_sector", "기타")
+        s_style, s_label = _SECTOR_PILL.get(sector, _SECTOR_PILL["기타"])
+        sector_html = f'<span style="font-size:11px;padding:2px 7px;border-radius:9px;font-weight:600;white-space:nowrap;{s_style}">{s_label}</span>'
 
         rows_html += f"""
         <tr>
@@ -461,8 +581,8 @@ def render_job_table(filtered: pd.DataFrame) -> None:
             <div class="recruit-name">
               <a href="{url}" target="_blank" rel="noopener">{title}</a>
             </div>
-            <span class="recruit-category">{category}</span>
           </td>
+          <td style="text-align:center;">{sector_html}</td>
           <td>{archetype_badge(row.get("archetype"))}</td>
           <td style="text-align:center;">{grade_badge(row.get("fit_grade"))}</td>
           <td style="text-align:center;">{score_html}</td>
@@ -479,6 +599,7 @@ def render_job_table(filtered: pd.DataFrame) -> None:
           <tr>
             <th>기업/채널</th>
             <th>공고명</th>
+            <th style="text-align:center;">섹터</th>
             <th>유형</th>
             <th style="text-align:center;">등급</th>
             <th style="text-align:center;">점수</th>
@@ -512,6 +633,16 @@ def render_stat_cards(df: pd.DataFrame) -> None:
     grade_a = int((df.get("fit_grade", pd.Series(dtype=str)) == "A").sum())
     grade_b = int((df.get("fit_grade", pd.Series(dtype=str)) == "B").sum())
     eligible_cnt = int((df.get("eligible", pd.Series(dtype=str)) == "true").sum())
+
+    # 섹터별 건수
+    _sec = df.apply(
+        lambda r: _infer_sector(
+            r.get("source_channel", ""), r.get("org", "") or "", r.get("title", "") or ""
+        ), axis=1
+    )
+    finance_cnt = int((_sec == "금융").sum())
+    public_cnt  = int((_sec == "공공").sum())
+    security_cnt = int((_sec == "안보").sum())
 
     st.html(
         _STAT_STYLE + f"""
@@ -548,6 +679,18 @@ def render_stat_cards(df: pd.DataFrame) -> None:
             <div class="lk-stat-num muted">{channels:,}</div>
             <div class="lk-stat-label">CHANNELS</div>
           </div>
+          <div class="lk-stat-card">
+            <div class="lk-stat-num" style="color:#1A56DB;">{finance_cnt:,}</div>
+            <div class="lk-stat-label">🏦 금융</div>
+          </div>
+          <div class="lk-stat-card">
+            <div class="lk-stat-num green">{public_cnt:,}</div>
+            <div class="lk-stat-label">🏛️ 공공</div>
+          </div>
+          <div class="lk-stat-card">
+            <div class="lk-stat-num amber">{security_cnt:,}</div>
+            <div class="lk-stat-label">🛡️ 안보</div>
+          </div>
         </div>
         """
     )
@@ -556,11 +699,27 @@ def render_stat_cards(df: pd.DataFrame) -> None:
 # ---------------------------------------------------------------------------
 # 탭 렌더러
 # ---------------------------------------------------------------------------
+def _add_sector_col(df: pd.DataFrame) -> pd.DataFrame:
+    """df에 _sector 컬럼 추가 (없으면). render_overview/render_jobs 공용."""
+    if "_sector" not in df.columns:
+        df = df.copy()
+        df["_sector"] = df.apply(
+            lambda r: _infer_sector(
+                r.get("source_channel", ""),
+                r.get("org", "") or "",
+                r.get("title", "") or "",
+            ),
+            axis=1,
+        )
+    return df
+
+
 def render_overview(df: pd.DataFrame) -> None:
     if df.empty:
         st.info("아직 수집된 공고가 없습니다. '📡 스캔' 탭에서 수집을 시작하세요.")
         return
 
+    df = _add_sector_col(df)
     render_stat_cards(df)
 
     # ── 추천 공고 (핵심 섹션) ──────────────────────────────────────────────────
@@ -625,32 +784,57 @@ def render_jobs(df: pd.DataFrame) -> None:
         st.info("데이터가 없습니다.")
         return
 
-    # 필터 바
-    st.html(_SECTION_STYLE + '<div class="lk-section-title">공고 검색 · 필터</div>')
-    col1, col2, col3, col4, col5 = st.columns([3, 2, 2, 2, 2])
+    # ── 섹터 컬럼 추가 ──────────────────────────────────────────────────────
+    df = _add_sector_col(df)
 
-    keyword = col1.text_input("🔍 기업·공고명 검색", "", placeholder="예) 삼성, 인턴, 데이터")
-    channels = sorted(df["source_channel"].dropna().unique().tolist())
-    tiers = sorted(df["source_tier"].dropna().unique().tolist())
-    archetypes = sorted(df["archetype"].dropna().unique().tolist()) if "archetype" in df.columns else []
+    # ── 섹터 퀵필터 ─────────────────────────────────────────────────────────
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">섹터 · 공고 필터</div>')
+
+    SECTOR_ICONS = {
+        "전체": "🗂️",
+        "금융": "🏦",
+        "공공": "🏛️",
+        "안보": "🛡️",
+        "핀테크": "💳",
+        "기타": "📌",
+    }
+    sector_counts: dict[str, int] = {"전체": len(df)}
+    for s in ["금융", "공공", "안보", "핀테크", "기타"]:
+        cnt = int((df["_sector"] == s).sum())
+        if cnt:
+            sector_counts[s] = cnt
+
+    sector_labels = [
+        f"{SECTOR_ICONS.get(s, '')} {s} ({c})"
+        for s, c in sector_counts.items()
+    ]
+    sel_sector_label = st.radio(
+        "섹터",
+        sector_labels,
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    sel_sector = sel_sector_label.split()[1] if sel_sector_label else "전체"
+
+    # ── 상세 필터 바 ─────────────────────────────────────────────────────────
+    col1, col2, col3, col4 = st.columns([3, 2, 2, 2])
+
+    keyword = col1.text_input("🔍 기업·공고명 검색", "", placeholder="예) 삼성, 인턴, 블록체인")
+    sel_grade = col2.multiselect("등급", ["A", "B", "C", "D", "F"], placeholder="전체")
     statuses = sorted(df["status"].dropna().unique().tolist())
+    sel_status = col3.multiselect("상태", statuses, placeholder="전체")
+    tiers = sorted(df["source_tier"].dropna().unique().tolist())
+    sel_tier = col4.multiselect("Tier", tiers, placeholder="전체")
 
-    sel_channel = col2.multiselect("채널", channels, placeholder="전체")
-    sel_tier = col3.multiselect("Tier", tiers, placeholder="전체")
-    sel_grade = col4.multiselect("등급", ["A", "B", "C", "D", "F"], placeholder="전체")
-    sel_archetype = col5.multiselect("유형", archetypes, placeholder="전체")
-
-    col6, col7, col8 = st.columns([2, 3, 3])
-    sel_status = col6.multiselect("상태", statuses, placeholder="전체")
-    only_open = col7.checkbox("마감 임박만 (7일 내)", value=False)
-    only_eligible = col8.checkbox("✅ 자격요건 충족만", value=True)
-
-    sort_by = st.radio("정렬", ["적합도순", "마감순", "최신순"], horizontal=True)
+    col5, col6, col7 = st.columns([3, 3, 3])
+    only_open = col5.checkbox("마감 임박만 (7일 내)", value=False)
+    only_eligible = col6.checkbox("✅ 자격요건 충족만", value=True)
+    sort_by = col7.radio("정렬", ["적합도순", "마감순", "최신순"], horizontal=True)
 
     # 필터 적용
     filtered = df.copy()
-    if sel_channel:
-        filtered = filtered[filtered["source_channel"].isin(sel_channel)]
+    if sel_sector != "전체":
+        filtered = filtered[filtered["_sector"] == sel_sector]
     if sel_tier:
         filtered = filtered[filtered["source_tier"].isin(sel_tier)]
     if sel_grade:
