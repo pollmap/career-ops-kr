@@ -34,7 +34,7 @@ from __future__ import annotations
 
 from career_ops_kr.channels._stub_helpers import make_stub_channel_class
 
-LISTING_URL = "https://bithumbcorp.com/careers/"
+LISTING_URL = "https://www.bithumb.com/react/recruit/main"
 ORG = "빗썸 (Bithumb)"
 LOCATION = "서울"
 

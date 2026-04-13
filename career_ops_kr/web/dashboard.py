@@ -60,257 +60,300 @@ ARCHETYPE_LABELS = {
 # ---------------------------------------------------------------------------
 LINKAREER_CSS = """
 <style>
+:root {
+  --bg-base:    #070B14;
+  --bg-surface: #0C1525;
+  --bg-elev:    #111D30;
+  --border:     #1C2E47;
+  --border-hi:  #0057A8;
+  --accent:     #0094FF;
+  --accent-dim: rgba(0,148,255,0.10);
+  --accent-glo: rgba(0,148,255,0.22);
+  --green:      #00C87A;
+  --green-dim:  rgba(0,200,122,0.10);
+  --amber:      #F5A623;
+  --amber-dim:  rgba(245,166,35,0.10);
+  --red:        #F43F5E;
+  --red-dim:    rgba(244,63,94,0.10);
+  --purple:     #A78BFA;
+  --purple-dim: rgba(167,139,250,0.10);
+  --txt:        #DDE6F5;
+  --txt-sec:    #8AABCC;
+  --txt-mute:   #4A6585;
+  --ff-disp:    'Oxanium', monospace;
+  --ff-body:    'DM Sans', -apple-system, sans-serif;
+  --ff-mono:    'JetBrains Mono', monospace;
+}
+
 /* ── 전역 ── */
 html, body, [class*="css"] {
-    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-serif !important;
-    background-color: #F8F8FA !important;
-    color: #333333 !important;
+  font-family: var(--ff-body) !important;
+  background-color: var(--bg-base) !important;
+  color: var(--txt) !important;
 }
-.stApp { background-color: #F8F8FA !important; }
-section[data-testid="stSidebar"] { background-color: #FFFFFF !important; border-right: 1px solid #EEEEEE; }
+.stApp { background-color: var(--bg-base) !important; }
+.stApp > header { background: var(--bg-base) !important; border-bottom: 1px solid var(--border) !important; }
+section[data-testid="stSidebar"] { background: var(--bg-surface) !important; border-right: 1px solid var(--border) !important; }
+.stDeployButton, [data-testid="stToolbar"] { display: none !important; }
+p, .stMarkdown p { color: var(--txt) !important; }
+hr { border-color: var(--border) !important; }
 
-/* ── 헤더 바 ── */
+/* ── 반응형 중앙 정렬 ── */
+.block-container {
+  max-width: 1240px !important;
+  padding: 0 2rem 2rem !important;
+  margin: 0 auto !important;
+}
+@media (max-width: 768px) {
+  .block-container { padding: 0 1rem 1rem !important; }
+  .lk-stat-row { grid-template-columns: repeat(2,1fr) !important; }
+  .td-title { max-width: 160px; }
+}
+
+/* ── 헤더 ── */
 .lk-header {
-    background: #FFFFFF;
-    border-bottom: 2px solid #01A0FF;
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
+  background: linear-gradient(120deg, var(--bg-surface) 60%, var(--bg-elev) 100%);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  border-radius: 0 0 10px 10px;
+  position: relative;
+  overflow: hidden;
+}
+.lk-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,148,255,0.015) 2px, rgba(0,148,255,0.015) 4px);
+  pointer-events: none;
 }
 .lk-logo {
-    font-size: 22px;
-    font-weight: 800;
-    color: #01A0FF;
-    letter-spacing: -0.5px;
+  font-family: var(--ff-disp);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 .lk-subtitle {
-    font-size: 13px;
-    color: #999999;
-    margin-left: auto;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: var(--txt-mute);
+  margin-left: auto;
 }
+.co-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: blink 2s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
 /* ── 탭 ── */
 .stTabs [data-baseweb="tab-list"] {
-    background: #FFFFFF;
-    border-bottom: 2px solid #EEEEEE;
-    gap: 0;
+  background: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  gap: 0 !important; padding: 0 !important;
 }
 .stTabs [data-baseweb="tab"] {
-    font-size: 14px;
-    font-weight: 600;
-    color: #666666;
-    padding: 12px 20px;
-    border-bottom: 2px solid transparent;
+  font-family: var(--ff-body) !important;
+  font-size: 13px !important; font-weight: 600 !important;
+  color: var(--txt-sec) !important;
+  padding: 12px 20px !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
 }
 .stTabs [aria-selected="true"] {
-    color: #01A0FF !important;
-    border-bottom: 2px solid #01A0FF !important;
+  color: var(--accent) !important;
+  border-bottom: 2px solid var(--accent) !important;
+  background: var(--accent-dim) !important;
 }
+.stTabs [data-baseweb="tab-panel"] { background: transparent !important; padding-top: 16px !important; }
 
-/* ── 통계 카드 ── */
+/* ── 통계 카드 그리드 ── */
 .lk-stat-row {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
 }
 .lk-stat-card {
-    flex: 1;
-    min-width: 140px;
-    background: #FFFFFF;
-    border: 1px solid #EEEEEE;
-    border-radius: 8px;
-    padding: 18px 20px;
-    text-align: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px 18px;
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
+.lk-stat-card:hover { box-shadow: 0 0 18px var(--accent-glo); border-color: var(--border-hi); }
+.lk-stat-card.green  { border-left-color: var(--green); }
+.lk-stat-card.amber  { border-left-color: var(--amber); }
+.lk-stat-card.red    { border-left-color: var(--red); }
+.lk-stat-card.purple { border-left-color: var(--purple); }
 .lk-stat-num {
-    font-size: 28px;
-    font-weight: 800;
-    color: #01A0FF;
-    line-height: 1.1;
+  font-family: var(--ff-mono);
+  font-size: 26px; font-weight: 600;
+  color: var(--accent);
+  line-height: 1; margin-bottom: 4px;
 }
+.lk-stat-num.green  { color: var(--green); }
+.lk-stat-num.amber  { color: var(--amber); }
+.lk-stat-num.red    { color: var(--red); }
+.lk-stat-num.purple { color: var(--purple); }
+.lk-stat-num.muted  { color: var(--txt-sec); }
 .lk-stat-label {
-    font-size: 12px;
-    color: #999999;
-    margin-top: 4px;
+  font-family: var(--ff-mono);
+  font-size: 10px; color: var(--txt-mute);
+  text-transform: uppercase; letter-spacing: 0.8px;
 }
-
-/* ── 필터 바 ── */
-.lk-filter-bar {
-    background: #FFFFFF;
-    border: 1px solid #EEEEEE;
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-/* ── 공고 테이블 ── */
-.lk-table-wrap {
-    background: #FFFFFF;
-    border: 1px solid #EEEEEE;
-    border-radius: 8px;
-    overflow: hidden;
-}
-.lk-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-.lk-table thead th {
-    background: #F8F8FA;
-    color: #999999;
-    font-weight: 600;
-    font-size: 12px;
-    padding: 10px 14px;
-    border-bottom: 1px solid #EEEEEE;
-    text-align: left;
-    white-space: nowrap;
-}
-.lk-table tbody tr {
-    border-bottom: 1px solid #F0F0F0;
-    transition: background 0.12s;
-}
-.lk-table tbody tr:hover { background: #F2FAFF; }
-.lk-table tbody tr:last-child { border-bottom: none; }
-.lk-table td { padding: 14px; vertical-align: middle; }
-
-/* 기업명 셀 */
-.td-company { min-width: 120px; }
-.company-name {
-    font-size: 12px;
-    color: #666666;
-    display: block;
-    max-width: 110px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* 공고명 셀 */
-.td-title { min-width: 200px; max-width: 340px; }
-.recruit-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #333333;
-    display: block;
-    line-height: 1.4;
-}
-.recruit-name a {
-    color: #333333 !important;
-    text-decoration: none;
-}
-.recruit-name a:hover { color: #01A0FF !important; }
-.recruit-category {
-    font-size: 11px;
-    color: #999999;
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 300px;
-    display: block;
-}
-
-/* 타입 뱃지 */
-.badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-}
-.badge-intern  { background: #E8F4FF; color: #01A0FF; }
-.badge-entry   { background: #E8FFE8; color: #16a34a; }
-.badge-exp     { background: #FFF3E0; color: #EA8C00; }
-.badge-it      { background: #F3E8FF; color: #9333ea; }
-.badge-default { background: #F0F0F0; color: #666666; }
-
-/* 지역 / 유형 */
-.short-info {
-    font-size: 12px;
-    color: #666666;
-    white-space: nowrap;
-}
-
-/* 마감 */
-.dday-label {
-    font-size: 12px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-.dday-urgent { color: #EF2929; }
-.dday-soon   { color: #EA8C00; }
-.dday-ok     { color: #01A0FF; }
-.dday-closed { color: #CCCCCC; }
-
-/* 상태 뱃지 */
-.status-badge {
-    display: inline-block;
-    padding: 2px 9px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-}
-.status-inbox    { background: #F0F0F0; color: #666666; }
-.status-applied  { background: #E8F4FF; color: #01A0FF; }
-.status-passed   { background: #E8FFE8; color: #16a34a; }
-.status-rejected { background: #FFE8E8; color: #EF2929; }
 
 /* ── 섹션 헤더 ── */
 .lk-section-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #333333;
-    margin: 20px 0 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  font-family: var(--ff-disp);
+  font-size: 11px; font-weight: 700;
+  color: var(--txt-sec);
+  text-transform: uppercase; letter-spacing: 2px;
+  margin: 24px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: block;
 }
-.lk-section-title::before {
-    content: "";
-    display: inline-block;
-    width: 3px;
-    height: 16px;
-    background: #01A0FF;
-    border-radius: 2px;
-}
+.lk-section-title::before { display: none !important; }
 
-/* ── 스캔 로그 ── */
-.lk-log-row {
-    background: #FFFFFF;
-    border: 1px solid #EEEEEE;
-    border-radius: 6px;
-    padding: 10px 14px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 12px;
+/* ── Streamlit 네이티브 다크 오버라이드 ── */
+.stTextInput input,
+.stSelectbox > div > div > div,
+.stMultiSelect > div > div > div {
+  background: var(--bg-elev) !important;
+  color: var(--txt) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
 }
-.log-channel { font-weight: 700; color: #333333; min-width: 140px; }
-.log-count   { color: #01A0FF; font-weight: 700; }
-.log-time    { color: #999999; margin-left: auto; }
-.log-error   { color: #EF2929; }
-
-/* Streamlit 기본 UI 정리 */
+.stTextInput input::placeholder { color: var(--txt-mute) !important; }
+.stTextInput label, .stSelectbox label, .stMultiSelect label,
+.stCheckbox label span, .stRadio label span, [data-testid="stWidgetLabel"] {
+  color: var(--txt-sec) !important;
+  font-size: 12px !important;
+}
+[data-baseweb="menu"], [data-baseweb="popover"] {
+  background: var(--bg-elev) !important;
+  border: 1px solid var(--border) !important;
+}
+[data-baseweb="option"] { color: var(--txt) !important; background: transparent !important; }
+[data-baseweb="option"]:hover { background: var(--accent-dim) !important; }
+[data-baseweb="tag"] { background: var(--accent-dim) !important; color: var(--accent) !important; }
 .stButton button {
-    background: #01A0FF !important;
-    color: #FFFFFF !important;
-    border: none !important;
-    border-radius: 6px !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
+  background: var(--accent) !important; color: #fff !important;
+  border: none !important; border-radius: 6px !important;
+  font-weight: 600 !important; font-size: 13px !important;
+  transition: box-shadow 0.2s !important;
 }
-.stButton button:hover { background: #0090EE !important; }
-div[data-testid="stMetricValue"] { color: #01A0FF !important; font-weight: 800 !important; }
-.stSelectbox label, .stMultiSelect label, .stTextInput label { color: #666666 !important; font-size: 12px !important; }
+.stButton button:hover { box-shadow: 0 0 18px var(--accent-glo) !important; }
+[data-testid="stExpander"] {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
+[data-testid="stExpander"] summary { color: var(--txt-sec) !important; }
+[data-testid="stExpander"] summary:hover { color: var(--txt) !important; }
+[data-testid="stNotification"] { background: var(--bg-elev) !important; border: 1px solid var(--border) !important; }
+div[data-testid="stMetricValue"] { color: var(--accent) !important; font-family: var(--ff-mono) !important; font-weight: 600 !important; }
+.stRadio div[role="radiogroup"] label span { color: var(--txt) !important; }
+</style>
+"""
+
+# ---------------------------------------------------------------------------
+# 테이블 전용 CSS (st.html iframe embed — 다크 터미널 테마)
+# ---------------------------------------------------------------------------
+_TABLE_STYLE = """
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,sans-serif;font-size:13px;color:#DDE6F5;background:#070B14}
+.lk-table-wrap{background:#0C1525;border:1px solid #1C2E47;border-radius:8px;overflow:hidden}
+.lk-table{width:100%;border-collapse:collapse;font-size:13px}
+.lk-table thead th{background:#070B14;color:#5A7899;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:10px;padding:10px 14px;border-bottom:1px solid #1C2E47;text-align:left;white-space:nowrap;text-transform:uppercase;letter-spacing:.8px}
+.lk-table tbody tr{border-bottom:1px solid #1C2E47;transition:background .12s}
+.lk-table tbody tr:hover{background:#0F1F38}
+.lk-table tbody tr:last-child{border-bottom:none}
+.lk-table td{padding:12px 14px;vertical-align:middle}
+.td-company{min-width:110px}
+.company-name{font-size:11px;color:#8AABCC;display:block;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-title{min-width:200px;max-width:360px}
+.recruit-name{font-size:13px;font-weight:600;color:#DDE6F5;display:block;line-height:1.4}
+.recruit-name a{color:#DDE6F5!important;text-decoration:none}
+.recruit-name a:hover{color:#0094FF!important}
+.recruit-category{font-size:11px;color:#4A6585;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;display:block}
+.short-info{font-size:11px;color:#8AABCC;white-space:nowrap}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.badge-intern{background:rgba(0,148,255,.12);color:#0094FF}
+.badge-entry{background:rgba(0,200,122,.12);color:#00C87A}
+.badge-exp{background:rgba(245,166,35,.12);color:#F5A623}
+.badge-it{background:rgba(167,139,250,.12);color:#A78BFA}
+.badge-default{background:rgba(44,64,96,.3);color:#6B87A8}
+.grade-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;min-width:32px;text-align:center;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.5px}
+.grade-A{background:rgba(0,200,122,.15);color:#00C87A;border:1px solid rgba(0,200,122,.3)}
+.grade-B{background:rgba(0,148,255,.15);color:#0094FF;border:1px solid rgba(0,148,255,.3)}
+.grade-C{background:rgba(245,166,35,.15);color:#F5A623;border:1px solid rgba(245,166,35,.3)}
+.grade-D{background:rgba(244,63,94,.12);color:#F43F5E;border:1px solid rgba(244,63,94,.2)}
+.grade-F{background:rgba(44,64,96,.2);color:#6B87A8;border:1px solid rgba(44,64,96,.3)}
+.dday-label{font-size:11px;font-weight:600;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.dday-urgent{color:#F43F5E}
+.dday-soon{color:#F5A623}
+.dday-ok{color:#0094FF}
+.dday-closed{color:#4A6585}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.status-inbox{background:rgba(44,64,96,.3);color:#6B87A8}
+.status-applied{background:rgba(0,148,255,.12);color:#0094FF}
+.status-passed{background:rgba(0,200,122,.12);color:#00C87A}
+.status-rejected{background:rgba(244,63,94,.12);color:#F43F5E}
+.lk-log-row{background:#0C1525;border:1px solid #1C2E47;border-radius:6px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;font-size:12px}
+.log-channel{font-family:'JetBrains Mono',monospace;font-weight:600;color:#DDE6F5;min-width:150px}
+.log-count{color:#0094FF;font-weight:600;font-family:'JetBrains Mono',monospace}
+.log-time{color:#4A6585;margin-left:auto;font-family:'JetBrains Mono',monospace}
+.log-error{color:#F43F5E}
+</style>
+"""
+
+# ---------------------------------------------------------------------------
+# 통계 카드 전용 CSS (st.html iframe embed)
+# ---------------------------------------------------------------------------
+_STAT_STYLE = """
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'DM Sans',sans-serif;background:#070B14;color:#DDE6F5}
+.lk-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:4px 0 16px}
+.lk-stat-card{background:#0C1525;border:1px solid #1C2E47;border-left:3px solid #0094FF;border-radius:8px;padding:16px 18px}
+.lk-stat-card.green{border-left-color:#00C87A}
+.lk-stat-card.amber{border-left-color:#F5A623}
+.lk-stat-card.red{border-left-color:#F43F5E}
+.lk-stat-card.purple{border-left-color:#A78BFA}
+.lk-stat-num{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:#0094FF;line-height:1;margin-bottom:4px}
+.lk-stat-num.green{color:#00C87A}
+.lk-stat-num.amber{color:#F5A623}
+.lk-stat-num.red{color:#F43F5E}
+.lk-stat-num.purple{color:#A78BFA}
+.lk-stat-num.muted{color:#8AABCC}
+.lk-stat-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4A6585;text-transform:uppercase;letter-spacing:.8px}
+@media(max-width:700px){.lk-stat-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+"""
+
+# ---------------------------------------------------------------------------
+# 섹션 타이틀 전용 CSS (st.html iframe embed)
+# ---------------------------------------------------------------------------
+_SECTION_STYLE = """
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#070B14;color:#DDE6F5}
+.lk-section-title{font-family:'Oxanium',monospace;font-size:11px;font-weight:700;color:#8AABCC;text-transform:uppercase;letter-spacing:2px;padding:4px 0 8px;border-bottom:1px solid #1C2E47;display:block;margin:0}
 </style>
 """
 
@@ -356,9 +399,10 @@ def update_status(job_id: str, new_status: str) -> None:
 def parse_deadline(value: Any) -> datetime | None:
     if not value or pd.isna(value):
         return None
+    s = str(value).strip()
     for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S"):
         try:
-            return datetime.strptime(str(value)[: len(fmt)], fmt)
+            return datetime.strptime(s, fmt)
         except ValueError:
             continue
     return None
@@ -403,6 +447,14 @@ def archetype_badge(archetype: Any) -> str:
     return f'<span class="badge {cls}">{label}</span>'
 
 
+def grade_badge(grade: Any) -> str:
+    """적합도 등급 뱃지 — A(초록)~F(빨강) 컬러 코딩."""
+    if not grade or pd.isna(grade):
+        return '<span class="badge badge-default">—</span>'
+    g = str(grade).upper()
+    return f'<span class="badge grade-badge grade-{g}">{g}</span>'
+
+
 def status_badge(status: Any) -> str:
     s = str(status) if status else "inbox"
     label = STATUS_LABELS.get(s, s)
@@ -435,6 +487,12 @@ def render_job_table(filtered: pd.DataFrame) -> None:
         location = safe_str(row.get("location"), 12)
         if location == "—":
             location = "전국"
+        fit_score = row.get("fit_score")
+        score_html = (
+            f'<span style="color:#0094FF;font-weight:700;font-family:\'JetBrains Mono\',monospace;">{int(fit_score)}</span>'
+            if fit_score is not None and not pd.isna(fit_score)
+            else "—"
+        )
 
         rows_html += f"""
         <tr>
@@ -449,6 +507,8 @@ def render_job_table(filtered: pd.DataFrame) -> None:
             <span class="recruit-category">{category}</span>
           </td>
           <td>{archetype_badge(row.get("archetype"))}</td>
+          <td style="text-align:center;">{grade_badge(row.get("fit_grade"))}</td>
+          <td style="text-align:center;">{score_html}</td>
           <td><span class="short-info">{location}</span></td>
           <td>{dday_html(row.get("deadline"))}</td>
           <td>{status_badge(row.get("status"))}</td>
@@ -463,6 +523,8 @@ def render_job_table(filtered: pd.DataFrame) -> None:
             <th>기업/채널</th>
             <th>공고명</th>
             <th>유형</th>
+            <th style="text-align:center;">등급</th>
+            <th style="text-align:center;">점수</th>
             <th>지역</th>
             <th>마감</th>
             <th>상태</th>
@@ -474,7 +536,7 @@ def render_job_table(filtered: pd.DataFrame) -> None:
       </table>
     </div>
     """
-    st.markdown(html, unsafe_allow_html=True)
+    st.html(_TABLE_STYLE + html)
 
 
 # ---------------------------------------------------------------------------
@@ -486,41 +548,51 @@ def render_stat_cards(df: pd.DataFrame) -> None:
     today_new = int((df["scanned_at"].fillna("").str[:10] == today_str).sum())
 
     deadlines = df["deadline"].apply(parse_deadline)
-    horizon = datetime.now() + timedelta(days=7)
-    soon = int(
-        deadlines.apply(
-            lambda d: d is not None and datetime.now() <= d <= horizon
-        ).sum()
-    )
+    _now = datetime.now()
+    soon = int(deadlines.apply(lambda d: d is not None and d >= _now).sum())
     applied = int((df["status"] == "applied").sum())
     channels = df["source_channel"].nunique() if "source_channel" in df.columns else 0
+    grade_a = int((df.get("fit_grade", pd.Series(dtype=str)) == "A").sum())
+    grade_b = int((df.get("fit_grade", pd.Series(dtype=str)) == "B").sum())
+    eligible_cnt = int((df.get("eligible", pd.Series(dtype=str)) == "true").sum())
 
-    st.markdown(
-        f"""
+    st.html(
+        _STAT_STYLE + f"""
         <div class="lk-stat-row">
           <div class="lk-stat-card">
             <div class="lk-stat-num">{total:,}</div>
-            <div class="lk-stat-label">총 공고</div>
+            <div class="lk-stat-label">TOTAL JOBS</div>
           </div>
           <div class="lk-stat-card">
-            <div class="lk-stat-num">{today_new:,}</div>
-            <div class="lk-stat-label">오늘 신규</div>
+            <div class="lk-stat-num muted">{today_new:,}</div>
+            <div class="lk-stat-label">TODAY NEW</div>
+          </div>
+          <div class="lk-stat-card amber">
+            <div class="lk-stat-num amber">{soon:,}</div>
+            <div class="lk-stat-label">DEADLINE AHEAD</div>
+          </div>
+          <div class="lk-stat-card green">
+            <div class="lk-stat-num green">{grade_a:,}</div>
+            <div class="lk-stat-label">GRADE A</div>
           </div>
           <div class="lk-stat-card">
-            <div class="lk-stat-num">{soon:,}</div>
-            <div class="lk-stat-label">마감임박 7일</div>
+            <div class="lk-stat-num">{grade_b:,}</div>
+            <div class="lk-stat-label">GRADE B</div>
+          </div>
+          <div class="lk-stat-card green">
+            <div class="lk-stat-num green">{eligible_cnt:,}</div>
+            <div class="lk-stat-label">ELIGIBLE</div>
+          </div>
+          <div class="lk-stat-card purple">
+            <div class="lk-stat-num purple">{applied:,}</div>
+            <div class="lk-stat-label">APPLIED</div>
           </div>
           <div class="lk-stat-card">
-            <div class="lk-stat-num">{applied:,}</div>
-            <div class="lk-stat-label">지원 중</div>
-          </div>
-          <div class="lk-stat-card">
-            <div class="lk-stat-num">{channels:,}</div>
-            <div class="lk-stat-label">활성 채널</div>
+            <div class="lk-stat-num muted">{channels:,}</div>
+            <div class="lk-stat-label">CHANNELS</div>
           </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
@@ -534,47 +606,61 @@ def render_overview(df: pd.DataFrame) -> None:
 
     render_stat_cards(df)
 
-    st.markdown('<div class="lk-section-title">채널별 공고 수</div>', unsafe_allow_html=True)
-    ch = (
-        df.groupby("source_channel")
-        .size()
-        .reset_index(name="count")
-        .sort_values("count", ascending=True)
-        .tail(30)
-    )
-    fig = px.bar(
-        ch,
-        x="count",
-        y="source_channel",
-        orientation="h",
-        color="count",
-        color_continuous_scale=["#E8F4FF", "#01A0FF"],
-        template="plotly_white",
-        labels={"source_channel": "", "count": "공고 수"},
-    )
-    fig.update_layout(
-        height=500,
-        margin=dict(l=10, r=10, t=10, b=10),
-        coloraxis_showscale=False,
-        paper_bgcolor="#FFFFFF",
-        plot_bgcolor="#FFFFFF",
-        font=dict(color="#333333", size=12),
-    )
-    fig.update_traces(marker_line_width=0)
-    st.plotly_chart(fig, use_container_width=True)
+    # ── 추천 공고 (핵심 섹션) ──────────────────────────────────────────────────
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">⭐ 추천 공고 (자격충족 · 적합도순)</div>')
+    _grade_order = {"A": 0, "B": 1, "C": 2, "D": 3, "F": 4}
+    rec_df = df[df["eligible"] == "true"].copy()
+    rec_df["_grade_rank"] = rec_df["fit_grade"].map(_grade_order).fillna(9)
+    rec_df = rec_df.sort_values(["_grade_rank", "fit_score"], ascending=[True, False])
+    render_job_table(rec_df.head(20))
 
-    st.markdown('<div class="lk-section-title">마감임박 공고 (7일 내)</div>', unsafe_allow_html=True)
-    now = datetime.now()
-    horizon = now + timedelta(days=7)
+    # ── 마감 예정 공고 ──────────────────────────────────────────────────────────
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">⏰ 마감 예정 공고</div>')
+    _now = datetime.now()
 
-    def _is_soon(d: Any) -> bool:
+    def _is_future(d: Any) -> bool:
         dt = parse_deadline(d)
-        return dt is not None and now <= dt <= horizon
+        return dt is not None and dt >= _now
 
-    soon_df = df[df["deadline"].apply(_is_soon)].copy()
-    soon_df["delta"] = soon_df["deadline"].apply(dday_delta)
-    soon_df = soon_df.sort_values("delta", na_position="last")
-    render_job_table(soon_df.head(20))
+    deadline_df = df[df["deadline"].apply(_is_future)].copy()
+    deadline_df["_delta"] = deadline_df["deadline"].apply(dday_delta)
+    deadline_df = deadline_df.sort_values("_delta", na_position="last")
+    if deadline_df.empty:
+        st.info("마감 예정 공고가 없습니다. (대부분 수시채용)")
+    else:
+        render_job_table(deadline_df.head(30))
+
+    # ── 채널별 공고 수 (접힘) ────────────────────────────────────────────────────
+    with st.expander("📊 채널별 공고 수"):
+        ch = (
+            df.groupby("source_channel")
+            .size()
+            .reset_index(name="count")
+            .sort_values("count", ascending=True)
+            .tail(30)
+        )
+        fig = px.bar(
+            ch,
+            x="count",
+            y="source_channel",
+            orientation="h",
+            color="count",
+            color_continuous_scale=["#1C2E47", "#0094FF"],
+            template="plotly_dark",
+            labels={"source_channel": "", "count": "공고 수"},
+        )
+        fig.update_layout(
+            height=400,
+            margin=dict(l=10, r=10, t=10, b=10),
+            coloraxis_showscale=False,
+            paper_bgcolor="#0C1525",
+            plot_bgcolor="#0C1525",
+            font=dict(color="#8AABCC", size=12),
+            xaxis=dict(gridcolor="#1C2E47", zerolinecolor="#1C2E47"),
+            yaxis=dict(gridcolor="#1C2E47"),
+        )
+        fig.update_traces(marker_line_width=0)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 def render_jobs(df: pd.DataFrame) -> None:
@@ -583,8 +669,8 @@ def render_jobs(df: pd.DataFrame) -> None:
         return
 
     # 필터 바
-    st.markdown('<div class="lk-section-title">공고 검색 · 필터</div>', unsafe_allow_html=True)
-    col1, col2, col3, col4 = st.columns([3, 2, 2, 2])
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">공고 검색 · 필터</div>')
+    col1, col2, col3, col4, col5 = st.columns([3, 2, 2, 2, 2])
 
     keyword = col1.text_input("🔍 기업·공고명 검색", "", placeholder="예) 삼성, 인턴, 데이터")
     channels = sorted(df["source_channel"].dropna().unique().tolist())
@@ -594,11 +680,15 @@ def render_jobs(df: pd.DataFrame) -> None:
 
     sel_channel = col2.multiselect("채널", channels, placeholder="전체")
     sel_tier = col3.multiselect("Tier", tiers, placeholder="전체")
-    sel_archetype = col4.multiselect("유형", archetypes, placeholder="전체")
+    sel_grade = col4.multiselect("등급", ["A", "B", "C", "D", "F"], placeholder="전체")
+    sel_archetype = col5.multiselect("유형", archetypes, placeholder="전체")
 
-    col5, col6, _ = st.columns([2, 6, 1])
-    sel_status = col5.multiselect("상태", statuses, placeholder="전체")
-    only_open = col6.checkbox("마감 임박만 (7일 내)", value=False)
+    col6, col7, col8 = st.columns([2, 3, 4])
+    sel_status = col6.multiselect("상태", statuses, placeholder="전체")
+    only_open = col7.checkbox("마감 임박만 (7일 내)", value=False)
+    only_eligible = col8.checkbox("✅ 자격요건 충족만", value=True)
+
+    sort_by = st.radio("정렬", ["적합도순", "마감순", "최신순"], horizontal=True)
 
     # 필터 적용
     filtered = df.copy()
@@ -606,10 +696,14 @@ def render_jobs(df: pd.DataFrame) -> None:
         filtered = filtered[filtered["source_channel"].isin(sel_channel)]
     if sel_tier:
         filtered = filtered[filtered["source_tier"].isin(sel_tier)]
+    if sel_grade:
+        filtered = filtered[filtered["fit_grade"].isin(sel_grade)]
     if sel_archetype:
         filtered = filtered[filtered["archetype"].isin(sel_archetype)]
     if sel_status:
         filtered = filtered[filtered["status"].isin(sel_status)]
+    if only_eligible:
+        filtered = filtered[filtered["eligible"] == "true"]
     if keyword:
         kw = keyword.lower()
         mask = (
@@ -625,23 +719,49 @@ def render_jobs(df: pd.DataFrame) -> None:
             )
         ]
 
-    # 정렬: 마감 가까운 순
+    # 정렬
     filtered = filtered.copy()
     filtered["_delta"] = filtered["deadline"].apply(dday_delta)
-    filtered = filtered.sort_values("_delta", na_position="last")
+    if sort_by == "적합도순":
+        _grade_order = {"A": 0, "B": 1, "C": 2, "D": 3, "F": 4}
+        filtered["_grade_rank"] = filtered["fit_grade"].map(_grade_order).fillna(9)
+        filtered = filtered.sort_values(
+            ["_grade_rank", "fit_score"], ascending=[True, False], na_position="last"
+        )
+    elif sort_by == "마감순":
+        filtered = filtered.sort_values("_delta", na_position="last")
+    else:
+        filtered = filtered.sort_values("scanned_at", ascending=False)
 
-    st.markdown(
-        f'<p style="font-size:13px;color:#999;margin-bottom:8px;">'
-        f'<span style="color:#01A0FF;font-weight:700;">{len(filtered):,}건</span>'
-        f' / 전체 {len(df):,}건</p>',
-        unsafe_allow_html=True,
+    # 현재 / 과거 공고 분리
+    _now = datetime.now()
+
+    def _is_expired(deadline: Any) -> bool:
+        dt = parse_deadline(deadline)
+        return dt is not None and dt < _now
+
+    active = filtered[~filtered["deadline"].apply(_is_expired)].head(200)
+    expired = filtered[filtered["deadline"].apply(_is_expired)].head(200)
+
+    st.html(
+        f'<p style="font-family:\'DM Sans\',sans-serif;font-size:13px;color:#8AABCC;margin:4px 0 8px;">'
+        f'현재 <span style="color:#0094FF;font-weight:700;">{len(active):,}건</span>'
+        f' · 마감 <span style="color:#4A6585;font-weight:700;">{len(expired):,}건</span>'
+        f' / 전체 {len(df):,}건</p>'
     )
 
-    render_job_table(filtered.head(200))
+    # ── 현재 공고 ──────────────────────────────────────────────────────────────
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">📋 현재 공고</div>')
+    render_job_table(active)
+
+    # ── 과거 공고 (접힌 상태) ─────────────────────────────────────────────────
+    if not expired.empty:
+        with st.expander(f"🗂 마감된 공고 ({len(expired):,}건) — 클릭해서 펼치기", expanded=False):
+            render_job_table(expired)
 
     # 상세보기
     if not filtered.empty:
-        st.markdown('<div class="lk-section-title">공고 상세</div>', unsafe_allow_html=True)
+        st.html(_SECTION_STYLE + '<div class="lk-section-title">공고 상세</div>')
         options = {
             f"[{r['source_channel']}] {r['org']} — {r['title'][:50]}": r["id"]
             for _, r in filtered.head(200).iterrows()
@@ -660,18 +780,15 @@ def render_jobs(df: pd.DataFrame) -> None:
                         st.markdown(f"[🔗 공고 바로가기]({row['source_url']})")
                 with c2:
                     delta = dday_delta(row.get("deadline"))
-                    st.markdown(
-                        f"**마감**: {row.get('deadline') or '—'}  \n"
-                        f"{dday_html(row.get('deadline'))}",
-                        unsafe_allow_html=True,
-                    )
-                    st.markdown(f"**유형**: {archetype_badge(row.get('archetype'))}", unsafe_allow_html=True)
+                    st.markdown(f"**마감**: {row.get('deadline') or '—'}")
+                    st.html(_TABLE_STYLE + dday_html(row.get("deadline")))
+                    st.html(_TABLE_STYLE + f"<span style='font-size:13px;color:#8AABCC;'>유형: </span>{archetype_badge(row.get('archetype'))}")
                 st.divider()
                 st.markdown(row.get("description") or "_설명 없음_")
 
 
 def render_scan(channels: list[str]) -> None:
-    st.markdown('<div class="lk-section-title">스캔 실행</div>', unsafe_allow_html=True)
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">스캔 실행</div>')
 
     col1, col2 = st.columns([2, 1])
     with col1:
@@ -723,7 +840,7 @@ def render_scan(channels: list[str]) -> None:
         finally:
             st.cache_data.clear()
 
-    st.markdown('<div class="lk-section-title">최근 스캔 로그</div>', unsafe_allow_html=True)
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">최근 스캔 로그</div>')
     log_df = load_scan_log()
     if log_df.empty:
         st.info("스캔 로그가 없습니다.")
@@ -740,11 +857,11 @@ def render_scan(channels: list[str]) -> None:
               <span class="log-time">{str(row.get("timestamp",""))[:16]}</span>
             </div>
             """
-        st.markdown(rows_html, unsafe_allow_html=True)
+        st.html(_TABLE_STYLE + rows_html)
 
 
 def render_channel_health(df: pd.DataFrame, log_df: pd.DataFrame) -> None:
-    st.markdown('<div class="lk-section-title">채널 상태</div>', unsafe_allow_html=True)
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">채널 상태</div>')
 
     if df.empty and log_df.empty:
         st.info("데이터가 없습니다.")
@@ -794,11 +911,11 @@ def render_channel_health(df: pd.DataFrame, log_df: pd.DataFrame) -> None:
         err_cell = f'<td class="log-error" style="font-size:11px;">{str(row["에러"])[:50]}</td>'
         rows_html += f"""
         <tr>
-          <td><span style="font-weight:600;color:#333;">{row["채널"]}</span></td>
+          <td><span style="font-weight:600;color:#DDE6F5;">{row["채널"]}</span></td>
           <td>{row["상태"]}</td>
           <td><span class="short-info">{str(row["마지막 스캔"])[:16]}</span></td>
           <td><span class="log-count">+{int(row["최근 수집"])}</span></td>
-          <td><span style="font-weight:700;color:#01A0FF;">{int(row["누적 공고"])}</span></td>
+          <td><span style="font-weight:700;color:#0094FF;font-family:'JetBrains Mono',monospace;">{int(row["누적 공고"])}</span></td>
           {err_cell}
         </tr>
         """
@@ -816,7 +933,7 @@ def render_channel_health(df: pd.DataFrame, log_df: pd.DataFrame) -> None:
       </table>
     </div>
     """
-    st.markdown(html, unsafe_allow_html=True)
+    st.html(_TABLE_STYLE + html)
 
     broken = merged[merged["상태"] != "🟢"]
     if not broken.empty:
@@ -824,7 +941,7 @@ def render_channel_health(df: pd.DataFrame, log_df: pd.DataFrame) -> None:
 
 
 def render_tracker(df: pd.DataFrame) -> None:
-    st.markdown('<div class="lk-section-title">지원 트래커</div>', unsafe_allow_html=True)
+    st.html(_SECTION_STYLE + '<div class="lk-section-title">지원 트래커</div>')
 
     if df.empty:
         st.info("데이터가 없습니다.")
@@ -845,10 +962,9 @@ def render_tracker(df: pd.DataFrame) -> None:
         with st.container(border=True):
             c1, c2, c3 = st.columns([4, 2, 2])
             with c1:
-                st.markdown(
-                    f"<span style='font-weight:700;font-size:15px;'>{row['org']}</span> "
-                    f"— {row['title'][:60]}",
-                    unsafe_allow_html=True,
+                st.html(
+                    f"<span style='font-family:DM Sans,sans-serif;font-weight:700;font-size:15px;color:#DDE6F5;'>{row['org']}</span> "
+                    f"<span style='font-family:DM Sans,sans-serif;color:#8AABCC;'>— {row['title'][:60]}</span>"
                 )
                 st.caption(
                     f"{row['source_channel']} · Tier {row['source_tier']} · "
@@ -857,7 +973,7 @@ def render_tracker(df: pd.DataFrame) -> None:
                 if row["source_url"]:
                     st.markdown(f"[🔗 공고 링크]({row['source_url']})")
             with c2:
-                st.markdown(dday_html(row.get("deadline")), unsafe_allow_html=True)
+                st.html(_TABLE_STYLE + dday_html(row.get("deadline")))
                 st.caption(str(row.get("deadline") or "—"))
             with c3:
                 current = str(row["status"])
@@ -886,20 +1002,36 @@ def main() -> None:
         layout="wide",
         initial_sidebar_state="collapsed",
     )
+    # 전역 CSS 주입 (<style> 태그만 → st.markdown 작동)
     st.markdown(LINKAREER_CSS, unsafe_allow_html=True)
 
-    # 헤더
-    db_status = "✅ DB 연결" if DB_PATH.exists() else "❌ DB 없음"
-    st.markdown(
-        f"""
+    # 헤더 (iframe에 CSS embed)
+    db_ok = DB_PATH.exists()
+    dot_color = "#00C87A" if db_ok else "#F43F5E"
+    db_label = "LIVE" if db_ok else "OFFLINE"
+    _header_css = """
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#070B14}
+.lk-header{background:linear-gradient(120deg,#0C1525 60%,#111D30 100%);border:1px solid #1C2E47;border-top:2px solid #0094FF;padding:16px 28px;display:flex;align-items:center;gap:16px;border-radius:0 0 10px 10px;position:relative;overflow:hidden}
+.lk-logo{font-family:'Oxanium',monospace;font-size:18px;font-weight:800;color:#0094FF;letter-spacing:2px;text-transform:uppercase}
+.lk-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:#4A6585}
+.co-dot{width:7px;height:7px;border-radius:50%;animation:blink 2s ease infinite;display:inline-block}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+"""
+    st.html(
+        _header_css + f"""
         <div class="lk-header">
-          <div class="lk-logo">🎯 career-ops-kr</div>
-          <span style="color:#CCCCCC;">|</span>
-          <span style="font-size:13px;color:#666;">한국 금융·IT 구직 자동화</span>
-          <div class="lk-subtitle">{db_status} · {DB_PATH.name}</div>
+          <div class="lk-logo">CAREER-OPS-KR</div>
+          <span class="lk-sub">한국 금융 · 블록체인 · 디지털 구직 파이프라인</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+            <div class="co-dot" style="background:{dot_color};box-shadow:0 0 8px {dot_color};"></div>
+            <span class="lk-sub">{db_label} · {DB_PATH.name}</span>
+          </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     if not DB_PATH.exists():

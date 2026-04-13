@@ -158,9 +158,11 @@ def parse_generic_cards(
             continue
         href_raw = anchor.get("href") or ""
         href = href_raw if isinstance(href_raw, str) else " ".join(href_raw)
-        if not href or href.startswith("#") or href.lower().startswith("javascript"):
+        if not href or href.startswith("#") or href.lower().startswith(("javascript", "mailto:", "tel:")):
             continue
         url = urljoin(base_url, href)
+        if not url.startswith(("http://", "https://")):
+            continue
         if url in seen:
             continue
         seen.add(url)
