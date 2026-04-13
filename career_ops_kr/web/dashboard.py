@@ -634,14 +634,17 @@ def render_stat_cards(df: pd.DataFrame) -> None:
     grade_b = int((df.get("fit_grade", pd.Series(dtype=str)) == "B").sum())
     eligible_cnt = int((df.get("eligible", pd.Series(dtype=str)) == "true").sum())
 
-    # 섹터별 건수
-    _sec = df.apply(
-        lambda r: _infer_sector(
-            r.get("source_channel", ""), r.get("org", "") or "", r.get("title", "") or ""
-        ), axis=1
-    )
-    finance_cnt = int((_sec == "금융").sum())
-    public_cnt  = int((_sec == "공공").sum())
+    # 섹터별 건수 (_sector 컬럼 재사용 or 즉시 계산)
+    if "_sector" in df.columns:
+        _sec = df["_sector"]
+    else:
+        _sec = df.apply(
+            lambda r: _infer_sector(
+                r.get("source_channel", ""), r.get("org", "") or "", r.get("title", "") or ""
+            ), axis=1
+        )
+    finance_cnt  = int((_sec == "금융").sum())
+    public_cnt   = int((_sec == "공공").sum())
     security_cnt = int((_sec == "안보").sum())
 
     st.html(
@@ -716,7 +719,7 @@ def _add_sector_col(df: pd.DataFrame) -> pd.DataFrame:
 
 def render_overview(df: pd.DataFrame) -> None:
     if df.empty:
-        st.info("아직 수집된 공고가 없습니다. '📡 스캔' 탭에서 수집을 시작하세요.")
+        st.info("아직 수집된 공고가 없습니다. 터미널에서 `career-ops scan --all`로 수집을 시작하세요.")
         return
 
     df = _add_sector_col(df)
@@ -839,8 +842,6 @@ def render_jobs(df: pd.DataFrame) -> None:
         filtered = filtered[filtered["source_tier"].isin(sel_tier)]
     if sel_grade:
         filtered = filtered[filtered["fit_grade"].isin(sel_grade)]
-    if sel_archetype:
-        filtered = filtered[filtered["archetype"].isin(sel_archetype)]
     if sel_status:
         filtered = filtered[filtered["status"].isin(sel_status)]
     if only_eligible:
@@ -1043,7 +1044,7 @@ def render_channel_health(df: pd.DataFrame, log_df: pd.DataFrame) -> None:
         err_cell = f'<td class="log-error" style="font-size:11px;">{str(row["에러"])[:50]}</td>'
         rows_html += f"""
         <tr>
-          <td><span style="font-weight:600;color:#DDE6F5;">{row["채널"]}</span></td>
+          <td><span style="font-weight:600;color:#1A2332;">{row["채널"]}</span></td>
           <td>{row["상태"]}</td>
           <td><span class="short-info">{str(row["마지막 스캔"])[:16]}</span></td>
           <td><span class="log-count">+{int(row["최근 수집"])}</span></td>
