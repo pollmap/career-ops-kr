@@ -696,16 +696,19 @@ def list_cmd(
         return
 
     table = Table(title=f"Jobs ({len(jobs)})")
-    for col in ("id", "sector", "org", "title", "grade", "status", "deadline"):
+    for col in ("id", "sector", "org", "title", "grade", "match", "status", "deadline"):
         table.add_column(col)
     from career_ops_kr.sector import infer_sector as _sec
     for job in jobs:
+        fs = job.get("fit_score")
+        match_str = f"{int(fs)}%" if fs is not None and fs != "" else "-"
         table.add_row(
             str(job.get("id") or "")[:12],
             _sec(job.get("source_channel"), job.get("org"), job.get("title")),
             str(job.get("org") or ""),
             str(job.get("title") or ""),
             str(job.get("fit_grade") or ""),
+            match_str,
             str(job.get("status") or ""),
             str(job.get("deadline") or ""),
         )
@@ -1605,6 +1608,7 @@ def _register_commands() -> None:
         ("career_ops_kr.commands.ncs_cmd", "ncs_cmd"),
         ("career_ops_kr.commands.web_cmd", "web_cmd"),
         ("career_ops_kr.commands.reclassify_cmd", "reclassify_cmd"),
+        ("career_ops_kr.commands.bookmark_cmd", "bookmark_cmd"),
     ]
     for mod_path, fn_name in _cmds:
         try:

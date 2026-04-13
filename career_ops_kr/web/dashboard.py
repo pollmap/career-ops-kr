@@ -262,11 +262,12 @@ body{font-family:'Noto Sans KR','Inter',-apple-system,sans-serif;font-size:14px;
 .grade-C{background:#FEF3C7;color:#92400E}
 .grade-D{background:#FEE2E2;color:#991B1B}
 .grade-F{background:#F1F5F9;color:#64748B}
-.dday-label{font-size:12px;font-weight:600;white-space:nowrap;font-family:'Inter',-apple-system,sans-serif}
-.dday-urgent{color:#DC2626}
-.dday-soon{color:#D97706}
-.dday-ok{color:#0066CC}
-.dday-closed{color:#8B9AB5}
+.dday-label{font-size:12px;font-weight:700;white-space:nowrap;font-family:'Inter',-apple-system,sans-serif;padding:3px 8px;border-radius:6px;display:inline-block;line-height:1.3;text-align:center}
+.dday-urgent{color:#fff;background:#DC2626;box-shadow:0 0 0 2px rgba(220,38,38,.2);animation:ddayPulse 1.8s ease-in-out infinite}
+.dday-soon{color:#9A3412;background:#FED7AA;border:1px solid #FB923C}
+.dday-ok{color:#1E40AF;background:#DBEAFE;border:1px solid #93C5FD}
+.dday-closed{color:#6B7280;background:#F3F4F6;border:1px solid #D1D5DB}
+@keyframes ddayPulse{0%,100%{box-shadow:0 0 0 2px rgba(220,38,38,.2)}50%{box-shadow:0 0 0 5px rgba(220,38,38,.1)}}
 .status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
 .status-inbox{background:#F1F5F9;color:#64748B}
 .status-applied{background:#EFF6FF;color:#1D6BBE}
@@ -455,11 +456,19 @@ def render_job_table(filtered: pd.DataFrame) -> None:
         if location == "—":
             location = "전국"
         fit_score = row.get("fit_score")
-        score_html = (
-            f'<span style="color:#0066CC;font-weight:700;font-family:Inter,sans-serif;">{int(fit_score)}</span>'
-            if fit_score is not None and not pd.isna(fit_score)
-            else "—"
-        )
+        if fit_score is not None and not pd.isna(fit_score):
+            pct = max(0, min(100, int(fit_score)))
+            # 색상: ≥80 초록, ≥60 파랑, ≥40 주황, 그 외 회색
+            bar_color = "#16A34A" if pct >= 80 else "#0066CC" if pct >= 60 else "#EA580C" if pct >= 40 else "#9CA3AF"
+            score_html = (
+                f'<div style="display:flex;flex-direction:column;gap:2px;align-items:center;min-width:58px;">'
+                f'<span style="color:{bar_color};font-weight:800;font-family:Inter,sans-serif;font-size:13px;">{pct}%</span>'
+                f'<div style="width:54px;height:4px;background:#E5E7EB;border-radius:2px;overflow:hidden;">'
+                f'<div style="width:{pct}%;height:100%;background:{bar_color};"></div>'
+                f'</div></div>'
+            )
+        else:
+            score_html = '<span style="color:#9CA3AF;">—</span>'
         sector = row.get("_sector", "기타")
         s_style, s_label = _SECTOR_PILL.get(sector, _SECTOR_PILL["기타"])
         sector_html = f'<span style="font-size:11px;padding:2px 7px;border-radius:9px;font-weight:600;white-space:nowrap;{s_style}">{s_label}</span>'
@@ -1072,15 +1081,39 @@ body{background:#F5F7FA}
     df = load_jobs()
     log_df = load_scan_log()
 
-    tabs = st.tabs(["📊 대시보드", "🔍 공고 목록", "🏥 채널 현황", "📋 지원 트래커"])
+    tabs = st.tabs([
+        "📊 대시보드", "🔍 공고 목록", "⭐ 스크랩", "🏥 채널 현황", "📋 지원 트래커",
+    ])
     with tabs[0]:
         render_overview(df)
     with tabs[1]:
         render_jobs(df)
     with tabs[2]:
-        render_channel_health(df, log_df)
+        render_bookmarks(df)
     with tabs[3]:
+        render_channel_health(df, log_df)
+    with tabs[4]:
         render_tracker(df)
+
+
+def render_bookmarks(df: pd.DataFrame) -> None:
+    """스크랩된 공고만 표시."""
+    st.markdown("### ⭐ 스크랩한 공고")
+    if "bookmarked" not in df.columns:
+        st.info("스크랩 기능이 활성화되지 않았습니다. DB 마이그레이션 필요.")
+        return
+    marked = df[df["bookmarked"] == 1].copy() if "bookmarked" in df.columns else df.iloc[0:0]
+    if marked.empty:
+        st.info(
+            "스크랩된 공고가 없습니다.\n\n"
+            "CLI에서 `career-ops bookmark add <job_id>` 로 스크랩할 수 있습니다."
+        )
+        return
+    marked = _add_sector_col(marked)
+    marked["_delta"] = marked["deadline"].apply(dday_delta)
+    marked = marked.sort_values("_delta", na_position="last")
+    st.markdown(f"**{len(marked)}건** 스크랩됨")
+    render_job_table(marked)
 
 
 if __name__ == "__main__":

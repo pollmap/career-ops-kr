@@ -40,7 +40,8 @@ _SCHEMA: tuple[str, ...] = (
         fit_grade TEXT,
         fit_score REAL,
         eligible TEXT,
-        fetch_errors TEXT
+        fetch_errors TEXT,
+        bookmarked INTEGER NOT NULL DEFAULT 0
     )
     """,
     """
@@ -56,7 +57,17 @@ _SCHEMA: tuple[str, ...] = (
     "CREATE INDEX IF NOT EXISTS idx_jobs_fit_grade ON jobs(fit_grade)",
     "CREATE INDEX IF NOT EXISTS idx_jobs_deadline ON jobs(deadline)",
     "CREATE INDEX IF NOT EXISTS idx_jobs_channel ON jobs(source_channel)",
+    "CREATE INDEX IF NOT EXISTS idx_jobs_bookmarked ON jobs(bookmarked)",
 )
+
+
+def _ensure_bookmarked_column(conn: sqlite3.Connection) -> None:
+    """v1.1 migration: add bookmarked column if missing."""
+    cur = conn.execute("PRAGMA table_info(jobs)")
+    cols = {row[1] for row in cur.fetchall()}
+    if "bookmarked" not in cols:
+        conn.execute("ALTER TABLE jobs ADD COLUMN bookmarked INTEGER NOT NULL DEFAULT 0")
+        conn.commit()
 
 
 def _iso(value: date | datetime | None) -> str | None:
@@ -90,9 +101,33 @@ class SQLiteStore:
 
     def _init_schema(self) -> None:
         with self._connect() as conn:
-            for stmt in _SCHEMA:
+            # Base table first (IF NOT EXISTS — skip on existing DB)
+            conn.execute(_SCHEMA[0])
+            conn.execute(_SCHEMA[1])
+            conn.commit()
+            # Migration before any index that references new columns
+            _ensure_bookmarked_column(conn)
+            # Indexes (can now reference bookmarked safely)
+            for stmt in _SCHEMA[2:]:
                 conn.execute(stmt)
             conn.commit()
+
+    def set_bookmark(self, job_id: str, bookmarked: bool) -> bool:
+        """Toggle bookmark flag on a job row. Returns True if updated."""
+        with self._connect() as conn:
+            cur = conn.execute(
+                "UPDATE jobs SET bookmarked = ? WHERE id = ?",
+                (1 if bookmarked else 0, job_id),
+            )
+            conn.commit()
+            return cur.rowcount > 0
+
+    def list_bookmarked(self) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM jobs WHERE bookmarked = 1 ORDER BY scanned_at DESC"
+            ).fetchall()
+        return [dict(r) for r in rows]
 
     # ------------------------------------------------------------------
     # Upsert

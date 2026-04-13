@@ -36,6 +36,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 
 from career_ops_kr.channels.base import BaseChannel, JobRecord, deadline_parser
+from career_ops_kr.sector import infer_sector as _infer_sector
 
 BASE_URL = "https://www.saramin.co.kr/"
 LIST_URL = "https://www.saramin.co.kr/zf_user/search/recruit"
@@ -146,6 +147,9 @@ class SaraminChannel(BaseChannel):
         keyword = str(query.get("keyword") or "").strip()
         category = str(query.get("category") or "").strip()
         location = str(query.get("location") or "").strip()
+        # 도메인 필터 기본 ON — saramin이 search keyword와 무관한 결과까지
+        # 반환하는 문제 대응. query={"strict": False}로 끌 수 있음.
+        strict = bool(query.get("strict", True))
 
         # 키워드 없으면 금융 업종 기본 검색어 순회
         search_keywords = (keyword,) if keyword else DEFAULT_FINANCE_KEYWORDS
@@ -176,13 +180,24 @@ class SaraminChannel(BaseChannel):
                     continue
 
                 new_count = 0
+                skipped_offdomain = 0
                 for rec in page_jobs:
                     key = str(rec.source_url)
                     if key in seen_urls:
                         continue
                     seen_urls.add(key)
+                    if strict:
+                        sector = _infer_sector(rec.source_channel, rec.org, rec.title)
+                        if sector == "기타":
+                            skipped_offdomain += 1
+                            continue
                     all_jobs.append(rec)
                     new_count += 1
+                if strict and skipped_offdomain:
+                    self.logger.info(
+                        "saramin: [%s] page %d skipped %d off-domain records",
+                        kw, page_num, skipped_offdomain,
+                    )
 
                 self.logger.info(
                     "saramin: [%s] page %d yielded %d new records (total=%d)",

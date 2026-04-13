@@ -197,7 +197,7 @@ def test_list_jobs_empty_html_returns_empty_list(
         channel,
         response_factory=_FakeResponse(text="<html><body></body></html>", status_code=200),
     )
-    result = channel.list_jobs({"pages": 1})
+    result = channel.list_jobs({"pages": 1, "strict": False})
     assert result == []
 
 
@@ -210,7 +210,7 @@ def test_list_jobs_http_error_returns_empty(
         response_factory=_FakeResponse(text="", status_code=503),
     )
     # _retry will retry 4x per page before giving up → we only care about final result
-    result = channel.list_jobs({"pages": 1})
+    result = channel.list_jobs({"pages": 1, "strict": False})
     assert result == []
 
 
@@ -228,7 +228,7 @@ def test_list_jobs_fixture_yields_records(
         response_factory=_FakeResponse(text=SAMPLE_LIST_HTML, status_code=200),
     )
     # Use pages=1 so dedup early-stop does not discard subsequent identical pages.
-    jobs = channel.list_jobs({"pages": 1, "keyword": "블록체인"})
+    jobs = channel.list_jobs({"pages": 1, "keyword": "블록체인", "strict": False})
 
     assert len(jobs) >= 1, "fixture HTML should yield at least one record"
     titles = [j.title for j in jobs]
@@ -252,7 +252,7 @@ def test_list_jobs_extracts_company_and_location(
         channel,
         response_factory=_FakeResponse(text=SAMPLE_LIST_HTML, status_code=200),
     )
-    jobs = channel.list_jobs({"pages": 1})
+    jobs = channel.list_jobs({"pages": 1, "strict": False})
     backend_job = next((j for j in jobs if "백엔드" in j.title), None)
     assert backend_job is not None
     assert backend_job.org == "테스트기업A"
@@ -293,7 +293,7 @@ def test_pagination_pages_param_triggers_n_requests(
 
     calls = _install_fake_session_get(monkeypatch, channel, response_factory=_factory)
 
-    jobs = channel.list_jobs({"pages": 4, "keyword": "개발"})
+    jobs = channel.list_jobs({"pages": 4, "keyword": "개발", "strict": False})
 
     assert len(calls) == 4, f"expected 4 page requests, got {len(calls)}: {calls}"
     # ``recruitPage=<n>`` 가 각 URL 에 실제로 박혀 있어야 한다.
@@ -334,7 +334,7 @@ def test_pagination_early_stop_on_zero_new_records(
         channel,
         response_factory=_FakeResponse(text=SAMPLE_LIST_HTML, status_code=200),
     )
-    jobs = channel.list_jobs({"pages": 5})
+    jobs = channel.list_jobs({"pages": 5, "strict": False})
     assert len(jobs) == 2  # SAMPLE_LIST_HTML 에는 정확히 2개 카드
 
 
@@ -358,7 +358,7 @@ def test_pagination_per_page_failure_does_not_break_others(
         return _FakeResponse(text=html, status_code=200)
 
     _install_fake_session_get(monkeypatch, channel, response_factory=_factory)
-    jobs = channel.list_jobs({"pages": 4})
+    jobs = channel.list_jobs({"pages": 4, "strict": False})
     # 페이지 2만 실패, 나머지 3페이지에서 최소 각 1건씩은 수집
     assert len(jobs) >= 3
 

@@ -40,10 +40,10 @@ pip install uv && uv sync
 cp templates/profile.example.yml config/profile.yml
 # 편집: 이름/관심직종/지역/경력 등
 
-# 3. 스캔 실행
-uv run career-ops scan --site linkareer    # 링커리어만
-uv run career-ops scan --site saramin      # 사람인만
-uv run career-ops scan --all              # 전체 채널 레지스트리 스캔
+# 3. 스캔 실행 (링커리어 우선 권장 — 도메인 일치율 높음)
+uv run career-ops scan --site linkareer    # ⭐ 링커리어 (추천)
+uv run career-ops scan --site saramin      # 사람인 (금융 도메인 자동 필터 ON)
+uv run career-ops scan --all              # 전체 212채널 레지스트리 스캔
 
 # 4. 결과 확인
 uv run career-ops list                    # 터미널 테이블
