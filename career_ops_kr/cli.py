@@ -233,16 +233,34 @@ def init_cmd(preset: str | None, list_presets: bool, force: bool) -> None:
         return
 
     if "cv.md" in missing:
-        name = Prompt.ask("이름", default="이찬희")
-        cv.write_text(f"# {name} 이력서\n\n(채워주세요)\n", encoding="utf-8")
+        name = Prompt.ask("이름 (한글 또는 English)", default="")
+        name_line = f"# {name} 이력서" if name else "# 이력서"
+        cv.write_text(
+            f"{name_line}\n\n(본인 이력을 이곳에 작성하세요.)\n",
+            encoding="utf-8",
+        )
         console.print(f"[green]created[/green] {cv}")
 
     if "config/profile.yml" in missing:
-        profile_yml.write_text(
-            "name: 이찬희\ntarget_industries:\n  - 금융\n  - 핀테크\n  - 블록체인\n",
-            encoding="utf-8",
-        )
-        console.print(f"[green]created[/green] {profile_yml}")
+        # 템플릿(templates/profile.example.yml)이 있으면 그걸 복사,
+        # 없으면 최소 placeholder yml 생성. 개인정보 하드코딩 금지.
+        tmpl_profile = PROJECT_ROOT / "templates" / "profile.example.yml"
+        if tmpl_profile.exists():
+            profile_yml.write_text(
+                tmpl_profile.read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            console.print(
+                f"[green]created[/green] {profile_yml} (templates/profile.example.yml에서 복사)"
+            )
+        else:
+            profile_yml.write_text(
+                "# USER 프로필 — 본인 정보로 편집하세요.\n"
+                "name:\n  ko: \"\"\n  en: \"\"\n"
+                "target_industries:\n  - 금융\n  - 핀테크\n  - 블록체인\n",
+                encoding="utf-8",
+            )
+            console.print(f"[green]created[/green] {profile_yml}")
 
     if "modes/_profile.md" in missing:
         tmpl = MODES_DIR / "_profile.template.md"

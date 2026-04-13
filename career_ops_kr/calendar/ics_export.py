@@ -16,14 +16,47 @@ from icalendar import Alarm, Calendar, Event
 
 logger = logging.getLogger(__name__)
 
-# 찬희 자격증 시험 일정 (2026)
-CERT_SCHEDULE: list[dict[str, Any]] = [
-    {"name": "ADsP", "date": date(2026, 5, 17), "category": "데이터"},
-    {"name": "한국사능력검정", "date": date(2026, 5, 23), "category": "기본자격"},
-    {"name": "SQLD", "date": date(2026, 5, 31), "category": "데이터"},
-    {"name": "금융투자분석사", "date": date(2026, 7, 12), "category": "금융자격"},
-    {"name": "투자자산운용사", "date": date(2026, 8, 23), "category": "금융자격"},
-]
+# 자격증 시험 일정 — `config/certifications.yml`에서 로드 (사용자별 커스터마이징)
+# 파일이 없으면 빈 리스트 → 자격증 이벤트 없음 (공고 마감일만 ICS에 포함)
+def _load_cert_schedule() -> list[dict[str, Any]]:
+    try:
+        import yaml
+        from career_ops_kr.commands._shared import PROJECT_ROOT
+        p = PROJECT_ROOT / "config" / "certifications.yml"
+        if not p.exists():
+            return []
+        data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        items = data.get("certifications") if isinstance(data, dict) else data
+        if not isinstance(items, list):
+            return []
+        out: list[dict[str, Any]] = []
+        for entry in items:
+            if not isinstance(entry, dict):
+                continue
+            name = entry.get("name")
+            raw_date = entry.get("date")
+            if not name or not raw_date:
+                continue
+            if isinstance(raw_date, str):
+                try:
+                    dt = datetime.strptime(raw_date, "%Y-%m-%d").date()
+                except ValueError:
+                    continue
+            elif isinstance(raw_date, date):
+                dt = raw_date
+            else:
+                continue
+            out.append({
+                "name": name,
+                "date": dt,
+                "category": entry.get("category", "자격증"),
+            })
+        return out
+    except Exception:
+        return []
+
+
+CERT_SCHEDULE: list[dict[str, Any]] = _load_cert_schedule()
 
 
 def _uid(prefix: str, seed: str) -> str:

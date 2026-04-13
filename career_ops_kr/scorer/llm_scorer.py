@@ -56,6 +56,56 @@ except ImportError:  # pragma: no cover
     yaml = None  # type: ignore
 
 
+def _load_applicant_summary() -> str:
+    """config/profile.yml에서 지원자 프로필 요약 생성 (LLM 프롬프트용).
+
+    개인정보 하드코딩 금지 — 사용자별 프로필을 동적으로 읽는다.
+    프로필 미설정 시 범용 placeholder 반환.
+    """
+    try:
+        from career_ops_kr.commands._shared import load_profile
+        p = load_profile()
+    except Exception:
+        p = {}
+    if not p:
+        return "- (프로필 미설정 — `career-ops init` 으로 config/profile.yml 생성 권장)"
+
+    lines: list[str] = []
+    name = (p.get("name") or {}).get("ko") or (p.get("name") or {}).get("en")
+    age = (p.get("birth") or {}).get("age")
+    if name:
+        lines.append(f"- {name}{f', {age}세' if age else ''}")
+
+    uni = (p.get("university") or {}).get("name")
+    year = p.get("year") or {}
+    status = p.get("status")
+    if uni:
+        year_str = year.get("completed") or (f"{year.get('grade', '')}학년" if year.get("grade") else "")
+        lines.append(
+            f"- {uni}{f' {year_str}' if year_str else ''}{f' ({status})' if status else ''}"
+        )
+
+    major = (p.get("major") or {}).get("field")
+    if major:
+        is_target = (p.get("major") or {}).get("is_target_field")
+        note = "" if is_target is None else (" (전공)" if is_target else " (비전공)")
+        lines.append(f"- 전공: {major}{note}")
+
+    targets = p.get("target_industries") or p.get("archetype_priority")
+    if isinstance(targets, list) and targets:
+        lines.append(f"- 타겟 산업: {' > '.join(str(x) for x in targets[:6])}")
+
+    skills = p.get("skills") or p.get("strengths")
+    if isinstance(skills, list) and skills:
+        lines.append(f"- 강점/스킬: {', '.join(str(x) for x in skills[:8])}")
+
+    locations = p.get("locations") or p.get("commute")
+    if isinstance(locations, list) and locations:
+        lines.append(f"- 통근 가능 지역: {', '.join(str(x) for x in locations[:5])}")
+
+    return "\n".join(lines) if lines else "- (프로필 yml 존재하나 주요 필드 비어있음)"
+
+
 # ---------------------------------------------------------------------------
 # Response schema
 # ---------------------------------------------------------------------------
@@ -192,15 +242,11 @@ class LLMScorer:
         rule_based_breakdown: dict[str, Any],
     ) -> str:
         jd_snippet = (job.description or "")[:3000]
+        applicant_summary = _load_applicant_summary()
         return (
             "너는 한국 금융/디지털 채용 공고를 평가하는 보조 스코어러다.\n"
             "규칙 기반 스코어러가 이미 1차 평가를 했고, 애매한 구간(60~89)만 너한테 온다.\n\n"
-            "## 찬희(지원자) 요약\n"
-            "- 24세, 충북대 경영 4학기 수료 후 휴학, 학점 2.9, 비전공\n"
-            "- CUFA 가치투자학회 회장, Luxon AI 창업자\n"
-            "- Python/SQL/MCP 서버 64개 운영, 블록체인 리서치, 백테스트 경험\n"
-            "- 지역: 서울/안산/청주 대중교통 통근\n"
-            "- 타겟: 블록체인 > 디지털자산 > 금융IT > 공공금융 > 리서치 > 핀테크\n\n"
+            f"## 지원자 요약\n{applicant_summary}\n\n"
             "## 평가할 공고\n"
             f"회사: {job.org}\n"
             f"직무: {job.title}\n"
