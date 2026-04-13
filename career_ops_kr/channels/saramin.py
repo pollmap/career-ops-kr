@@ -61,7 +61,15 @@ DEFAULT_FINANCE_KEYWORDS: tuple[str, ...] = (
     "캐피탈",
     "저축은행",
     "핀테크",
+    "블록체인",
+    "디지털자산",
 )
+
+# 사람인 직무 카테고리 코드 — 쿼리 단계에서 노이즈 차단
+# - 2: 경영·사무·총무·법무 (기획/재무 관련)
+# - 3: IT·개발 (핀테크·금융IT)
+# 두 카테고리로 제한하면 카지노/화장품/건설 공고는 쿼리에서 제외됨.
+DEFAULT_JOB_CATEGORY = "2,3"
 
 # 응답 타임아웃
 REQUEST_TIMEOUT = 20
@@ -145,11 +153,20 @@ class SaraminChannel(BaseChannel):
 
         pages = self._resolve_pages(query.get("pages"))
         keyword = str(query.get("keyword") or "").strip()
-        category = str(query.get("category") or "").strip()
+        # category 미지정 시 금융/IT 기본 카테고리 (쿼리 레벨 필터)
+        category = str(query.get("category") or DEFAULT_JOB_CATEGORY).strip()
         location = str(query.get("location") or "").strip()
-        # 도메인 필터 기본 ON — saramin이 search keyword와 무관한 결과까지
-        # 반환하는 문제 대응. query={"strict": False}로 끌 수 있음.
+        # 도메인 필터 기본 ON — 카테고리로 1차 필터링해도 노이즈 남을 수 있음.
+        # archetype 매칭되면 sector 무관하게 통과 (BLOCKCHAIN/FINTECH 공고 보호).
         strict = bool(query.get("strict", True))
+
+        _archetype_clf = None
+        if strict:
+            try:
+                from career_ops_kr.archetype.classifier import ArchetypeClassifier
+                _archetype_clf = ArchetypeClassifier()
+            except Exception:
+                _archetype_clf = None
 
         # 키워드 없으면 금융 업종 기본 검색어 순회
         search_keywords = (keyword,) if keyword else DEFAULT_FINANCE_KEYWORDS
@@ -189,8 +206,19 @@ class SaraminChannel(BaseChannel):
                     if strict:
                         sector = _infer_sector(rec.source_channel, rec.org, rec.title)
                         if sector == "기타":
-                            skipped_offdomain += 1
-                            continue
+                            # archetype이 매칭되면 도메인 내 — 통과
+                            # (예: BLOCKCHAIN 공고는 org/title에 금융 키워드 없어도 유지)
+                            keep = False
+                            if _archetype_clf is not None:
+                                from career_ops_kr.archetype.classifier import Archetype
+                                _text = " ".join([
+                                    rec.title or "", rec.org or "", rec.description or "",
+                                ])
+                                _arch, _ = _archetype_clf.classify(_text)
+                                keep = _arch is not Archetype.UNKNOWN
+                            if not keep:
+                                skipped_offdomain += 1
+                                continue
                     all_jobs.append(rec)
                     new_count += 1
                 if strict and skipped_offdomain:

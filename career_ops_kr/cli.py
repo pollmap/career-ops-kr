@@ -719,14 +719,6 @@ def list_cmd(
     )
 
 
-@cli.command("sync-vault", help="SQLite → Obsidian Vault 동기화")
-def sync_vault_cmd() -> None:
-    storage = _fallback_import("career_ops_kr.storage", "vault sync")
-    if storage is None:
-        sys.exit(2)
-    console.print("[green]sync-vault[/green] delegated to storage subpackage")
-
-
 @cli.command("calendar", help=".ics 파일 생성 — 마감일 일정")
 @click.option(
     "--output",

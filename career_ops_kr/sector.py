@@ -89,6 +89,13 @@ _FINANCE_KW: tuple[str, ...] = (
     "금융위", "예탁", "결제원", "거래소", "KRX", "KIC", "산업은행",
     "수출입은행", "기업은행", "신용보증", "주택금융", "예금보험",
 )
+# 블록체인/디지털자산은 찬희 도메인(핀테크 카테고리로 병합)
+_FINTECH_KW: tuple[str, ...] = (
+    "블록체인", "Web3", "web3", "크립토", "암호화폐", "가상자산", "디지털자산",
+    "토큰증권", "STO", "스마트컨트랙트", "NFT", "디파이", "DeFi",
+    "온체인", "수탁", "커스터디", "Lambda256", "해시드", "업비트", "빗썸",
+    "코인원", "두나무", "간편결제", "핀테크",
+)
 _SECURITY_KW: tuple[str, ...] = (
     "국정원", "안보", "국방", "국가정보", "방위사업", "외교부", "경찰",
     "관세", "KISA", "정보보호", "사이버", "군", "보안",
@@ -117,6 +124,8 @@ def infer_sector(channel: str | None, org: str | None, title: str | None) -> str
     combined = f"{org or ''} {title or ''}"
     if any(kw in combined for kw in _SECURITY_KW):
         return "안보"
+    if any(kw in combined for kw in _FINTECH_KW):
+        return "핀테크"
     if any(kw in combined for kw in _FINANCE_KW):
         return "금융"
     if any(kw in combined for kw in _PUBLIC_KW):
