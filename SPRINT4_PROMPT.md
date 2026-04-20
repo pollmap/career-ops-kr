@@ -10,7 +10,7 @@
 career-ops-kr Sprint 4를 시작한다. 배포 + 실전 검증 + 인프라 통합 + 품질 마감.
 
 프로젝트 상태:
-- 위치: C:\Users\lch68\Desktop\career-ops-kr\
+- 위치: <YOUR_PROJECT_ROOT>/career-ops-kr/
 - 버전: v0.2.0 (git commit c8c8905, master branch, working tree clean)
 - 파일: 142개, ~17,000줄
 - 테스트: pytest 120 passed / 13 skipped / 0 failed
@@ -50,7 +50,7 @@ Sprint 4 할 일 8개 (우선순위 순):
 - 병렬 서브에이전트 극한 활용
 
 시작 검증 커맨드:
-cd "/c/Users/lch68/Desktop/career-ops-kr"
+cd "<YOUR_PROJECT_ROOT>/career-ops-kr"
 git log --oneline
 uv run pytest -q
 uv run ruff check .

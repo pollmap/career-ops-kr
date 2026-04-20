@@ -10,7 +10,7 @@
 - **이름**: career-ops-kr
 - **목적**: 찬희(Luxon AI)의 한국 금융/디지털/블록체인 구직 파이프라인 자동화
 - **철학**: santifer/career-ops의 "mode 분리 + HITL + 프로필 중심"을 한국화
-- **실운영 환경**: Windows 11 로컬 (`C:\Users\lch68\Desktop\career-ops-kr\`)
+- **실운영 환경**: Windows 11 로컬 (`~/career-ops-kr/`)
 - **Phase 2 이식 대상**: Luxon VPS (HERMES/NEXUS, Nexus MCP 서버 편입)
 
 ---

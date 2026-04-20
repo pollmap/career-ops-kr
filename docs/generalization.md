@@ -127,7 +127,7 @@ Scrapling (저수준)     →  HTTP/Playwright, anti-bot, stealth
 ### 개인 사용 (찬희)
 
 ```
-C:\Users\lch68\Desktop\career-ops-kr\
+~/career-ops-kr/
 ├── config/*.yml          ← finance 프리셋으로 초기화
 ├── cv.md                 ← 찬희 이력서
 ├── data/jobs.db          ← 찬희 SQLite
