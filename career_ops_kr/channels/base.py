@@ -24,13 +24,36 @@ from __future__ import annotations
 import logging
 import random
 import time
+import urllib.robotparser
 from abc import ABC, abstractmethod
 from datetime import date, datetime
 from typing import Any, Protocol, runtime_checkable
+from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field, HttpUrl
 
 logger = logging.getLogger(__name__)
+
+
+def can_fetch(url: str, user_agent: str = "*") -> bool:
+    """Return True if the given URL is allowed for the user agent by robots.txt.
+
+    Returns True on any error (unreachable robots.txt, DNS failure, etc.) so
+    callers get a permissive default; they should still respect site ToS.
+
+    Channels SHOULD gate their fetch logic on this helper when polling
+    third-party sites that publish robots.txt.
+    """
+    try:
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            return True
+        rp = urllib.robotparser.RobotFileParser()
+        rp.set_url(f"{parsed.scheme}://{parsed.netloc}/robots.txt")
+        rp.read()
+        return rp.can_fetch(user_agent, url)
+    except Exception:  # noqa: BLE001 — permissive fallback by design
+        return True
 
 
 # ---------------------------------------------------------------------------

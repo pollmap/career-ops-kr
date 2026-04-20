@@ -108,8 +108,20 @@ DEFAULT_EXAM_DATES: list[date] = [
 ]
 
 # Location tiers.
+# Tier 1 (primary, 100 pts) defaults to "서울"; override via
+# `config/profile.yml > preferred_locations: [...]` to customize.
+DEFAULT_PREFERRED_LOCATIONS: list[str] = ["서울"]
+
+
+def _build_primary_location_pattern(
+    preferred: list[str] | None = None,
+) -> re.Pattern[str]:
+    locs = preferred if preferred else DEFAULT_PREFERRED_LOCATIONS
+    return re.compile("|".join(re.escape(loc) for loc in locs), re.IGNORECASE)
+
+
 LOCATION_TIER: list[tuple[re.Pattern[str], float]] = [
-    (re.compile(r"서울|안산|청주", re.IGNORECASE), 100.0),
+    (_build_primary_location_pattern(), 100.0),
     (re.compile(r"시흥|과천|성남|수원|인천|경기", re.IGNORECASE), 80.0),
     (re.compile(r"부산|대구|대전|광주|울산", re.IGNORECASE), 50.0),
 ]
@@ -332,7 +344,21 @@ class FitScorer:
     def _score_location(self, job: dict[str, Any], text: str) -> float:
         loc = str(job.get("location", ""))
         blob = f"{loc} {text}"
-        for rx, pts in LOCATION_TIER:
+        # Allow user override of Tier 1 primary locations via profile.yml.
+        preferred = (
+            self.profile.get("preferred_locations")
+            if isinstance(self.profile, dict)
+            else None
+        )
+        tiers: list[tuple[re.Pattern[str], float]]
+        if isinstance(preferred, list) and preferred:
+            tiers = [
+                (_build_primary_location_pattern([str(p) for p in preferred]), 100.0),
+                *LOCATION_TIER[1:],
+            ]
+        else:
+            tiers = LOCATION_TIER
+        for rx, pts in tiers:
             if rx.search(blob):
                 return pts
         if re.search(r"재택|원격|remote", blob, re.IGNORECASE):

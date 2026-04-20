@@ -282,6 +282,16 @@ uv run ruff format --check .
 - [santifer/career-ops](https://github.com/santifer/career-ops) — 원본 설계 참고
 - [Panniantong/Agent-Reach](https://github.com/Panniantong/Agent-Reach) — Channel 아키텍처 패턴
 
+## 법적 고지 및 스크래핑 윤리
+
+- 이 도구는 **사용자 본인의 구직 목적**으로 채용 포털의 공개 공고를 수집하는 용도입니다.
+- 각 포털의 **이용약관(ToS)과 `robots.txt`를 준수하는 것은 전적으로 사용자 책임**입니다.
+- `career_ops_kr.channels.base.can_fetch(url)` 헬퍼를 제공합니다 — 채널 구현 시 호출해
+  `robots.txt` disallow를 존중하세요.
+- rate limit은 `BaseChannel.default_rate_per_minute`로 기본 10 req/min이 설정돼
+  있으며, 사이트가 요청하는 경우 더 낮춰야 합니다.
+- 수집한 데이터를 **재배포·상업화하지 마세요** — 개인 파이프라인 용도로만 사용.
+
 ## 라이선스
 
 MIT — see [LICENSE](LICENSE).

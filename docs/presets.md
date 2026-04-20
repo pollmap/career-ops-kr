@@ -34,7 +34,7 @@
 예시 `config/profile.yml`:
 
 ```yaml
-name: 이찬희
+name: 홍길동
 target_industries:
   - 금융
   - 핀테크
