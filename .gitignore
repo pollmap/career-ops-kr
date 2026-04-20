@@ -91,3 +91,7 @@ logs/
 # === 플랜/메모 (로컬 전용) ===
 scratch/
 notes/local/
+
+# Audit 2026-04-20 — internal sprint memos
+SPRINT*.md
+*_PROMPT.md
